@@ -1,7 +1,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 
-# home-assistant-solaredge-modbus
-Home assistant Custom Component for reading data from Solaredge inverter through modbus TCP.
+# home-assistant-abb-sunspec-modbus
+Home assistant Custom Component for reading data from ABB inverter through SunSpec modbus TCP.
 Implements Inverter registers from https://www.solaredge.com/sites/default/files/sunspec-implementation-technical-note.pdf
 
 # Installation

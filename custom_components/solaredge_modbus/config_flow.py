@@ -4,18 +4,13 @@ import re
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
+from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_UNITID, CONF_SCAN_INTERVAL
 from .const import (
     DOMAIN,
     DEFAULT_NAME,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_PORT,
-    CONF_READ_METER1,
-    CONF_READ_METER2,
-    CONF_READ_METER3,
-    DEFAULT_READ_METER1,
-    DEFAULT_READ_METER2,
-    DEFAULT_READ_METER3,
+    DEFAULT_UNITID
 )
 from homeassistant.core import HomeAssistant, callback
 
@@ -24,10 +19,7 @@ DATA_SCHEMA = vol.Schema(
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
         vol.Required(CONF_HOST): str,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
-        vol.Optional(CONF_READ_METER1, default=DEFAULT_READ_METER1): bool,
-        vol.Optional(CONF_READ_METER2, default=DEFAULT_READ_METER2): bool,
-        vol.Optional(CONF_READ_METER3, default=DEFAULT_READ_METER3): bool,
-        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
+        vol.Required(CONF_UNITID, default=DEFAULT_UNITID): int,
     }
 )
 
@@ -43,22 +35,22 @@ def host_valid(host):
 
 
 @callback
-def solaredge_modbus_entries(hass: HomeAssistant):
+def abb_sunspec_modbus_entries(hass: HomeAssistant):
     """Return the hosts already configured."""
     return set(
         entry.data[CONF_HOST] for entry in hass.config_entries.async_entries(DOMAIN)
     )
 
 
-class SolaredgeModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Solaredge Modbus configflow."""
+class ABBSunSpecModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """ABB SunSpec Modbus configflow."""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     def _host_in_configuration_exists(self, host) -> bool:
         """Return True if host exists in configuration."""
-        if host in solaredge_modbus_entries(self.hass):
+        if host in abb_sunspec_modbus_entries(self.hass):
             return True
         return False
 

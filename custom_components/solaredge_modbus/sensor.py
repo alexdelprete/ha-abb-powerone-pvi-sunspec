@@ -2,9 +2,6 @@ import logging
 from typing import Optional, Dict, Any
 from .const import (
     SENSOR_TYPES,
-    METER1_SENSOR_TYPES,
-    METER2_SENSOR_TYPES,
-    METER3_SENSOR_TYPES,
     DOMAIN,
     ATTR_STATUS_DESCRIPTION,
     DEVICE_STATUSSES,
@@ -29,7 +26,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     entities = []
     for sensor_info in SENSOR_TYPES.values():
-        sensor = SolarEdgeSensor(
+        sensor = ABBSunSpecSensor(
             hub_name,
             hub,
             device_info,
@@ -39,52 +36,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
             sensor_info[3],
         )
         entities.append(sensor)
-
-    if hub.read_meter1 == True:
-        for meter_sensor_info in METER1_SENSOR_TYPES.values():
-            sensor = SolarEdgeSensor(
-                hub_name,
-                hub,
-                device_info,
-                meter_sensor_info[0],
-                meter_sensor_info[1],
-                meter_sensor_info[2],
-                meter_sensor_info[3],
-            )
-            entities.append(sensor)
-
-    if hub.read_meter2 == True:
-        for meter_sensor_info in METER2_SENSOR_TYPES.values():
-            sensor = SolarEdgeSensor(
-                hub_name,
-                hub,
-                device_info,
-                meter_sensor_info[0],
-                meter_sensor_info[1],
-                meter_sensor_info[2],
-                meter_sensor_info[3],
-            )
-            entities.append(sensor)
-
-    if hub.read_meter3 == True:
-        for meter_sensor_info in METER3_SENSOR_TYPES.values():
-            sensor = SolarEdgeSensor(
-                hub_name,
-                hub,
-                device_info,
-                meter_sensor_info[0],
-                meter_sensor_info[1],
-                meter_sensor_info[2],
-                meter_sensor_info[3],
-            )
-            entities.append(sensor)
-
     async_add_entities(entities)
     return True
 
 
-class SolarEdgeSensor(Entity):
-    """Representation of an SolarEdge Modbus sensor."""
+class ABBSunSpecSensor(Entity):
+    """Representation of an ABB SunSpec Modbus sensor."""
 
     def __init__(self, platform_name, hub, device_info, name, key, unit, icon):
         """Initialize the sensor."""
@@ -98,10 +55,10 @@ class SolarEdgeSensor(Entity):
 
     async def async_added_to_hass(self):
         """Register callbacks."""
-        self._hub.async_add_solaredge_sensor(self._modbus_data_updated)
+        self._hub.async_add_abb_sunspec_sensor(self._modbus_data_updated)
 
     async def async_will_remove_from_hass(self) -> None:
-        self._hub.async_remove_solaredge_sensor(self._modbus_data_updated)
+        self._hub.async_remove_abb_sunspec_sensor(self._modbus_data_updated)
 
     @callback
     def _modbus_data_updated(self):

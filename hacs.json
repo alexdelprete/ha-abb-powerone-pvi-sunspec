@@ -1,5 +1,5 @@
 {
-  "name": "Solaredge Modbus",
+  "name": "ABB SunSpec Modbus",
   "content_in_root": false,
   "domains": ["sensor"],
   "homeassistant": "0.109.0",

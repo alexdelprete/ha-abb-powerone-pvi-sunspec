@@ -189,14 +189,10 @@ class ABBSunSpecModbusHub:
         self.data["acvoltagecn"] = 1
         self.data["acpower"] = 1
         self.data["acfreq"] = 1
-        self.data["acva"] = 1
-        self.data["acvar"] = 1
-        self.data["acpf"] = 1
         self.data["acenergy"] = 1
-        self.data["dccurrent"] = 1
-        self.data["dcvoltage"] = 1
         self.data["dcpower"] = 1
-        self.data["tempsink"] = 1
+        self.data["tempcab"] = 1
+        self.data["tempoth"] = 1
         self.data["status"] = 1
         self.data["statusvendor"] = 1
 
@@ -239,59 +235,35 @@ class ABBSunSpecModbusHub:
             # register 86
             acfreq = decoder.decode_16bit_uint()
 
-            # skip register 87
-            decoder.skip_bytes(2)
+            # skip register 87-93
+            decoder.skip_bytes(14)
 
-            # register 88
-            acva = decoder.decode_16bit_int()
-
-            # skip register 89
-            decoder.skip_bytes(2)
-
-            # register 90
-            acvar = decoder.decode_16bit_int()
-
-            # skip register 91
-            decoder.skip_bytes(2)
-
-            # register 92
-            acpf = decoder.decode_16bit_int()
-
-            # skip register 93
-            decoder.skip_bytes(2)
-
-            # register 94
+             # register 94
             acenergy = decoder.decode_32bit_uint()
             self.data["acenergy"] = round(acenergy * 0.001, 3)
 
-            # skip register 96
-            decoder.skip_bytes(2)
+            # skip register 96 to 100
+            decoder.skip_bytes(10)
 
-            # register 97 (103)
-            dccurrent = decoder.decode_16bit_uint()
-  
-            # skip register 98
-            decoder.skip_bytes(2)
-
-            # register 99 (103)
-            dcvoltage = decoder.decode_16bit_uint()
-
-            # skip register 100
-            decoder.skip_bytes(2)
-
-            # register 101
+             # register 101
             dcpower = decoder.decode_16bit_int()
 
-            # skip register 102-103
+            # skip register 102
+            decoder.skip_bytes(2)
+
+            tempcab = decoder.decode_16bit_int()
+
+            # skip registers 104-105
             decoder.skip_bytes(4)
 
-            tempsink = decoder.decode_16bit_int()
+            tempoth = decoder.decode_16bit_int()
 
-            # skip 3 registers
-            decoder.skip_bytes(6)
+            # skip register 107
+            decoder.skip_bytes(2)
 
             status = decoder.decode_16bit_int()
             self.data["status"] = status
+
             statusvendor = decoder.decode_16bit_int()
             self.data["statusvendor"] = statusvendor
 

@@ -1,0 +1,23 @@
+{
+  "config": {
+    "title": "ABB Sunspec Modbus",
+    "step": {
+      "user": {
+        "title": "Configure your ABB Modbus connection",
+        "data": {
+          "host": "IP address of your ABB inverter",
+          "name": "The prefix to be used for your ABB sensors",
+          "port": "The TCP port to connect to the ABB inverter",
+          "unit_id": "The Modbus Unit ID of the ABB inverter (aka Slave ID)",
+          "scan_interval": "The polling period of the modbus registers (seconds)"
+        }
+      }
+    },
+    "error": {
+      "already_configured": "Device is already configured"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  }
+}

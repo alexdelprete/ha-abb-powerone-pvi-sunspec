@@ -19,6 +19,8 @@ from homeassistant.helpers.event import async_track_time_interval
 from .const import (
     DOMAIN,
     DEFAULT_NAME,
+    DEFAULT_PORT,
+    DEFAULT_UNITID,
     DEFAULT_SCAN_INTERVAL,
 )
 
@@ -28,11 +30,9 @@ ABB_SUNSPEC_MODBUS_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Required(CONF_HOST): cv.string,
-        vol.Required(CONF_PORT): cv.string,
-        vol.Required(CONF_UNITID): cv.string,
-        vol.Optional(
-            CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
-        ): cv.positive_int,
+        vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.string,
+        vol.Required(CONF_UNITID, default=DEFAULT_UNITID): cv.positive_int,
+        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.positive_int,
     }
 )
 
@@ -60,7 +60,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     _LOGGER.debug("Setup %s.%s", DOMAIN, name)
 
     hub = ABBSunSpecModbusHub(
-        hass, name, host, port, scan_interval
+        hass, name, host, port, unitid, scan_interval
     )
     """Register the hub."""
     hass.data[DOMAIN][name] = {"hub": hub}

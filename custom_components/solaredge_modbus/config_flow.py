@@ -8,9 +8,9 @@ from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_UNITID, CO
 from .const import (
     DOMAIN,
     DEFAULT_NAME,
-    DEFAULT_SCAN_INTERVAL,
     DEFAULT_PORT,
     DEFAULT_UNITID,
+    DEFAULT_SCAN_INTERVAL,
 )
 from homeassistant.core import HomeAssistant, callback
 

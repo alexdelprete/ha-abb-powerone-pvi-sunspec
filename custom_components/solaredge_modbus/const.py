@@ -1,5 +1,5 @@
 DOMAIN = "abb_sunspec_modbus"
-DEFAULT_NAME = "abbinverter"
+DEFAULT_NAME = "abb_sunspec"
 DEFAULT_SCAN_INTERVAL = 30
 DEFAULT_PORT = 502
 DEFAULT_UNITID = 2

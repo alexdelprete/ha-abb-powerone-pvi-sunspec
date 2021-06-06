@@ -10,7 +10,7 @@ from .const import (
     DEFAULT_NAME,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_PORT,
-    DEFAULT_UNITID
+    DEFAULT_UNITID,
 )
 from homeassistant.core import HomeAssistant, callback
 
@@ -20,6 +20,7 @@ DATA_SCHEMA = vol.Schema(
         vol.Required(CONF_HOST): str,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
         vol.Required(CONF_UNITID, default=DEFAULT_UNITID): int,
+        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
     }
 )
 

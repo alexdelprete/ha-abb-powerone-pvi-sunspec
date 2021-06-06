@@ -8,7 +8,6 @@
           "host": "The IP address of your ABB SunSpec device",
           "name": "The prefix to be used for your ABB SunSpec sensors",
           "port": "The TCP port on which to connect to the ABB SunSpec",
-          "unitid": "The UNIT ID of the Inverter (aka slave ID)",
           "scan_interval": "The polling frequentie of the modbus registers in seconds"
         }
       }

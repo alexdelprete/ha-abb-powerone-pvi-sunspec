@@ -1,14 +1,15 @@
 {
   "config": {
-    "title": "SolarEdge Modbus",
+    "title": "ABB Sunspec Modbus",
     "step": {
       "user": {
-        "title": "Define your SolarEdge modbus connection",
+        "title": "Configure your ABB Modbus connection",
         "data": {
-          "host": "The ip-address of your Solaredge inverter",
-          "name": "The prefix to be used for your SolarEdge sensors",
-          "port": "The TCP port on which to connect to the SolarEdge inverter",
-          "scan_interval": "The polling frequentie of the modbus registers in seconds"
+          "host": "IP address of your ABB inverter",
+          "name": "The prefix to be used for your ABB sensors",
+          "port": "The TCP port to connect to the ABB inverter",
+          "unit_id": "The Modbus Unit ID of the ABB inverter (aka Slave ID)",
+          "scan_interval": "The polling period of the modbus registers (seconds)"
         }
       }
     },

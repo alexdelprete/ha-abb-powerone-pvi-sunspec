@@ -1,8 +1,9 @@
 DOMAIN = "abb_sunspec_modbus"
 DEFAULT_NAME = "abb_sunspec"
 DEFAULT_PORT = 502
+DEFAULT_UNIT_ID = 2
 DEFAULT_SCAN_INTERVAL = 30
-CONF_ABB_SUNSPEC_HUB = "abb_sunspec_hub"
+#CONF_ABB_SUNSPEC_HUB = "abb_sunspec_hub"
 ATTR_STATUS_DESCRIPTION = "status_description"
 ATTR_MANUFACTURER = "ABB"
 
@@ -27,7 +28,7 @@ SENSOR_TYPES = {
     "Status_Vendor": ["Status Vendor", "statusvendor", None, None],
 }
 
-DEVICE_STATUSSES = {
+DEVICE_STATUS = {
     1: "Off",
     2: "Sleeping (auto-shutdown) – Night mode",
     3: "Grid Monitoring/wake-up",

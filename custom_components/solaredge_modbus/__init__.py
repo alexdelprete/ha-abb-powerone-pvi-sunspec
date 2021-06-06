@@ -12,7 +12,7 @@ from pymodbus.payload import BinaryPayloadDecoder
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
+from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_UNIT_ID, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
 from homeassistant.core import callback
 from homeassistant.helpers.event import async_track_time_interval
@@ -20,6 +20,7 @@ from .const import (
     DOMAIN,
     DEFAULT_NAME,
     DEFAULT_PORT,
+    DEFAULT_UNIT_ID,
     DEFAULT_SCAN_INTERVAL,
 )
 
@@ -30,6 +31,7 @@ ABB_SUNSPEC_MODBUS_SCHEMA = vol.Schema(
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.string,
+        vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): cv.positive_int,
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.positive_int,
     }
 )
@@ -52,12 +54,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     host = entry.data[CONF_HOST]
     name = entry.data[CONF_NAME]
     port = entry.data[CONF_PORT]
+    unit_id = entry.data[CONF_UNIT_ID]
     scan_interval = entry.data[CONF_SCAN_INTERVAL]
 
     _LOGGER.debug("Setup %s.%s", DOMAIN, name)
 
     hub = ABBSunSpecModbusHub(
-        hass, name, host, port, scan_interval
+        hass, name, host, port, unit_id, scan_interval
     )
     """Register the hub."""
     hass.data[DOMAIN][name] = {"hub": hub}
@@ -95,11 +98,12 @@ class ABBSunSpecModbusHub:
         name,
         host,
         port,
+        unit_id,
         scan_interval,
     ):
         """Initialize the Modbus hub."""
         self._hass = hass
-        self._client = ModbusTcpClient(host=host, port=port)
+        self._client = ModbusTcpClient(host=host, port=port, unit_id=unit_id)
         self._lock = threading.Lock()
         self._name = name
         self._scan_interval = timedelta(seconds=scan_interval)
@@ -196,7 +200,7 @@ class ABBSunSpecModbusHub:
 
 
     def read_modbus_data_inverter(self):
-        inverter_data = self.read_holding_registers(unit=2, address=72, count=38)
+        inverter_data = self.read_holding_registers(address=72, count=38)
         if not inverter_data.isError():
             decoder = BinaryPayloadDecoder.fromRegisters(
                 inverter_data.registers, byteorder=Endian.Big

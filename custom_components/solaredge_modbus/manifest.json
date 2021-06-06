@@ -1,7 +1,7 @@
 {
   "domain": "abb_sunspec_modbus",
   "name": "ABB SunSpec Modbus",
-  "documentation": "https://github.com/alexdelprete/home-assistant-solaredge-modbus",
+  "documentation": "https://github.com/alexdelprete/home-assistant-abb-sunspec-modbus",
   "requirements": ["pymodbus==1.5.2"],
   "dependencies": [],
   "codeowners": ["@alexdelprete","@binsentsu"],

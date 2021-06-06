@@ -4,7 +4,7 @@ from .const import (
     SENSOR_TYPES,
     DOMAIN,
     ATTR_STATUS_DESCRIPTION,
-    DEVICE_STATUSSES,
+    DEVICE_STATUS,
     ATTR_MANUFACTURER,
 )
 from homeassistant.helpers.entity import Entity
@@ -97,8 +97,8 @@ class ABBSunSpecSensor(Entity):
     @property
     def state_attributes(self) -> Optional[Dict[str, Any]]:
         if self._key in ["status", "statusvendor"]:
-            if self.state in DEVICE_STATUSSES:
-                return {ATTR_STATUS_DESCRIPTION: DEVICE_STATUSSES[self.state]}
+            if self.state in DEVICE_STATUS:
+                return {ATTR_STATUS_DESCRIPTION: DEVICE_STATUS[self.state]}
         return None
 
     @property

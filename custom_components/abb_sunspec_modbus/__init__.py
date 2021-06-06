@@ -34,7 +34,7 @@ ABB_SUNSPEC_MODBUS_SCHEMA = vol.Schema(
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.string,
-        vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): cv.string,
+        vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): cv.positive_int,
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.positive_int,
     }
 )
@@ -203,7 +203,7 @@ class ABBSunSpecModbusHub:
 
 
     def read_modbus_data_inverter(self):
-        inverter_data = self.read_holding_registers(address=72, count=38)
+        inverter_data = self.read_holding_registers(address=72, count=100)
         if not inverter_data.isError():
             decoder = BinaryPayloadDecoder.fromRegisters(
                 inverter_data.registers, byteorder=Endian.Big
@@ -254,21 +254,41 @@ class ABBSunSpecModbusHub:
             # skip register 102
             decoder.skip_bytes(2)
 
+             # register 103
             tempcab = decoder.decode_16bit_int()
 
             # skip registers 104-105
             decoder.skip_bytes(4)
 
+            # register 106
             tempoth = decoder.decode_16bit_int()
 
             # skip register 107
             decoder.skip_bytes(2)
 
+            # register 108
             status = decoder.decode_16bit_int()
             self.data["status"] = status
 
+            # register 109
             statusvendor = decoder.decode_16bit_int()
             self.data["statusvendor"] = statusvendor
+
+            # skip register 110 to 140
+            decoder.skip_bytes(62)
+
+            # registers 141 to 143
+            mppt1curr = decoder.decode_16bit_uint()
+            mppt1volt = decoder.decode_16bit_uint()
+            mppt1power = decoder.decode_16bit_uint()
+
+            # skip register 144 to 160
+            decoder.skip_bytes(34)
+
+            # registers 161 to 163
+            mppt2curr = decoder.decode_16bit_uint()
+            mppt2volt = decoder.decode_16bit_uint()
+            mppt2power = decoder.decode_16bit_uint()
 
             return True
         else:

@@ -34,7 +34,7 @@ ABB_SUNSPEC_MODBUS_SCHEMA = vol.Schema(
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.string,
-        vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): cv.positive_int,
+        vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): cv.string,
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.positive_int,
     }
 )

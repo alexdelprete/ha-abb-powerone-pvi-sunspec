@@ -16,12 +16,14 @@ from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_SCAN_INTER
 from homeassistant.core import HomeAssistant
 from homeassistant.core import callback
 from homeassistant.helpers.event import async_track_time_interval
+
 from .const import (
     DOMAIN,
     DEFAULT_NAME,
     DEFAULT_PORT,
     DEFAULT_UNIT_ID,
     DEFAULT_SCAN_INTERVAL,
+    DEVICE_STATUS,
     CONF_UNIT_ID,
 )
 

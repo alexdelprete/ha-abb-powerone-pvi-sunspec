@@ -3,9 +3,10 @@ DEFAULT_NAME = "abb_sunspec"
 DEFAULT_PORT = 502
 DEFAULT_UNIT_ID = 2
 DEFAULT_SCAN_INTERVAL = 30
-#CONF_ABB_SUNSPEC_HUB = "abb_sunspec_hub"
 ATTR_STATUS_DESCRIPTION = "status_description"
 ATTR_MANUFACTURER = "ABB"
+CONF_UNIT_ID = 2
+CONF_ABB_SUNSPEC_HUB = "abb_sunspec_hub"
 
 SENSOR_TYPES = {
     "AC_Current": ["AC Current", "accurrent", "A", "mdi:current-ac"],

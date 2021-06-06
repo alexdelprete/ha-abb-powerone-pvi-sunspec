@@ -12,7 +12,7 @@ from pymodbus.payload import BinaryPayloadDecoder
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_UNIT_ID, CONF_SCAN_INTERVAL
+from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
 from homeassistant.core import callback
 from homeassistant.helpers.event import async_track_time_interval
@@ -22,6 +22,7 @@ from .const import (
     DEFAULT_PORT,
     DEFAULT_UNIT_ID,
     DEFAULT_SCAN_INTERVAL,
+    CONF_UNIT_ID,
 )
 
 _LOGGER = logging.getLogger(__name__)

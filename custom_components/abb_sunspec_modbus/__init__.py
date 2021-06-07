@@ -233,7 +233,6 @@ class ABBSunSpecModbusHub:
             self.data["accurrentb"] = round(accurrentb, abs(accurrentsf))
             self.data["accurrentc"] = round(accurrentc, abs(accurrentsf))
 
-
             # registers 77 to 83
             acvoltageab = decoder.decode_16bit_uint()
             acvoltagebc = decoder.decode_16bit_uint()
@@ -293,7 +292,8 @@ class ABBSunSpecModbusHub:
             tempoth = decoder.decode_16bit_int()
             tempsf = decoder.decode_16bit_int()
             tempoth = self.calculate_value(tempoth, tempsf)
-            tempcab = self.calculate_value(tempcab, tempsf)
+            # Fix for tempcab: SF must be -2 not -1 as per specs
+            tempcab = self.calculate_value(tempcab, -2)
             self.data["tempoth"] = round(tempoth, abs(tempsf))
             self.data["tempcab"] = round(tempcab, abs(tempsf))
 

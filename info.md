@@ -12,6 +12,6 @@ Home assistant Custom Component to integrate data from ABB/Power-One/FIMER PV 3-
 - Supports reading inverter data and extra MPTT data
 
 ### Configuration
-Go to the integrations page in your configuration and click on new integration -> SolarEdge Modbus
+Go to the integrations page in your configuration and click on new integration -> ABB SunSpec Modbus
 
 <img style="border: 5px solid #767676;border-radius: 10px;max-width: 350px;width: 100%;box-sizing: border-box;" src="https://github.com/alexdelprete/home-assistant-abb-sunspec-modbus/blob/master/demo.png?raw=true" alt="Demo">

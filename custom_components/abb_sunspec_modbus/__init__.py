@@ -199,12 +199,12 @@ class ABBSunSpecModbusHub:
         self.data["tempoth"] = 1
         self.data["status"] = 1
         self.data["statusvendor"] = 1
-        self.data["mppt1curr"] = 1
-        self.data["mppt1volt"] = 1
-        self.data["mppt1power"] = 1
-        self.data["mppt2curr"] = 1
-        self.data["mppt2volt"] = 1
-        self.data["mppt2power"] = 1
+        # self.data["mppt1curr"] = 1
+        # self.data["mppt1volt"] = 1
+        # self.data["mppt1power"] = 1
+        # self.data["mppt2curr"] = 1
+        # self.data["mppt2volt"] = 1
+        # self.data["mppt2power"] = 1
         return True
 
 
@@ -280,21 +280,21 @@ class ABBSunSpecModbusHub:
             statusvendor = decoder.decode_16bit_int()
             self.data["statusvendor"] = statusvendor
 
-            # skip register 110 to 140
-            decoder.skip_bytes(62)
+            # # skip register 110 to 140
+            # decoder.skip_bytes(62)
 
-            # registers 141 to 143
-            mppt1curr = decoder.decode_16bit_uint()
-            mppt1volt = decoder.decode_16bit_uint()
-            mppt1power = decoder.decode_16bit_uint()
+            # # registers 141 to 143
+            # mppt1curr = decoder.decode_16bit_uint()
+            # mppt1volt = decoder.decode_16bit_uint()
+            # mppt1power = decoder.decode_16bit_uint()
 
-            # skip register 144 to 160
-            decoder.skip_bytes(34)
+            # # skip register 144 to 160
+            # decoder.skip_bytes(34)
 
-            # registers 161 to 163
-            mppt2curr = decoder.decode_16bit_uint()
-            mppt2volt = decoder.decode_16bit_uint()
-            mppt2power = decoder.decode_16bit_uint()
+            # # registers 161 to 163
+            # mppt2curr = decoder.decode_16bit_uint()
+            # mppt2volt = decoder.decode_16bit_uint()
+            # mppt2power = decoder.decode_16bit_uint()
 
             return True
         else:

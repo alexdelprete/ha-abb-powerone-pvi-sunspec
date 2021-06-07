@@ -1,7 +1,6 @@
-## SOLAREDGE MODBUS TCP
+## ABB SUNSPEC MODBUS
 
-Home assistant Custom Component for reading data from ABB inverter through SunSpec modbus TCP.
-Implements Inverter registers from 
+Home assistant Custom Component to integrate data from ABB/Power-One/FIMER PV 3-phase Inverters with support for SunSpec Modbus TCP (Sunspec M103 and M160), native or through the VSN300 wifi logger card.
 
 ### Features
 
@@ -9,7 +8,7 @@ Implements Inverter registers from
 - Separate sensor per register
 - Configurable Unit ID
 - Configurable polling interval
-- All modbus registers are read within 1 read cycle for data consistency between sensors.
+- All modbus registers are read in 1 read cycle for data consistency between sensors
 - Supports reading inverter data and extra MPTT data
 
 ### Configuration

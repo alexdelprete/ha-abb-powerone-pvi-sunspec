@@ -6,7 +6,7 @@ Home assistant Custom Component to integrate data from ABB/Power-One/FIMER PV 3-
 
 - Installation through Config Flow UI.
 - Separate sensor per register
-- Configurable Unit ID
+- Works with Unit ID 2 or 254 (Slave address)
 - Configurable polling interval
 - All modbus registers are read in 1 read cycle for data consistency between sensors
 - Supports reading inverter data and extra MPTT data

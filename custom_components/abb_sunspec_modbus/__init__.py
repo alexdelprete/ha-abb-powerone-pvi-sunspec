@@ -212,12 +212,15 @@ class ABBSunSpecModbusHub:
 
 
     def read_modbus_data_inverter(self):
+        
         # If Unit ID 254 doesn't work, try also with Unit ID 2
         inverter_data = self.read_holding_registers(unit=254, address=72, count=92)
         if inverter_data.isError():
             inverter_data = self.read_holding_registers(unit=2, address=72, count=92)
             if inverter_data.isError():
                 return False
+
+        # No errors, so we can start reading registers
         decoder = BinaryPayloadDecoder.fromRegisters(
             inverter_data.registers, byteorder=Endian.Big
         )

@@ -3,7 +3,7 @@
 # home-assistant-abb-sunspec-modbus
 Home assistant Custom Component to integrate data from ABB/Power-One/FIMER PV 3-phase Inverters that support SunSpec Modbus TCP (Sunspec M103 and M160). It also works with old inverters with the VSN300 wifi logger card, that implements a SunSpec to Aurora protocol adapter.
 
-Registers address SunSpec map has been implemented following the vendor's specification document: 
+Registers address SunSpec map has been implemented following the vendor's specification document: https://github.com/alexdelprete/home-assistant-abb-sunspec-modbus/raw/master/ABB_SunSpec_Modbus.xlsx
 
 # Installation
 Copy contents of custom_components folder to your home-assistant config/custom_components folder or install through HACS.

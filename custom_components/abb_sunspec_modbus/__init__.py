@@ -287,14 +287,11 @@ class ABBSunSpecModbusHub:
 
              # register 103
             tempcab = decoder.decode_16bit_int()
-
             # skip registers 104-105
             decoder.skip_bytes(4)
-
             # register 106 to 107
             tempoth = decoder.decode_16bit_int()
             tempsf = decoder.decode_16bit_int()
-
             tempcab = self.calculate_value(tempcab, tempsf)
             self.data["tempcab"] = round(tempcab, abs(tempsf))
             tempoth = self.calculate_value(tempoth, tempsf)

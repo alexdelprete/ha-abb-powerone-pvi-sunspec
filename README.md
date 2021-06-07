@@ -1,12 +1,13 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 
 # home-assistant-abb-sunspec-modbus
-Home assistant Custom Component for reading data from ABB inverter through SunSpec modbus TCP.
-Implements Inverter registers from https://www.solaredge.com/sites/default/files/sunspec-implementation-technical-note.pdf
+Home assistant Custom Component to integrate data from ABB/Power-One/FIMER PV 3-phase Inverters that support SunSpec Modbus TCP (Sunspec M103 and M160). It also works with old inverters with the VSN300 wifi logger card, that implements a SunSpec to Aurora protocol adapter.
+
+Registers address SunSpec map has been implemented following the vendor's specification document: 
 
 # Installation
 Copy contents of custom_components folder to your home-assistant config/custom_components folder or install through HACS.
 After reboot of Home-Assistant, this integration can be configured through the integration setup UI
 
 # Enabling Modbus TCP on SolarEdge Inverter
-Enable wifi direct on the inverter. Connect to the inverter access point like you would for a normal wifi network. The wifi password is published at the right side of the inverter. Then open up a browser and go to http://172.16.0.1 . From this webpage you can enable modbus TCP without setApp or installer account.
+Enable Modbus TCP client on the inverter or the VSN300, take note of the Unit ID (aka Slave ID) of the inverter (depends on the model, default on some models is 2 on others is 254, you can get it from the inverter if you don't want to go through trial/error process.

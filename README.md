@@ -12,5 +12,5 @@ Copy contents of custom_components folder to your home-assistant config/custom_c
 
 Restart Home Assistant, and then the integration can be configured through the native integration setup UI.
 
-# Enabling Modbus TCP on the Inverter
+# Enabling Modbus TCP on the inverter
 Enable Modbus TCP client on the inverter or the VSN300, take note of the Unit ID (aka Slave ID) of the inverter (depends on the model, default on some models is 2 on others is 254, you can get it from the inverter if you don't want to go through trial/error process.

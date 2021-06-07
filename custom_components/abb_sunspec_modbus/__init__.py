@@ -294,7 +294,7 @@ class ABBSunSpecModbusHub:
             tempsf = decoder.decode_16bit_int()
             tempoth = self.calculate_value(tempoth, tempsf)
             self.data["tempoth"] = round(tempoth, abs(tempsf))
-            self.data["tempcab"] = round(tempcab, abs(tempsf))
+            self.data["tempcab"] = round(tempcab, abs(-2))
 
             # register 108
             status = decoder.decode_16bit_int()

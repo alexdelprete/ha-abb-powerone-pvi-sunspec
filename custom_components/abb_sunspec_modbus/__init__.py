@@ -107,7 +107,7 @@ class ABBSunSpecModbusHub:
     ):
         """Initialize the Modbus hub."""
         self._hass = hass
-        self._client = ModbusTcpClient(host=host, port=port, unit_id=DEFAULT_UNIT_ID)
+        self._client = ModbusTcpClient(host=host, port=port)
         self._lock = threading.Lock()
         self._name = name
         self._scan_interval = timedelta(seconds=scan_interval)
@@ -209,7 +209,7 @@ class ABBSunSpecModbusHub:
 
 
     def read_modbus_data_inverter(self):
-        inverter_data = self.read_holding_registers(unit=DEFAULT_UNIT_ID, address=72, count=184)
+        inverter_data = self.read_holding_registers(unit=2, address=72, count=184)
         if not inverter_data.isError():
             decoder = BinaryPayloadDecoder.fromRegisters(
                 inverter_data.registers, byteorder=Endian.Big

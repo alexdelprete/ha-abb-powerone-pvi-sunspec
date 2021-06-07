@@ -198,12 +198,17 @@ class ABBSunSpecModbusHub:
         self.data["tempoth"] = 1
         self.data["status"] = 1
         self.data["statusvendor"] = 1
-
+        self.data["mppt1curr"] = 1
+        self.data["mppt1volt"] = 1
+        self.data["mppt1power"] = 1
+        self.data["mppt2curr"] = 1
+        self.data["mppt2volt"] = 1
+        self.data["mppt2power"] = 1
         return True
 
 
     def read_modbus_data_inverter(self):
-        inverter_data = self.read_holding_registers(address=72, count=100)
+        inverter_data = self.read_holding_registers(address=72, count=184)
         if not inverter_data.isError():
             decoder = BinaryPayloadDecoder.fromRegisters(
                 inverter_data.registers, byteorder=Endian.Big

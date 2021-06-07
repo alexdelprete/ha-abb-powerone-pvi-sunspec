@@ -9,5 +9,5 @@ Registers' address map has been implemented following the vendor's specification
 Copy contents of custom_components folder to your home-assistant config/custom_components folder or install through HACS.
 After reboot of Home-Assistant, this integration can be configured through the integration setup UI
 
-# Enabling Modbus TCP on SolarEdge Inverter
+# Enabling Modbus TCP on the Inverter
 Enable Modbus TCP client on the inverter or the VSN300, take note of the Unit ID (aka Slave ID) of the inverter (depends on the model, default on some models is 2 on others is 254, you can get it from the inverter if you don't want to go through trial/error process.

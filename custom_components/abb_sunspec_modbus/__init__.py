@@ -207,12 +207,12 @@ class ABBSunSpecModbusHub:
 
     def read_modbus_data_inverter(self):
 
-        # We connect to UnitID=2 first, if error, we try UnitID=254, else Fail
+        # We connect to UnitID=2 first, if error, we try UnitID=247, else Fail
         inverter_data = self.read_holding_registers(unit=2, address=72, count=92)
         if inverter_data.isError():
-            inverter_data = self.read_holding_registers(unit=254, address=72, count=92)
+            inverter_data = self.read_holding_registers(unit=247, address=72, count=92)
             if inverter_data.isError():
-                # both ID=2 and ID=254 don't work, so we return False
+                # both ID=2 and ID=247 don't work, so we return False
                 return False
 
         # No connection errors, we can start scraping registers

@@ -212,135 +212,138 @@ class ABBSunSpecModbusHub:
 
 
     def read_modbus_data_inverter(self):
-        inverter_data = self.read_holding_registers(unit=2, address=72, count=92)
-        if not inverter_data.isError():
-            decoder = BinaryPayloadDecoder.fromRegisters(
-                inverter_data.registers, byteorder=Endian.Big
-            )
+        # If Unit ID 254 doesn't work, try also with Unit ID 2
+        inverter_data = self.read_holding_registers(unit=254, address=72, count=92)
+        if inverter_data.isError():
+            inverter_data = self.read_holding_registers(unit=2, address=72, count=92)
+            if inverter_data.isError():
+                return False
+        decoder = BinaryPayloadDecoder.fromRegisters(
+            inverter_data.registers, byteorder=Endian.Big
+        )
 
-            # registers 72 to 76
-            accurrent = decoder.decode_16bit_uint()
-            accurrenta = decoder.decode_16bit_uint()
-            accurrentb = decoder.decode_16bit_uint()
-            accurrentc = decoder.decode_16bit_uint()
-            accurrentsf = decoder.decode_16bit_int()
-            accurrent = self.calculate_value(accurrent, accurrentsf)
-            accurrenta = self.calculate_value(accurrenta, accurrentsf)
-            accurrentb = self.calculate_value(accurrentb, accurrentsf)
-            accurrentc = self.calculate_value(accurrentc, accurrentsf)
-            self.data["accurrent"] = round(accurrent, abs(accurrentsf))
-            self.data["accurrenta"] = round(accurrenta, abs(accurrentsf))
-            self.data["accurrentb"] = round(accurrentb, abs(accurrentsf))
-            self.data["accurrentc"] = round(accurrentc, abs(accurrentsf))
+        # registers 72 to 76
+        accurrent = decoder.decode_16bit_uint()
+        accurrenta = decoder.decode_16bit_uint()
+        accurrentb = decoder.decode_16bit_uint()
+        accurrentc = decoder.decode_16bit_uint()
+        accurrentsf = decoder.decode_16bit_int()
+        accurrent = self.calculate_value(accurrent, accurrentsf)
+        accurrenta = self.calculate_value(accurrenta, accurrentsf)
+        accurrentb = self.calculate_value(accurrentb, accurrentsf)
+        accurrentc = self.calculate_value(accurrentc, accurrentsf)
+        self.data["accurrent"] = round(accurrent, abs(accurrentsf))
+        self.data["accurrenta"] = round(accurrenta, abs(accurrentsf))
+        self.data["accurrentb"] = round(accurrentb, abs(accurrentsf))
+        self.data["accurrentc"] = round(accurrentc, abs(accurrentsf))
 
-            # registers 77 to 83
-            acvoltageab = decoder.decode_16bit_uint()
-            acvoltagebc = decoder.decode_16bit_uint()
-            acvoltageca = decoder.decode_16bit_uint()
-            acvoltagean = decoder.decode_16bit_uint()
-            acvoltagebn = decoder.decode_16bit_uint()
-            acvoltagecn = decoder.decode_16bit_uint()
-            acvoltagesf = decoder.decode_16bit_int()
-            acvoltageab = self.calculate_value(acvoltageab, acvoltagesf)
-            acvoltagebc = self.calculate_value(acvoltagebc, acvoltagesf)
-            acvoltageca = self.calculate_value(acvoltageca, acvoltagesf)
-            acvoltagean = self.calculate_value(acvoltagean, acvoltagesf)
-            acvoltagebn = self.calculate_value(acvoltagebn, acvoltagesf)
-            acvoltagecn = self.calculate_value(acvoltagecn, acvoltagesf)
-            self.data["acvoltageab"] = round(acvoltageab, abs(acvoltagesf))
-            self.data["acvoltagebc"] = round(acvoltagebc, abs(acvoltagesf))
-            self.data["acvoltageca"] = round(acvoltageca, abs(acvoltagesf))
-            self.data["acvoltagean"] = round(acvoltagean, abs(acvoltagesf))
-            self.data["acvoltagebn"] = round(acvoltagebn, abs(acvoltagesf))
-            self.data["acvoltagecn"] = round(acvoltagecn, abs(acvoltagesf))
+        # registers 77 to 83
+        acvoltageab = decoder.decode_16bit_uint()
+        acvoltagebc = decoder.decode_16bit_uint()
+        acvoltageca = decoder.decode_16bit_uint()
+        acvoltagean = decoder.decode_16bit_uint()
+        acvoltagebn = decoder.decode_16bit_uint()
+        acvoltagecn = decoder.decode_16bit_uint()
+        acvoltagesf = decoder.decode_16bit_int()
+        acvoltageab = self.calculate_value(acvoltageab, acvoltagesf)
+        acvoltagebc = self.calculate_value(acvoltagebc, acvoltagesf)
+        acvoltageca = self.calculate_value(acvoltageca, acvoltagesf)
+        acvoltagean = self.calculate_value(acvoltagean, acvoltagesf)
+        acvoltagebn = self.calculate_value(acvoltagebn, acvoltagesf)
+        acvoltagecn = self.calculate_value(acvoltagecn, acvoltagesf)
+        self.data["acvoltageab"] = round(acvoltageab, abs(acvoltagesf))
+        self.data["acvoltagebc"] = round(acvoltagebc, abs(acvoltagesf))
+        self.data["acvoltageca"] = round(acvoltageca, abs(acvoltagesf))
+        self.data["acvoltagean"] = round(acvoltagean, abs(acvoltagesf))
+        self.data["acvoltagebn"] = round(acvoltagebn, abs(acvoltagesf))
+        self.data["acvoltagecn"] = round(acvoltagecn, abs(acvoltagesf))
 
-            # registers 84 to 85
-            acpower = decoder.decode_16bit_int()
-            acpowersf = decoder.decode_16bit_int()
-            acpower = self.calculate_value(acpower, acpowersf)
-            self.data["acpower"] = round(acpower, abs(acpowersf))
+        # registers 84 to 85
+        acpower = decoder.decode_16bit_int()
+        acpowersf = decoder.decode_16bit_int()
+        acpower = self.calculate_value(acpower, acpowersf)
+        self.data["acpower"] = round(acpower, abs(acpowersf))
 
-            # registers 86 to 87
-            acfreq = decoder.decode_16bit_uint()
-            acfreqsf = decoder.decode_16bit_int()
-            acfreq = self.calculate_value(acfreq, acfreqsf)
-            self.data["acfreq"] = round(acfreq, abs(acfreqsf))
+        # registers 86 to 87
+        acfreq = decoder.decode_16bit_uint()
+        acfreqsf = decoder.decode_16bit_int()
+        acfreq = self.calculate_value(acfreq, acfreqsf)
+        self.data["acfreq"] = round(acfreq, abs(acfreqsf))
 
-            # skip register 88-93
-            decoder.skip_bytes(12)
+        # skip register 88-93
+        decoder.skip_bytes(12)
 
-             # registers 94 to 96
-            acenergy = decoder.decode_32bit_uint()
-            acenergysf = decoder.decode_16bit_uint()
-            acenergy = self.calculate_value(acenergy, acenergysf)
-            self.data["acenergy"] = round(acenergy * 0.001, 3)
+            # registers 94 to 96
+        acenergy = decoder.decode_32bit_uint()
+        acenergysf = decoder.decode_16bit_uint()
+        acenergy = self.calculate_value(acenergy, acenergysf)
+        self.data["acenergy"] = round(acenergy * 0.001, 3)
 
-            # skip register 97 to 100
-            decoder.skip_bytes(8)
+        # skip register 97 to 100
+        decoder.skip_bytes(8)
 
-             # registers 101 to 102
-            dcpower = decoder.decode_16bit_int()
-            dcpowersf = decoder.decode_16bit_int()
-            dcpower = self.calculate_value(dcpower, dcpowersf)
-            self.data["dcpower"] = round(dcpower, abs(dcpowersf))
+            # registers 101 to 102
+        dcpower = decoder.decode_16bit_int()
+        dcpowersf = decoder.decode_16bit_int()
+        dcpower = self.calculate_value(dcpower, dcpowersf)
+        self.data["dcpower"] = round(dcpower, abs(dcpowersf))
 
-             # register 103
-            tempcab = decoder.decode_16bit_int()        
-            # skip registers 104-105
-            decoder.skip_bytes(4)
-            # register 106 to 107
-            tempoth = decoder.decode_16bit_int()
-            tempsf = decoder.decode_16bit_int()
-            tempoth = self.calculate_value(tempoth, tempsf)
-            # Fix for tempcab: SF must be -2 not -1 as per specs
-            tempcab = self.calculate_value(tempcab, -2)
-            self.data["tempoth"] = round(tempoth, abs(tempsf))
-            self.data["tempcab"] = round(tempcab, abs(tempsf))
+            # register 103
+        tempcab = decoder.decode_16bit_int()        
+        # skip registers 104-105
+        decoder.skip_bytes(4)
+        # register 106 to 107
+        tempoth = decoder.decode_16bit_int()
+        tempsf = decoder.decode_16bit_int()
+        tempoth = self.calculate_value(tempoth, tempsf)
+        # Fix for tempcab: SF must be -2 not -1 as per specs
+        tempcab = self.calculate_value(tempcab, -2)
+        self.data["tempoth"] = round(tempoth, abs(tempsf))
+        self.data["tempcab"] = round(tempcab, abs(tempsf))
 
-            # register 108
-            status = decoder.decode_16bit_int()
-            self.data["status"] = status
+        # register 108
+        status = decoder.decode_16bit_int()
+        self.data["status"] = status
 
-            # register 109
-            statusvendor = decoder.decode_16bit_int()
-            self.data["statusvendor"] = statusvendor
+        # register 109
+        statusvendor = decoder.decode_16bit_int()
+        self.data["statusvendor"] = statusvendor
 
-            # skip register 110 to 123
-            decoder.skip_bytes(28)
+        # skip register 110 to 123
+        decoder.skip_bytes(28)
 
-            # registers 124 to 126
-            dcasf = decoder.decode_16bit_int()
-            dcvsf = decoder.decode_16bit_int()
-            dcwsf = decoder.decode_16bit_int()
+        # registers 124 to 126
+        dcasf = decoder.decode_16bit_int()
+        dcvsf = decoder.decode_16bit_int()
+        dcwsf = decoder.decode_16bit_int()
 
-            # skip register 127 to 140
-            decoder.skip_bytes(28)
+        # skip register 127 to 140
+        decoder.skip_bytes(28)
 
-            # registers 141 to 143
-            dc1curr = decoder.decode_16bit_uint()
-            dc1volt = decoder.decode_16bit_uint()
-            dc1power = decoder.decode_16bit_uint()
-            dc1curr = self.calculate_value(dc1curr, dcasf)
-            self.data["dc1curr"] = round(dc1curr, abs(dcasf))
-            dc1volt = self.calculate_value(dc1volt, dcvsf)
-            self.data["dc1volt"] = round(dc1volt, abs(dcvsf))
-            dc1power = self.calculate_value(dc1power, dcwsf)
-            self.data["dc1power"] = round(dc1power, abs(dcwsf))
+        # registers 141 to 143
+        dc1curr = decoder.decode_16bit_uint()
+        dc1volt = decoder.decode_16bit_uint()
+        dc1power = decoder.decode_16bit_uint()
+        dc1curr = self.calculate_value(dc1curr, dcasf)
+        self.data["dc1curr"] = round(dc1curr, abs(dcasf))
+        dc1volt = self.calculate_value(dc1volt, dcvsf)
+        self.data["dc1volt"] = round(dc1volt, abs(dcvsf))
+        dc1power = self.calculate_value(dc1power, dcwsf)
+        self.data["dc1power"] = round(dc1power, abs(dcwsf))
 
-            # skip register 144 to 160
-            decoder.skip_bytes(34)
+        # skip register 144 to 160
+        decoder.skip_bytes(34)
 
-            # registers 161 to 163
-            dc2curr = decoder.decode_16bit_uint()
-            dc2volt = decoder.decode_16bit_uint()
-            dc2power = decoder.decode_16bit_uint()
-            dc2curr = self.calculate_value(dc2curr, dcasf)
-            self.data["dc2curr"] = round(dc2curr, abs(dcasf))
-            dc2volt = self.calculate_value(dc2volt, dcvsf)
-            self.data["dc2volt"] = round(dc2volt, abs(dcvsf))
-            dc2power = self.calculate_value(dc2power, dcwsf)
-            self.data["dc2power"] = round(dc2power, abs(dcwsf))
+        # registers 161 to 163
+        dc2curr = decoder.decode_16bit_uint()
+        dc2volt = decoder.decode_16bit_uint()
+        dc2power = decoder.decode_16bit_uint()
+        dc2curr = self.calculate_value(dc2curr, dcasf)
+        self.data["dc2curr"] = round(dc2curr, abs(dcasf))
+        dc2volt = self.calculate_value(dc2volt, dcvsf)
+        self.data["dc2volt"] = round(dc2volt, abs(dcvsf))
+        dc2power = self.calculate_value(dc2power, dcwsf)
+        self.data["dc2power"] = round(dc2power, abs(dcwsf))
 
-            return True
-        else:
-            return False
+        return True
+

@@ -202,12 +202,12 @@ class ABBSunSpecModbusHub:
         self.data["tempoth"] = 1
         self.data["status"] = 1
         self.data["statusvendor"] = 1
-        self.data["mppt1curr"] = 1
-        self.data["mppt1volt"] = 1
-        self.data["mppt1power"] = 1
-        self.data["mppt2curr"] = 1
-        self.data["mppt2volt"] = 1
-        self.data["mppt2power"] = 1
+        self.data["dc1curr"] = 1
+        self.data["dc1volt"] = 1
+        self.data["dc1power"] = 1
+        self.data["dc2curr"] = 1
+        self.data["dc2volt"] = 1
+        self.data["dc2power"] = 1
         return True
 
 
@@ -294,6 +294,7 @@ class ABBSunSpecModbusHub:
             tempsf = decoder.decode_16bit_int()
             tempoth = self.calculate_value(tempoth, tempsf)
             self.data["tempoth"] = round(tempoth, abs(tempsf))
+            self.data["tempcab"] = round(tempcab, abs(tempsf))
 
             # register 108
             status = decoder.decode_16bit_int()
@@ -315,29 +316,29 @@ class ABBSunSpecModbusHub:
             decoder.skip_bytes(26)
 
             # registers 141 to 143
-            mppt1curr = decoder.decode_16bit_uint()
-            mppt1volt = decoder.decode_16bit_uint()
-            mppt1power = decoder.decode_16bit_uint()
-            mppt1curr = self.calculate_value(mppt1curr, dcasf)
-            self.data["mppt1curr"] = round(mppt1curr, abs(dcasf))
-            mppt1volt = self.calculate_value(mppt1volt, dcvsf)
-            self.data["mppt1volt"] = round(mppt1volt, abs(dcvsf))
-            mppt1power = self.calculate_value(mppt1power, dcwsf)
-            self.data["mppt1power"] = round(mppt1power, abs(dcwsf))
+            dc1curr = decoder.decode_16bit_uint()
+            dc1volt = decoder.decode_16bit_uint()
+            dc1power = decoder.decode_16bit_uint()
+            dc1curr = self.calculate_value(dc1curr, dcasf)
+            self.data["dc1curr"] = round(dc1curr, abs(dcasf))
+            dc1volt = self.calculate_value(dc1volt, dcvsf)
+            self.data["dc1volt"] = round(dc1volt, abs(dcvsf))
+            dc1power = self.calculate_value(dc1power, dcwsf)
+            self.data["dc1power"] = round(dc1power, abs(dcwsf))
 
             # skip register 144 to 160
             decoder.skip_bytes(34)
 
             # registers 161 to 163
-            mppt2curr = decoder.decode_16bit_uint()
-            mppt2volt = decoder.decode_16bit_uint()
-            mppt2power = decoder.decode_16bit_uint()
-            mppt2curr = self.calculate_value(mppt2curr, dcasf)
-            self.data["mppt2curr"] = round(mppt2curr, abs(dcasf))
-            mppt2volt = self.calculate_value(mppt2volt, dcvsf)
-            self.data["mppt2volt"] = round(mppt2volt, abs(dcvsf))
-            mppt2power = self.calculate_value(mppt2power, dcwsf)
-            self.data["mppt2power"] = round(mppt2power, abs(dcwsf))
+            dc2curr = decoder.decode_16bit_uint()
+            dc2volt = decoder.decode_16bit_uint()
+            dc2power = decoder.decode_16bit_uint()
+            dc2curr = self.calculate_value(dc2curr, dcasf)
+            self.data["dc2curr"] = round(dc2curr, abs(dcasf))
+            dc2volt = self.calculate_value(dc2volt, dcvsf)
+            self.data["dc2volt"] = round(dc2volt, abs(dcvsf))
+            #dc2power = self.calculate_value(dc2power, dcwsf)
+            self.data["dc2power"] = round(dc2power, abs(dcwsf))
 
             return True
         else:

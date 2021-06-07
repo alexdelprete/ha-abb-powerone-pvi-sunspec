@@ -36,12 +36,12 @@ SENSOR_TYPES = {
     "Temp_Oth": ["Temp. Booster", "tempoth", "°C", "mdi:temperature-celsius", DEVICE_CLASS_TEMPERATURE],
     "Status": ["Status", "status", None, "mdi:information-outline", None],
     "Status_Vendor": ["Status Vendor", "statusvendor", None, "mdi:information-outline", None],
-    "MPPT1Curr": ["MPPT1 total current", "mppt1curr", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],
-    "MPPT1Volt": ["MPPT1 voltage", "mppt1volt", "V", "mdi:lightning-bolt", DEVICE_CLASS_VOLTAGE],
-    "MPPT1Power": ["MPPT1 power", "mppt1power", "W", "mdi:solar-power", DEVICE_CLASS_POWER],
-    "MPPT2Curr": ["MPPT2 total current", "mppt2curr", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],
-    "MPPT2Volt": ["MPPT2 voltage", "mppt2volt", "V", "mdi:lightning-bolt", DEVICE_CLASS_VOLTAGE],
-    "MPPT2Power": ["MPPT2 power", "mppt2power", "W", "mdi:solar-power", DEVICE_CLASS_POWER],
+    "DC1_Curr": ["DC1 total current", "dc1curr", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],
+    "DC1_Volt": ["DC1 voltage", "dc1volt", "V", "mdi:lightning-bolt", DEVICE_CLASS_VOLTAGE],
+    "DC1_Power": ["DC1 power", "dc1power", "W", "mdi:solar-power", DEVICE_CLASS_POWER],
+    "DC2_Curr": ["DC2 total current", "dc2curr", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],
+    "DC2_Volt": ["DC2 voltage", "dc2volt", "V", "mdi:lightning-bolt", DEVICE_CLASS_VOLTAGE],
+    "DC2_Power": ["DC2 power", "dc2power", "W", "mdi:solar-power", DEVICE_CLASS_POWER],
 }
 
 

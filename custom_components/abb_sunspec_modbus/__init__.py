@@ -199,7 +199,7 @@ class ABBSunSpecModbusHub:
         self.data["acenergy"] = 1
         self.data["dcpower"] = 1
         self.data["tempcab"] = 1
-        self.data["mppt1curr"] = 1
+        self.data["tempoth"] = 1
         self.data["status"] = 1
         self.data["statusvendor"] = 1
         self.data["mppt1curr"] = 1
@@ -212,7 +212,7 @@ class ABBSunSpecModbusHub:
 
 
     def read_modbus_data_inverter(self):
-        inverter_data = self.read_holding_registers(unit=2, address=72, count=184)
+        inverter_data = self.read_holding_registers(unit=2, address=72, count=92)
         if not inverter_data.isError():
             decoder = BinaryPayloadDecoder.fromRegisters(
                 inverter_data.registers, byteorder=Endian.Big
@@ -286,16 +286,14 @@ class ABBSunSpecModbusHub:
             self.data["dcpower"] = round(dcpower, abs(dcpowersf))
 
              # register 103
-            tempcab = decoder.decode_16bit_int()
+            tempcab = decoder.decode_16bit_int()        
             # skip registers 104-105
             decoder.skip_bytes(4)
             # register 106 to 107
-            mppt1curr = decoder.decode_16bit_int()
+            tempoth = decoder.decode_16bit_int()
             tempsf = decoder.decode_16bit_int()
-            #tempcab = self.calculate_value(tempcab, tempsf)
-            #self.data["tempcab"] = round(tempcab, abs(tempsf))
-            mppt1curr = self.calculate_value(mppt1curr, tempsf)
-            self.data["mppt1curr"] = round(mppt1curr, abs(tempsf))
+            tempoth = self.calculate_value(tempoth, tempsf)
+            self.data["tempoth"] = round(tempoth, abs(tempsf))
 
             # register 108
             status = decoder.decode_16bit_int()
@@ -313,7 +311,7 @@ class ABBSunSpecModbusHub:
             dcvsf = decoder.decode_16bit_int()
             dcwsf = decoder.decode_16bit_int()
 
-            # skip register 128 to 133
+            # skip register 128 to 140
             decoder.skip_bytes(26)
 
             # registers 141 to 143

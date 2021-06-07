@@ -21,10 +21,8 @@ from .const import (
     DOMAIN,
     DEFAULT_NAME,
     DEFAULT_PORT,
-    DEFAULT_UNIT_ID,
     DEFAULT_SCAN_INTERVAL,
     DEVICE_STATUS,
-    CONF_UNIT_ID,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -34,7 +32,6 @@ ABB_SUNSPEC_MODBUS_SCHEMA = vol.Schema(
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.positive_int,
-        #vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): cv.positive_int,
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.positive_int,
     }
 )
@@ -57,13 +54,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     host = entry.data[CONF_HOST]
     name = entry.data[CONF_NAME]
     port = entry.data[CONF_PORT]
-    #unit_id = entry.data[CONF_UNIT_ID]
     scan_interval = entry.data[CONF_SCAN_INTERVAL]
 
     _LOGGER.debug("Setup %s.%s", DOMAIN, name)
 
     hub = ABBSunSpecModbusHub(
-        # hass, name, host, port, unit_id, scan_interval
         hass, name, host, port, scan_interval
     )
     """Register the hub."""
@@ -102,7 +97,6 @@ class ABBSunSpecModbusHub:
         name,
         host,
         port,
-        # unit_id,
         scan_interval,
     ):
         """Initialize the Modbus hub."""
@@ -212,15 +206,16 @@ class ABBSunSpecModbusHub:
 
 
     def read_modbus_data_inverter(self):
-        
-        # If Unit ID 254 doesn't work, try also with Unit ID 2
-        inverter_data = self.read_holding_registers(unit=254, address=72, count=92)
+
+        # We connect to UnitID=2 first, if error, we try UnitID=254, else Fail
+        inverter_data = self.read_holding_registers(unit=2, address=72, count=92)
         if inverter_data.isError():
-            inverter_data = self.read_holding_registers(unit=2, address=72, count=92)
+            inverter_data = self.read_holding_registers(unit=254, address=72, count=92)
             if inverter_data.isError():
+                # both ID=2 and ID=254 don't work, so we return False
                 return False
 
-        # No errors, so we can start reading registers
+        # No connection errors, we can start scraping registers
         decoder = BinaryPayloadDecoder.fromRegisters(
             inverter_data.registers, byteorder=Endian.Big
         )

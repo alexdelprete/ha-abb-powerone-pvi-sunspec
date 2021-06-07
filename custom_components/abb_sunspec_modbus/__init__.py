@@ -304,16 +304,16 @@ class ABBSunSpecModbusHub:
             statusvendor = decoder.decode_16bit_int()
             self.data["statusvendor"] = statusvendor
 
-            # skip register 110 to 124
-            decoder.skip_bytes(30)
+            # skip register 110 to 123
+            decoder.skip_bytes(28)
 
-            # registers 125 to 127
+            # registers 124 to 126
             dcasf = decoder.decode_16bit_int()
             dcvsf = decoder.decode_16bit_int()
             dcwsf = decoder.decode_16bit_int()
 
-            # skip register 128 to 140
-            decoder.skip_bytes(26)
+            # skip register 127 to 140
+            decoder.skip_bytes(28)
 
             # registers 141 to 143
             dc1curr = decoder.decode_16bit_uint()
@@ -337,7 +337,7 @@ class ABBSunSpecModbusHub:
             self.data["dc2curr"] = round(dc2curr, abs(dcasf))
             dc2volt = self.calculate_value(dc2volt, dcvsf)
             self.data["dc2volt"] = round(dc2volt, abs(dcvsf))
-            #dc2power = self.calculate_value(dc2power, dcwsf)
+            dc2power = self.calculate_value(dc2power, dcwsf)
             self.data["dc2power"] = round(dc2power, abs(dcwsf))
 
             return True

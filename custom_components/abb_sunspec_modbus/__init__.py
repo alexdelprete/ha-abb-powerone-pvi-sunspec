@@ -220,6 +220,10 @@ class ABBSunSpecModbusHub:
             accurrenta = decoder.decode_16bit_uint()
             accurrentb = decoder.decode_16bit_uint()
             accurrentc = decoder.decode_16bit_uint()
+            self.data["accurrent"] = round(accurrent, 2)
+            self.data["accurrenta"] = round(accurrenta, 2)
+            self.data["accurrentb"] = round(accurrentb, 2)
+            self.data["accurrentc"] = round(accurrentc, 2)
 
             # skip register 76
             decoder.skip_bytes(2)
@@ -231,18 +235,26 @@ class ABBSunSpecModbusHub:
             acvoltagean = decoder.decode_16bit_uint()
             acvoltagebn = decoder.decode_16bit_uint()
             acvoltagecn = decoder.decode_16bit_uint()
+            self.data["acvoltageab"] = round(acvoltageab, 2)
+            self.data["acvoltagebc"] = round(acvoltagebc, 2)
+            self.data["acvoltageca"] = round(acvoltageca, 2)
+            self.data["acvoltagean"] = round(acvoltagean, 2)
+            self.data["acvoltagebn"] = round(acvoltagebn, 2)
+            self.data["acvoltagecn"] = round(acvoltagecn, 2)
 
             # skip register 83
             decoder.skip_bytes(2)
 
             # register 84
             acpower = decoder.decode_16bit_int()
+            self.data["acpower"] = round(acpower, 2)
 
             # skip register 85
             decoder.skip_bytes(2)
 
             # register 86
             acfreq = decoder.decode_16bit_uint()
+            self.data["acfreq"] = round(acfreq, 2)
 
             # skip register 87-93
             decoder.skip_bytes(14)
@@ -256,18 +268,21 @@ class ABBSunSpecModbusHub:
 
              # register 101
             dcpower = decoder.decode_16bit_int()
+            self.data["dcpower"] = round(dcpower, 2)
 
             # skip register 102
             decoder.skip_bytes(2)
 
              # register 103
             tempcab = decoder.decode_16bit_int()
+            self.data["tempcab"] = round(tempcab, 2)
 
             # skip registers 104-105
             decoder.skip_bytes(4)
 
             # register 106
             tempoth = decoder.decode_16bit_int()
+            self.data["tempoth"] = round(tempoth, 2)
 
             # skip register 107
             decoder.skip_bytes(2)

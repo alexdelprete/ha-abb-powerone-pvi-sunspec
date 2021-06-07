@@ -34,8 +34,8 @@ SENSOR_TYPES = {
     "DC_Power": ["DC Power", "dcpower", "W", "mdi:solar-power", DEVICE_CLASS_POWER],
     "Temp_Cab": ["Temp. Cabinet", "tempcab", "°C", "mdi:temperature-celsius", DEVICE_CLASS_TEMPERATURE],
     "Temp_Oth": ["Temp. Booster", "tempoth", "°C", "mdi:temperature-celsius", DEVICE_CLASS_TEMPERATURE],
-    "Status": ["Status", "status", "mdi:information-outline", None],
-    "Status_Vendor": ["Status Vendor", "statusvendor", "mdi:information-outline", None],
+    "Status": ["Status", "status", None, "mdi:information-outline", None],
+    "Status_Vendor": ["Status Vendor", "statusvendor", None, "mdi:information-outline", None],
 }
     # "MPPT1Curr": ["MPPT1 total current", "mppt1curr", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],
     # "MPPT1Volt": ["MPPT1 voltage", "mppt1volt", "V", "mdi:lightning-bolt", DEVICE_CLASS_VOLTAGE],

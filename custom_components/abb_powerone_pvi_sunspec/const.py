@@ -10,7 +10,7 @@ DOMAIN = "abb_powerone_pvi_sunspec"
 DEFAULT_NAME = "abb_pvi"
 DEFAULT_PORT = 502
 DEFAULT_SCAN_INTERVAL = 30
-MANUFACTURER = "ABB/Power-One"
+MANUFACTURER = "ABB Power-One"
 ATTR_STATUS_DESCRIPTION = "status_description"
 ATTR_MANUFACTURER = "ABB"
 

@@ -1,6 +1,6 @@
 {
   "domain": "abb_powerone_pvi_sunspec",
-  "name": "Aurora ABB Power-One (SunSpec Modbus TCP)",
+  "name": "ABB Power-One PVI SunSpec",
   "documentation": "https://github.com/alexdelprete/home-assistant-abb-sunspec-modbus",
   "requirements": ["pymodbus==1.5.2"],
   "dependencies": [],

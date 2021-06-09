@@ -1,4 +1,4 @@
-"""The ABB SunSpec Modbus Integration."""
+"""The ABB Power-One PVI SunSpec Integration"""
 import asyncio
 import logging
 import threading

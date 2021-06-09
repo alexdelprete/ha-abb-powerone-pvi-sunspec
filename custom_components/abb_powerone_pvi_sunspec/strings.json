@@ -1,6 +1,6 @@
 {
   "config": {
-    "title": "ABB Sunspec Modbus",
+    "title": "ABB Power-One PVI SunSpec",
     "step": {
       "user": {
         "title": "Configure your ABB Modbus connection",

@@ -4,7 +4,7 @@
   "documentation": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
   "requirements": ["pymodbus==1.5.2"],
   "dependencies": [],
-  "codeowners": ["@alexdelprete","@binsentsu"],
+  "codeowners": ["@alexdelprete"],
   "iot_class": "local_polling",
   "config_flow": true,
   "version": "1.0"

@@ -9,6 +9,7 @@ import voluptuous as vol
 from pymodbus.client.sync import ModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
+from pymodbus.exceptions import ConnectionException
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
@@ -173,16 +174,18 @@ class ABBPowerOnePVISunSpecHub:
         )
 
     def read_modbus_data(self):
-        return (
-            self.read_modbus_data_inverter()
-        )
+        try:
+            return self.read_modbus_data_inverter()
+        except ConnectionException as ex:
+            _LOGGER.error("Reading data failed! Inverter is unreachable.")
+            return True
 
     def read_modbus_data_inverter_stub(self):
-        # self.data["comm_manufact"] = 1
-        # self.data["comm_model"] = 1
-        # self.data["comm_options"] = 1
-        # self.data["comm_version"] = 1
-        # self.data["comm_sernum"] = 1
+        self.data["comm_manufact"] = ""
+        self.data["comm_model"] = ""
+        self.data["comm_options"] = ""
+        self.data["comm_version"] = ""
+        self.data["comm_sernum"] = ""
         self.data["accurrent"] = 1
         self.data["accurrenta"] = 1
         self.data["accurrentb"] = 1
@@ -215,7 +218,7 @@ class ABBPowerOnePVISunSpecHub:
         # We connect to UnitID=2 first, if error, we try UnitID=247, else Fail
         # Start address 72 read 92 registers to read M103+M160 in 1-pass
         # Start address 4 read 158 registers to read M1+M103+M160 in 1-pass
-        inverter_data = self.read_holding_registers(unit=2, address=72, count=92)
+        inverter_data = self.read_holding_registers(unit=2, address=4, count=158)
         if inverter_data.isError():
             inverter_data = self.read_holding_registers(unit=247, address=4, count=158)
             if inverter_data.isError():
@@ -228,19 +231,19 @@ class ABBPowerOnePVISunSpecHub:
         )
 
         # registers 4 to 67
-        # comm_manufact = decoder.decode_string(size=32)
-        # comm_model = decoder.decode_string(size=32)
-        # comm_options = decoder.decode_string(size=16)
-        # comm_version = decoder.decode_string(size=16)
-        # comm_sernum = decoder.decode_string(size=32)
-        # self.data["comm_manufact"] = comm_manufact
-        # self.data["comm_model"] = comm_model
-        # self.data["comm_options"] = comm_options
-        # self.data["comm_version"] = comm_version
-        # self.data["comm_sernum"] = comm_sernum
-        
+        comm_manufact = decoder.decode_string(size=32).decode("ascii")
+        comm_model = decoder.decode_string(size=32).decode("ascii")
+        comm_options = decoder.decode_string(size=16).decode("ascii")
+        comm_version = decoder.decode_string(size=16).decode("ascii")
+        comm_sernum = decoder.decode_string(size=32).decode("ascii")
+        self.data["comm_manufact"] = str(comm_manufact)
+        self.data["comm_model"] = str(comm_model)
+        self.data["comm_options"] = str(comm_options)
+        self.data["comm_version"] = str(comm_version)
+        self.data["comm_sernum"] = str(comm_sernum)
+
         # skip register 68-71
-        # decoder.skip_bytes(8)
+        decoder.skip_bytes(8)
 
         # registers 72 to 76
         accurrent = decoder.decode_16bit_uint()

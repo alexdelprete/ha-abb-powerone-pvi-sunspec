@@ -183,7 +183,6 @@ class ABBPowerOnePVISunSpecHub:
         self.data["comm_options"] = ""
         self.data["comm_version"] = ""
         self.data["comm_sernum"] = ""
-        #self.data["comm_devaddr"] = 1
         self.data["accurrent"] = 1
         self.data["accurrenta"] = 1
         self.data["accurrentb"] = 1
@@ -228,20 +227,18 @@ class ABBPowerOnePVISunSpecHub:
             inverter_data.registers, byteorder=Endian.Big
         )
 
-        # registers 4 to 68
+        # registers 4 to 67
         comm_manufact = decoder.decode_string(size=32)
         comm_model = decoder.decode_string(size=32)
         comm_options = decoder.decode_string(size=16)
         comm_version = decoder.decode_string(size=16)
         comm_sernum = decoder.decode_string(size=32)
-        comm_devaddr = decoder.decode_16bit_uint()
         self.data["comm_manufact"] = comm_manufact
         self.data["comm_model"] = comm_model
         self.data["comm_options"] = comm_options
         self.data["comm_version"] = comm_version
         self.data["comm_sernum"] = comm_sernum
-        #self.data["comm_devaddr"] = comm_devaddr
-
+        
         # skip register 68-71
         decoder.skip_bytes(8)
 

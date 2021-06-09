@@ -21,7 +21,6 @@ SENSOR_TYPES = {
     "Options": ["Options", "comm_options", None, "mdi:information-outline", None],
     "Version": ["Firmware Version", "comm_version", None, "mdi:information-outline", None],
     "Serial": ["Serial", "comm_sernum", None, "mdi:information-outline", None],
-    #"Device_Addr": ["Modbus Address", "comm_devaddr", None, "mdi:information-outline", None],
     "AC_Current": ["AC Current", "accurrent", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],
     "AC_CurrentA": ["AC Current A", "accurrenta", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],
     "AC_CurrentB": ["AC Current B", "accurrentb", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],

@@ -215,8 +215,13 @@ class ABBPowerOnePVISunSpecHub:
 
     def read_modbus_data_inverter(self):
         # We connect to UnitID=2 first, if error, we try UnitID=247, else Fail
-        # Start address 72 read 92 registers to read M103+M160 in 1-pass
-        # Start address 4 read 158 registers to read M1+M103+M160 in 1-pass
+        # Max number of registers in one read for Modbus/TCP is 123
+        # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
+        #
+        # So we have to do 2 read-cycles, one for M1 and the other for M103+M160
+        #
+        # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
+        # Start address 72 read 92 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
         inverter_data = self.read_holding_registers(unit=2, address=4, count=64)
         if inverter_data.isError():
             _LOGGER.error("Reading data failed! Inverter is unreachable on ID=2.")
@@ -247,8 +252,13 @@ class ABBPowerOnePVISunSpecHub:
 
     def read_modbus_data_realtime(self):
         # We connect to UnitID=2 first, if error, we try UnitID=247, else Fail
-        # Start address 72 read 92 registers to read M103+M160 in 1-pass
-        # Start address 4 read 158 registers to read M1+M103+M160 in 1-pass
+        # Max number of registers in one read for Modbus/TCP is 123
+        # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
+        #
+        # So we have to do 2 read-cycles, one for M1 and the other for M103+M160
+        #
+        # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
+        # Start address 72 read 92 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
         realtime_data = self.read_holding_registers(unit=2, address=72, count=92)
         if realtime_data.isError():
             _LOGGER.error("Reading data failed! Inverter is unreachable on ID=2.")

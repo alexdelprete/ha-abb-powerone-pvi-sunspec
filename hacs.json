@@ -2,6 +2,7 @@
   "name": "ABB Power-One PVI SunSpec",
   "content_in_root": false,
   "domains": ["sensor"],
+  "render_readme": true,
   "homeassistant": "0.109.0",
-  "iot_class": "local_poll"
+  "iot_class": ["Local Polling"]
 }

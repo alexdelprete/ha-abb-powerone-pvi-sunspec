@@ -26,7 +26,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     entities = []
     for sensor_info in SENSOR_TYPES.values():
-        sensor = ABBSunSpecSensor(
+        sensor = ABBPowerOnePVISunSpecSensor(
             hub_name,
             hub,
             device_info,
@@ -40,7 +40,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     return True
 
 
-class ABBSunSpecSensor(Entity):
+class ABBPowerOnePVISunSpecSensor(Entity):
     """Representation of an ABB SunSpec Modbus sensor."""
 
     def __init__(self, platform_name, hub, device_info, name, key, unit, icon):

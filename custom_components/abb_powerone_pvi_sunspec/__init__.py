@@ -44,13 +44,13 @@ PLATFORMS = ["sensor"]
 
 
 async def async_setup(hass, config):
-    """Set up ABB Sunspec Modbus component"""
+    """Set up ABB Power-One PVI SunSpec component"""
     hass.data[DOMAIN] = {}
     return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    """Set up ABB Sunspec Modbus"""
+    """Set up ABB Power-One PVI SunSpec"""
     host = entry.data[CONF_HOST]
     name = entry.data[CONF_NAME]
     port = entry.data[CONF_PORT]
@@ -58,7 +58,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     _LOGGER.debug("Setup %s.%s", DOMAIN, name)
 
-    hub = ABBSunSpecModbusHub(
+    hub = ABBPowerOnePVISunSpecHub(
         hass, name, host, port, scan_interval
     )
     """Register the hub."""
@@ -72,7 +72,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 
 async def async_unload_entry(hass, entry):
-    """Unload ABB SunSpec Modbus entry."""
+    """Unload ABB Power-One PVI SunSpec entry."""
     unload_ok = all(
         await asyncio.gather(
             *[
@@ -88,7 +88,7 @@ async def async_unload_entry(hass, entry):
     return True
 
 
-class ABBSunSpecModbusHub:
+class ABBPowerOnePVISunSpecHub:
     """Thread safe wrapper class for pymodbus."""
 
     def __init__(

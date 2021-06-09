@@ -1,6 +1,6 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 
-# home-assistant-abb-sunspec-modbus
+# ha-abb-powerone-pvi-sunspec
 Home Assistant Custom Component to integrate data from ABB/Power-One/FIMER PV 3-phase Inverters with support for SunSpec Modbus TCP (Sunspec M103 and M160), natively or through the VSN300 wifi logger card, that provides a SunSpec to Aurora protocol adapter so that all modbus commands are translated to the proprietary Aurora protocol.
 
 The component has been originally developed by @binsentsu for SolarEdge inverters, I adapted it for my Power-One Aurora PVI-10.0-OUTD 3-phase inverter to which I added a VSN300 card. It has not been tested on other models.

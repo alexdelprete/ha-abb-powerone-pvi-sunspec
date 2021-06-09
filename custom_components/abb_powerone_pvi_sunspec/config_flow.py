@@ -42,8 +42,8 @@ def abb_powerone_pvi_sunspec_entries(hass: HomeAssistant):
     )
 
 
-class ABBSunSpecModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """ABB SunSpec Modbus configflow."""
+class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """ABB Power-One PVI SunSpec configflow"""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL

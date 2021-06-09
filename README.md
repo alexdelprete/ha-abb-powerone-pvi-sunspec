@@ -5,10 +5,10 @@ Home Assistant Custom Component to integrate data from ABB/Power-One/FIMER PV 3-
 
 The component has been originally developed by @binsentsu for SolarEdge inverters, I adapted it for my Power-One Aurora PVI-10.0-OUTD 3-phase inverter to which I added a VSN300 card. It has not been tested on other models.
 
-Registers' address map has been implemented following the vendor's specification document: https://github.com/alexdelprete/home-assistant-abb-sunspec-modbus/raw/master/VSN300_Sunspec%20register%20map.xlsx
+Registers' address map has been implemented following the vendor's specification document: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/VSN300_Sunspec%20register%20map.xlsx
 
 # Installation
-Copy contents of custom_components folder to your home-assistant config/custom_components folder or install it through HACS, adding this as a custom repository: https://github.com/alexdelprete/home-assistant-abb-sunspec-modbus/
+Copy contents of custom_components folder to your home-assistant config/custom_components folder or install it through HACS, adding this as a custom repository: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/
 
 Restart Home Assistant, and then the integration can be configured through the native integration setup UI.
 

@@ -3,12 +3,12 @@
     "title": "ABB Power-One PVI SunSpec",
     "step": {
       "user": {
-        "title": "Configure your ABB Modbus connection",
+        "title": "Inverter Connection Configuration",
         "data": {
-          "host": "IP address of your ABB inverter",
-          "name": "The prefix to be used for your ABB sensors",
-          "port": "The TCP port to connect to the ABB inverter",
-          "scan_interval": "The polling period of the modbus registers (seconds)"
+          "host": "IP address of the inverter",
+          "name": "Prefix to be used for the sensors",
+          "port": "TCP port of the inverter",
+          "scan_interval": "Polling period for the modbus registers (seconds)"
         }
       }
     },

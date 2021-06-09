@@ -1,7 +1,7 @@
 {
   "domain": "abb_powerone_pvi_sunspec",
   "name": "ABB Power-One PVI SunSpec",
-  "documentation": "https://github.com/alexdelprete/home-assistant-abb-sunspec-modbus",
+  "documentation": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
   "requirements": ["pymodbus==1.5.2"],
   "dependencies": [],
   "codeowners": ["@alexdelprete","@binsentsu"],

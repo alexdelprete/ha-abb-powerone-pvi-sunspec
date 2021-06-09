@@ -175,7 +175,7 @@ class ABBPowerOnePVISunSpecHub:
 
     def read_modbus_data(self):
         try:
-            return self.read_modbus_data_inverter()
+            return self.read_modbus_data_inverter() and self.read_modbus_data_realtime()
         except ConnectionException as ex:
             _LOGGER.error("Reading data failed! Inverter is unreachable.")
             return True
@@ -214,15 +214,16 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def read_modbus_data_inverter(self):
-
         # We connect to UnitID=2 first, if error, we try UnitID=247, else Fail
         # Start address 72 read 92 registers to read M103+M160 in 1-pass
         # Start address 4 read 158 registers to read M1+M103+M160 in 1-pass
-        inverter_data = self.read_holding_registers(unit=2, address=4, count=158)
+        inverter_data = self.read_holding_registers(unit=2, address=4, count=64)
         if inverter_data.isError():
-            inverter_data = self.read_holding_registers(unit=247, address=4, count=158)
+            _LOGGER.error("Reading data failed! Inverter is unreachable on ID=2.")
+            inverter_data = self.read_holding_registers(unit=247, address=4, count=64)
             if inverter_data.isError():
                 # both ID=2 and ID=247 don't work, so we return False
+                _LOGGER.error("Reading data failed! Inverter is unreachable on ID=247.")
                 return False
 
         # No connection errors, we can start scraping registers
@@ -230,7 +231,7 @@ class ABBPowerOnePVISunSpecHub:
             inverter_data.registers, byteorder=Endian.Big
         )
 
-        # registers 4 to 67
+        # registers 4 to 52
         comm_manufact = decoder.decode_string(size=32).decode("ascii")
         comm_model = decoder.decode_string(size=32).decode("ascii")
         comm_options = decoder.decode_string(size=16).decode("ascii")
@@ -242,8 +243,25 @@ class ABBPowerOnePVISunSpecHub:
         self.data["comm_version"] = str(comm_version)
         self.data["comm_sernum"] = str(comm_sernum)
 
-        # skip register 68-71
-        decoder.skip_bytes(8)
+        return True
+
+    def read_modbus_data_realtime(self):
+        # We connect to UnitID=2 first, if error, we try UnitID=247, else Fail
+        # Start address 72 read 92 registers to read M103+M160 in 1-pass
+        # Start address 4 read 158 registers to read M1+M103+M160 in 1-pass
+        realtime_data = self.read_holding_registers(unit=2, address=72, count=92)
+        if realtime_data.isError():
+            _LOGGER.error("Reading data failed! Inverter is unreachable on ID=2.")
+            realtime_data = self.read_holding_registers(unit=247, address=72, count=92)
+            if realtime_data.isError():
+                # both ID=2 and ID=247 don't work, so we return False
+                _LOGGER.error("Reading data failed! Inverter is unreachable on ID=247.")
+                return False
+
+        # No connection errors, we can start scraping registers
+        decoder = BinaryPayloadDecoder.fromRegisters(
+            realtime_data.registers, byteorder=Endian.Big
+        )
 
         # registers 72 to 76
         accurrent = decoder.decode_16bit_uint()
@@ -369,4 +387,3 @@ class ABBPowerOnePVISunSpecHub:
         self.data["dc2power"] = round(dc2power, abs(dcwsf))
 
         return True
-

@@ -1,7 +1,5 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
 
-<a href="https://www.buymeacoffee.com/alexdelprete" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/black_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a><br>
-
 # ha-abb-powerone-pvi-sunspec
 Home Assistant Custom Component to integrate data from ABB/Power-One/FIMER PV 3-phase Inverters with support for SunSpec Modbus TCP (Sunspec M103 and M160), natively or through the VSN300 wifi logger card, that provides a SunSpec to Aurora protocol adapter so that all modbus commands are translated to the proprietary Aurora protocol.
 
@@ -16,3 +14,6 @@ Restart Home Assistant, and then the integration can be configured through the n
 
 # Enabling Modbus TCP on the inverter
 Enable Modbus TCP client on the inverter or the VSN300, take note of the Unit ID (aka Slave ID) of the inverter (depends on the model, default on some models is 2 on others is 254, you can get it from the inverter if you don't want to go through trial/error process.
+
+# Coffee
+If you like this component, I'll gladly accept some coffee: <a href="https://www.buymeacoffee.com/alexdelprete" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/black_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a><br>

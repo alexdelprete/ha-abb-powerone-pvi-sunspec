@@ -16,11 +16,11 @@ ATTR_MANUFACTURER = "ABB Power-One"
 
 
 SENSOR_TYPES = {
-    "Manufacturer": ["Manufacturer", "comm_manufact", None, "mdi:information-outline", None],
-    "Model": ["Model", "comm_model", None, "mdi:information-outline", None],
-    "Options": ["Options", "comm_options", None, "mdi:information-outline", None],
-    "Version": ["Firmware Version", "comm_version", None, "mdi:information-outline", None],
-    "Serial": ["Serial", "comm_sernum", None, "mdi:information-outline", None],
+    # "Manufacturer": ["Manufacturer", "comm_manufact", None, "mdi:information-outline", None],
+    # "Model": ["Model", "comm_model", None, "mdi:information-outline", None],
+    # "Options": ["Options", "comm_options", None, "mdi:information-outline", None],
+    # "Version": ["Firmware Version", "comm_version", None, "mdi:information-outline", None],
+    # "Serial": ["Serial", "comm_sernum", None, "mdi:information-outline", None],
     "AC_Current": ["AC Current", "accurrent", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],
     "AC_CurrentA": ["AC Current A", "accurrenta", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],
     "AC_CurrentB": ["AC Current B", "accurrentb", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],

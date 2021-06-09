@@ -19,4 +19,4 @@ Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Slave ID) 
 # Coffee
 If you like this integration, I'll gladly accept some quality coffee, but don't feel obliged. :)
 
-<a href="https://www.buymeacoffee.com/alexdelprete" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/black_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a><br>
+<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="alexdelprete" data-color="#FFDD00" data-emoji="☕"  data-font="Bree" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>

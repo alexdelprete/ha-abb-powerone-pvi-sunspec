@@ -214,8 +214,8 @@ class ABBPowerOnePVISunSpecHub:
     def read_modbus_data_inverter(self):
 
         # We connect to UnitID=2 first, if error, we try UnitID=247, else Fail
-        # 72-92 for M103+M160
-        # 4-158 for M1+M103+M160
+        # Start address 72 read 92 registers to read M103+M160 in 1-pass
+        # Start address 4 read 158 registers to read M1+M103+M160 in 1-pass
         inverter_data = self.read_holding_registers(unit=2, address=4, count=158)
         if inverter_data.isError():
             inverter_data = self.read_holding_registers(unit=247, address=4, count=158)

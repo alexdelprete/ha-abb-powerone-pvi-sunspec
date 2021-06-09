@@ -6,16 +6,22 @@ from homeassistant.const import (
     DEVICE_CLASS_VOLTAGE,
 )
 
-DOMAIN = "abb_sunspec_modbus"
-DEFAULT_NAME = "abb_sunspec"
+DOMAIN = "abb_powerone_pvi_sunspec"
+DEFAULT_NAME = "abb_pvi"
 DEFAULT_PORT = 502
 DEFAULT_SCAN_INTERVAL = 30
-MANUFACTURER = "ABB"
+MANUFACTURER = "ABB/Power-One"
 ATTR_STATUS_DESCRIPTION = "status_description"
 ATTR_MANUFACTURER = "ABB"
-CONF_ABB_SUNSPEC_HUB = "abb_sunspec_hub"
+
 
 SENSOR_TYPES = {
+    "Manufacturer": ["Manufacturer", "comm_manufact", None, "mdi:information-outline", None],
+    "Model": ["Model", "comm_model", None, "mdi:information-outline", None],
+    "Options": ["Options", "comm_options", None, "mdi:information-outline", None],
+    "Version": ["Firmware Version", "comm_version", None, "mdi:information-outline", None],
+    "Serial": ["Serial", "comm_sernum", None, "mdi:information-outline", None],
+    "Device_Addr": ["Modbus Address", "comm_devaddr", None, "mdi:information-outline", None],
     "AC_Current": ["AC Current", "accurrent", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],
     "AC_CurrentA": ["AC Current A", "accurrenta", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],
     "AC_CurrentB": ["AC Current B", "accurrentb", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],

@@ -35,7 +35,7 @@ def host_valid(host):
 
 
 @callback
-def abb_sunspec_modbus_entries(hass: HomeAssistant):
+def abb_powerone_pvi_sunspec_entries(hass: HomeAssistant):
     """Return the hosts already configured."""
     return set(
         entry.data[CONF_HOST] for entry in hass.config_entries.async_entries(DOMAIN)
@@ -50,7 +50,7 @@ class ABBSunSpecModbusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def _host_in_configuration_exists(self, host) -> bool:
         """Return True if host exists in configuration."""
-        if host in abb_sunspec_modbus_entries(self.hass):
+        if host in abb_powerone_pvi_sunspec_entries(self.hass):
             return True
         return False
 

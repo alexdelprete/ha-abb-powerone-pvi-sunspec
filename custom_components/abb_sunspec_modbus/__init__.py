@@ -27,7 +27,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-ABB_SUNSPEC_MODBUS_SCHEMA = vol.Schema(
+ABB_POWERONE_PVI_SUNSPEC_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Required(CONF_HOST): cv.string,
@@ -37,7 +37,7 @@ ABB_SUNSPEC_MODBUS_SCHEMA = vol.Schema(
 )
 
 CONFIG_SCHEMA = vol.Schema(
-    {DOMAIN: vol.Schema({cv.slug: ABB_SUNSPEC_MODBUS_SCHEMA})}, extra=vol.ALLOW_EXTRA
+    {DOMAIN: vol.Schema({cv.slug: ABB_POWERONE_PVI_SUNSPEC_SCHEMA})}, extra=vol.ALLOW_EXTRA
 )
 
 PLATFORMS = ["sensor"]
@@ -110,7 +110,7 @@ class ABBSunSpecModbusHub:
         self.data = {}
 
     @callback
-    def async_add_abb_sunspec_sensor(self, update_callback):
+    def async_add_abb_powerone_pvi_sunspec_sensor(self, update_callback):
         """Listen for data updates."""
         # This is the first sensor, set up interval.
         if not self._sensors:
@@ -122,7 +122,7 @@ class ABBSunSpecModbusHub:
         self._sensors.append(update_callback)
 
     @callback
-    def async_remove_abb_sunspec_sensor(self, update_callback):
+    def async_remove_abb_powerone_pvi_sunspec_sensor(self, update_callback):
         """Remove data update."""
         self._sensors.remove(update_callback)
 
@@ -178,6 +178,12 @@ class ABBSunSpecModbusHub:
         )
 
     def read_modbus_data_inverter_stub(self):
+        self.data["comm_manufact"] = ""
+        self.data["comm_model"] = ""
+        self.data["comm_options"] = ""
+        self.data["comm_version"] = ""
+        self.data["comm_sernum"] = ""
+        self.data["comm_devaddr"] = 1
         self.data["accurrent"] = 1
         self.data["accurrenta"] = 1
         self.data["accurrentb"] = 1
@@ -208,9 +214,11 @@ class ABBSunSpecModbusHub:
     def read_modbus_data_inverter(self):
 
         # We connect to UnitID=2 first, if error, we try UnitID=247, else Fail
-        inverter_data = self.read_holding_registers(unit=2, address=72, count=92)
+        # 72-92 for M103+M160
+        # 4-158 for M1+M103+M160
+        inverter_data = self.read_holding_registers(unit=2, address=4, count=158)
         if inverter_data.isError():
-            inverter_data = self.read_holding_registers(unit=247, address=72, count=92)
+            inverter_data = self.read_holding_registers(unit=247, address=4, count=158)
             if inverter_data.isError():
                 # both ID=2 and ID=247 don't work, so we return False
                 return False
@@ -219,6 +227,23 @@ class ABBSunSpecModbusHub:
         decoder = BinaryPayloadDecoder.fromRegisters(
             inverter_data.registers, byteorder=Endian.Big
         )
+
+        # registers 4 to 68
+        comm_manufact = decoder.decode_string(size=32)
+        comm_model = decoder.decode_string(size=32)
+        comm_options = decoder.decode_string(size=16)
+        comm_version = decoder.decode_string(size=16)
+        comm_sernum = decoder.decode_string(size=32)
+        comm_devaddr = decoder.decode_16bit_uint()
+        self.data["comm_manufact"] = comm_manufact
+        self.data["comm_model"] = comm_model
+        self.data["comm_options"] = comm_options
+        self.data["comm_version"] = comm_version
+        self.data["comm_sernum"] = comm_sernum
+        self.data["comm_devaddr"] = comm_devaddr
+
+        # skip register 69-71
+        decoder.skip_bytes(6)
 
         # registers 72 to 76
         accurrent = decoder.decode_16bit_uint()
@@ -271,7 +296,7 @@ class ABBSunSpecModbusHub:
         # skip register 88-93
         decoder.skip_bytes(12)
 
-            # registers 94 to 96
+        # registers 94 to 96
         acenergy = decoder.decode_32bit_uint()
         acenergysf = decoder.decode_16bit_uint()
         acenergy = self.calculate_value(acenergy, acenergysf)
@@ -280,13 +305,13 @@ class ABBSunSpecModbusHub:
         # skip register 97 to 100
         decoder.skip_bytes(8)
 
-            # registers 101 to 102
+        # registers 101 to 102
         dcpower = decoder.decode_16bit_int()
         dcpowersf = decoder.decode_16bit_int()
         dcpower = self.calculate_value(dcpower, dcpowersf)
         self.data["dcpower"] = round(dcpower, abs(dcpowersf))
 
-            # register 103
+        # register 103
         tempcab = decoder.decode_16bit_int()        
         # skip registers 104-105
         decoder.skip_bytes(4)

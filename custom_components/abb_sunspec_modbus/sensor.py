@@ -55,10 +55,10 @@ class ABBSunSpecSensor(Entity):
 
     async def async_added_to_hass(self):
         """Register callbacks."""
-        self._hub.async_add_abb_sunspec_sensor(self._modbus_data_updated)
+        self._hub.async_add_abb_powerone_pvi_sunspec_sensor(self._modbus_data_updated)
 
     async def async_will_remove_from_hass(self) -> None:
-        self._hub.async_remove_abb_sunspec_sensor(self._modbus_data_updated)
+        self._hub.async_remove_abb_powerone_pvi_sunspec_sensor(self._modbus_data_updated)
 
     @callback
     def _modbus_data_updated(self):

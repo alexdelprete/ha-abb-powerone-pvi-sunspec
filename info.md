@@ -12,6 +12,7 @@ Home assistant Custom Component to integrate data from ABB Power-One PVI 3-phase
 - Supports SunSpec models M1, M103, M160
 
 ### Configuration
-Go to the integrations page in your configuration and click on new integration -> ABB SunSpec Modbus
+Go to the integrations page in your configuration and click on new integration -> ABB Power-One PVI SunSpec
 
+Sensors preview:
 <img style="border: 5px solid #767676;border-radius: 10px;max-width: 350px;width: 100%;box-sizing: border-box;" src="https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/blob/master/demo.png?raw=true" alt="Demo">

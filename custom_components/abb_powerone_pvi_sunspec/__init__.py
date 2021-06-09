@@ -183,7 +183,7 @@ class ABBPowerOnePVISunSpecHub:
         self.data["comm_options"] = ""
         self.data["comm_version"] = ""
         self.data["comm_sernum"] = ""
-        self.data["comm_devaddr"] = 1
+        #self.data["comm_devaddr"] = 1
         self.data["accurrent"] = 1
         self.data["accurrenta"] = 1
         self.data["accurrentb"] = 1
@@ -240,10 +240,10 @@ class ABBPowerOnePVISunSpecHub:
         self.data["comm_options"] = comm_options
         self.data["comm_version"] = comm_version
         self.data["comm_sernum"] = comm_sernum
-        self.data["comm_devaddr"] = comm_devaddr
+        #self.data["comm_devaddr"] = comm_devaddr
 
-        # skip register 69-71
-        decoder.skip_bytes(6)
+        # skip register 68-71
+        decoder.skip_bytes(8)
 
         # registers 72 to 76
         accurrent = decoder.decode_16bit_uint()

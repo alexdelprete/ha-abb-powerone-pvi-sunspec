@@ -4,5 +4,5 @@
   "domains": ["sensor"],
   "render_readme": false,
   "homeassistant": "0.109.0",
-  "iot_class": ["Local Polling"]
+  "iot_class": "local_polling"
 }

@@ -96,13 +96,7 @@ class ABBPowerOnePVISunSpecSensor(Entity):
             return self._hub.data[self._key]
 
     @property
-    def state_attributes(self) -> Optional[Dict[str, Any]]:
-        if self._key in ["status"]:
-            if self.state in DEVICE_STATUS:
-                return {ATTR_STATUS_DESCRIPTION: self.state}
-        elif self._key in ["statusvendor"]:
-            if self.state in DEVICE_GLOBAL_STATUS:
-                return {ATTR_STATUS_DESCRIPTION: self.state}       
+    def state_attributes(self) -> Optional[Dict[str, Any]]:     
         return None
 
     @property

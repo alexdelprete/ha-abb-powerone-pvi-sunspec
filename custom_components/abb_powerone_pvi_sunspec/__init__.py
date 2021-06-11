@@ -203,8 +203,8 @@ class ABBPowerOnePVISunSpecHub:
         self.data["dcpower"] = 1
         self.data["tempcab"] = 1
         self.data["tempoth"] = 1
-        self.data["status"] = 1
-        self.data["statusvendor"] = 1
+        self.data["status"] = ""
+        self.data["statusvendor"] = ""
         self.data["dc1curr"] = 1
         self.data["dc1volt"] = 1
         self.data["dc1power"] = 1
@@ -355,11 +355,11 @@ class ABBPowerOnePVISunSpecHub:
 
         # register 108
         status = decoder.decode_16bit_int()
-        self.data["status"] = status
+        self.data["status"] = DEVICE_STATUS[status]
 
         # register 109
         statusvendor = decoder.decode_16bit_int()
-        self.data["statusvendor"] = statusvendor
+        self.data["statusvendor"] = DEVICE_GLOBAL_STATUS[statusvendor]
 
         # skip register 110 to 123
         decoder.skip_bytes(28)

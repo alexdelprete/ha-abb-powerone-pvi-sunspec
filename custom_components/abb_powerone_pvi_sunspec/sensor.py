@@ -93,13 +93,7 @@ class ABBPowerOnePVISunSpecSensor(Entity):
     def state(self):
         """Return the state of the sensor."""
         if self._key in self._hub.data:
-            if self._key in ["status"]:
-                if self.state in DEVICE_STATUS:
-                    return {DEVICE_STATUS[self.state]}
-            elif self._key in ["statusvendor"]:
-                if self.state in DEVICE_GLOBAL_STATUS:
-                    return {DEVICE_GLOBAL_STATUS[self.state]}
-        return self._hub.data[self._key]
+            return self._hub.data[self._key]
 
     @property
     def state_attributes(self) -> Optional[Dict[str, Any]]:

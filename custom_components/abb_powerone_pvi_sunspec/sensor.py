@@ -102,7 +102,7 @@ class ABBPowerOnePVISunSpecSensor(Entity):
                 return {ATTR_STATUS_DESCRIPTION: DEVICE_STATUS[self.state]}
         elif self._key in ["statusvendor"]:
             if self.state in DEVICE_GLOBAL_STATUS:
-                return {ATTR_STATUS_DESCRIPTION: DEVICE_STATUS[self.state]}       
+                return {ATTR_STATUS_DESCRIPTION: DEVICE_GLOBAL_STATUS[self.state]}       
         return None
 
     @property

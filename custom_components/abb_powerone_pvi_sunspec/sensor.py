@@ -68,13 +68,13 @@ class ABBPowerOnePVISunSpecSensor(Entity):
     @callback
     def _update_state(self):
         if self._key in self._hub.data:
+            self._state = self._hub.data[self._key]
             if self._key in ["status"]:
                 if self._state in DEVICE_STATUS:
                     self._state = {DEVICE_STATUS[self._state]}
             elif self._key in ["statusvendor"]:
                 if self._state in DEVICE_GLOBAL_STATUS:
                     self._state = {DEVICE_GLOBAL_STATUS[self._state]}
-            self._state = self._hub.data[self._key]
 
     @property
     def name(self):

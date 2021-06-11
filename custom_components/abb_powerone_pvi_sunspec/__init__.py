@@ -24,6 +24,7 @@ from .const import (
     DEFAULT_PORT,
     DEFAULT_SCAN_INTERVAL,
     DEVICE_STATUS,
+    DEVICE_GLOBAL_STATUS,
 )
 
 _LOGGER = logging.getLogger(__name__)

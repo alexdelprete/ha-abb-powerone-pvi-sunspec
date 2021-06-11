@@ -12,6 +12,7 @@ from .const import (
     DEFAULT_PORT,
     DEFAULT_SCAN_INTERVAL,
     DEVICE_STATUS,
+    DEVICE_GLOBAL_STATUS,
 )
 
 DATA_SCHEMA = vol.Schema(

@@ -5,6 +5,7 @@ from .const import (
     DOMAIN,
     ATTR_STATUS_DESCRIPTION,
     DEVICE_STATUS,
+    DEVICE_GLOBAL_STATUS,
     ATTR_MANUFACTURER,
 )
 from homeassistant.helpers.entity import Entity
@@ -96,9 +97,12 @@ class ABBPowerOnePVISunSpecSensor(Entity):
 
     @property
     def state_attributes(self) -> Optional[Dict[str, Any]]:
-        if self._key in ["status", "statusvendor"]:
+        if self._key in ["status"]:
             if self.state in DEVICE_STATUS:
                 return {ATTR_STATUS_DESCRIPTION: DEVICE_STATUS[self.state]}
+        elif self._key in ["statusvendor"]:
+            if self.state in DEVICE_GLOBAL_STATUS:
+                return {ATTR_STATUS_DESCRIPTION: DEVICE_STATUS[self.state]}       
         return None
 
     @property

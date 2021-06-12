@@ -19,6 +19,7 @@ from homeassistant.core import callback
 from homeassistant.helpers.event import async_track_time_interval
 
 from .const import (
+    DEVICE_MODEL,
     DOMAIN,
     DEFAULT_NAME,
     DEFAULT_PORT,
@@ -240,12 +241,12 @@ class ABBPowerOnePVISunSpecHub:
         # registers 4 to 52
         comm_manufact = decoder.decode_string(size=32).decode("ascii")
         comm_model = decoder.decode_string(size=32).decode("ascii")
-        comm_options = decoder.decode_string(size=16).decode("ascii")
+        comm_options = decoder.decode_string(size=16)
         comm_version = decoder.decode_string(size=16).decode("ascii")
         comm_sernum = decoder.decode_string(size=32).decode("ascii")
         self.data["comm_manufact"] = str(comm_manufact)
-        self.data["comm_model"] = str(comm_model)
-        self.data["comm_options"] = str(comm_options)
+        self.data["comm_options"] = int(comm_options)
+        self.data["comm_model"] = DEVICE_MODEL[comm_options]
         self.data["comm_version"] = str(comm_version)
         self.data["comm_sernum"] = str(comm_sernum)
 

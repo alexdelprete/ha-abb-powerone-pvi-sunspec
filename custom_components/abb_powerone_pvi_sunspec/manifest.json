@@ -2,6 +2,7 @@
   "domain": "abb_powerone_pvi_sunspec",
   "name": "ABB Power-One PVI SunSpec",
   "documentation": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
+  "issue_tracker": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues",
   "requirements": ["pymodbus==1.5.2"],
   "dependencies": [],
   "codeowners": ["@alexdelprete"],

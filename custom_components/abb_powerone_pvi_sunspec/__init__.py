@@ -245,7 +245,7 @@ class ABBPowerOnePVISunSpecHub:
         comm_version = decoder.decode_string(size=16).decode("ascii")
         comm_sernum = decoder.decode_string(size=32).decode("ascii")
         self.data["comm_manufact"] = str(comm_manufact)
-        self.data["comm_options"] = ord(comm_options)
+        self.data["comm_options"] = ord(comm_options[0])
         self.data["comm_model"] = DEVICE_MODEL[comm_options]
         self.data["comm_version"] = str(comm_version)
         self.data["comm_sernum"] = str(comm_sernum)

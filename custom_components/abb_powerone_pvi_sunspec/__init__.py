@@ -104,7 +104,7 @@ class ABBPowerOnePVISunSpecHub:
     ):
         """Initialize the Modbus hub."""
         self._hass = hass
-        self._client = ModbusTcpClient(host=host, port=port)
+        self._client = ModbusTcpClient(host=host, port=port, broadcast_enable=True)
         self._lock = threading.Lock()
         self._name = name
         self._scan_interval = timedelta(seconds=scan_interval)

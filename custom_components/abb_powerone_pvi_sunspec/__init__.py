@@ -241,7 +241,7 @@ class ABBPowerOnePVISunSpecHub:
         # registers 4 to 36
         comm_manufact = decoder.decode_string(size=32).decode("ascii")
         comm_model = decoder.decode_string(size=32).decode("ascii")
-        comm_options = decoder.decode_string(size=2).decode("ascii")
+        comm_options = decoder.decode_16bit_int()
 
         # skip register 37-43
         decoder.skip_bytes(14)
@@ -250,7 +250,7 @@ class ABBPowerOnePVISunSpecHub:
         comm_version = decoder.decode_string(size=16).decode("ascii")
         comm_sernum = decoder.decode_string(size=32).decode("ascii")
         self.data["comm_manufact"] = str(comm_manufact)
-        self.data["comm_options"] = ord(comm_options[0])
+        self.data["comm_options"] = comm_options
         self.data["comm_model"] = DEVICE_MODEL[comm_options]
         self.data["comm_version"] = str(comm_version)
         self.data["comm_sernum"] = str(comm_sernum)

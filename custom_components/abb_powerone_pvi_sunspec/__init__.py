@@ -185,7 +185,7 @@ class ABBPowerOnePVISunSpecHub:
     def read_modbus_data_inverter_stub(self):
         self.data["comm_manufact"] = ""
         self.data["comm_model"] = ""
-        self.data["comm_options"] = ""
+        self.data["comm_options"] = 1
         self.data["comm_version"] = ""
         self.data["comm_sernum"] = ""
         self.data["accurrent"] = 1
@@ -242,6 +242,8 @@ class ABBPowerOnePVISunSpecHub:
         comm_manufact = decoder.decode_string(size=32).decode("ascii")
         comm_model = decoder.decode_string(size=32).decode("ascii")
         comm_options = decoder.decode_16bit_int()
+        comm_options = self.calculate_value(comm_options, 0)
+        self.data["comm_options"] = comm_options
 
         # skip register 37-43
         decoder.skip_bytes(14)
@@ -250,7 +252,6 @@ class ABBPowerOnePVISunSpecHub:
         comm_version = decoder.decode_string(size=16).decode("ascii")
         comm_sernum = decoder.decode_string(size=32).decode("ascii")
         self.data["comm_manufact"] = str(comm_manufact)
-        self.data["comm_options"] = comm_options
         self.data["comm_model"] = DEVICE_MODEL[comm_options]
         self.data["comm_version"] = str(comm_version)
         self.data["comm_sernum"] = str(comm_sernum)

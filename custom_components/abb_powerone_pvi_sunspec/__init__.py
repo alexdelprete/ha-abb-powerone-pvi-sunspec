@@ -241,7 +241,7 @@ class ABBPowerOnePVISunSpecHub:
         # registers 4 to 52
         comm_manufact = decoder.decode_string(size=32).decode("ascii")
         comm_model = decoder.decode_string(size=32).decode("ascii")
-        comm_options = decoder.decode_string(size=16)
+        comm_options = decoder.decode_string(size=16).decode("ascii")
         comm_version = decoder.decode_string(size=16).decode("ascii")
         comm_sernum = decoder.decode_string(size=32).decode("ascii")
         self.data["comm_manufact"] = str(comm_manufact)

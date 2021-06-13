@@ -224,7 +224,7 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
-        inverter_data = self.read_holding_registers(address=4, count=64)
+        inverter_data = self.read_holding_registers(unit=0, address=4, count=64)
         if inverter_data.isError():
             _LOGGER.error("Reading data failed! Inverter is unreachable on ID=2.")
             return False
@@ -268,7 +268,7 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
-        realtime_data = self.read_holding_registers(address=72, count=92)
+        realtime_data = self.read_holding_registers(unit=0, address=72, count=92)
         if realtime_data.isError():
             _LOGGER.error("Reading data failed! Inverter is unreachable on ID=2.")
             return False

@@ -241,7 +241,7 @@ class ABBPowerOnePVISunSpecHub:
         # registers 4 to 36
         comm_manufact = decoder.decode_string(size=32).decode("ascii")
         comm_model = decoder.decode_string(size=32).decode("ascii")
-        comm_options = decode_string(size=1).decode("ascii")
+        comm_options = decoder.decode_string(size=1).decode("ascii")
         self.data["comm_options"] = ord(str(comm_options))
 
         # skip 2nd byte of register 36 + registers 37-43

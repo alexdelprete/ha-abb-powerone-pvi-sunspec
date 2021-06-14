@@ -7,13 +7,13 @@ from homeassistant.const import (
 )
 
 DOMAIN = "abb_powerone_pvi_sunspec"
-DEFAULT_NAME = "abb_p1"
+DEFAULT_NAME = "ABB Power-One"
 DEFAULT_PORT = 502
-DEFAULT_SCAN_INTERVAL = 30
+DEFAULT_SLAVE_ID = 2
+DEFAULT_SCAN_INTERVAL = 60
 MANUFACTURER = "ABB Power-One"
 ATTR_STATUS_DESCRIPTION = "status_description"
 ATTR_MANUFACTURER = "ABB Power-One"
-
 
 SENSOR_TYPES = {
     "Manufacturer": ["Manufacturer", "comm_manufact", None, "mdi:information-outline", None],
@@ -92,7 +92,6 @@ DEVICE_MODEL = {
     121: "TRIO-20-TL-OUTD (output 400 VAC)",
     122: "PVI-10.0-OUTD-I (output 600 VAC)",
 }
-
 
 DEVICE_GLOBAL_STATUS = {
     0: "Sending Parameters",

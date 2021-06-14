@@ -13,7 +13,7 @@ from pymodbus.exceptions import ConnectionException
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
+from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_SLAVE_ID, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
 from homeassistant.core import callback
 from homeassistant.helpers.event import async_track_time_interval
@@ -23,6 +23,7 @@ from .const import (
     DOMAIN,
     DEFAULT_NAME,
     DEFAULT_PORT,
+    DEFAULT_SLAVE_ID,
     DEFAULT_SCAN_INTERVAL,
     DEVICE_STATUS,
     DEVICE_GLOBAL_STATUS,
@@ -32,9 +33,10 @@ _LOGGER = logging.getLogger(__name__)
 
 ABB_POWERONE_PVI_SUNSPEC_SCHEMA = vol.Schema(
     {
-        vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        vol.Required(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.positive_int,
+        vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): int,
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.positive_int,
     }
 )
@@ -57,12 +59,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     host = entry.data[CONF_HOST]
     name = entry.data[CONF_NAME]
     port = entry.data[CONF_PORT]
+    slave_id = entry.data[CONF_SLAVE_ID]
     scan_interval = entry.data[CONF_SCAN_INTERVAL]
 
     _LOGGER.debug("Setup %s.%s", DOMAIN, name)
 
     hub = ABBPowerOnePVISunSpecHub(
-        hass, name, host, port, scan_interval
+        hass, name, host, port, slave_id, scan_interval
     )
     """Register the hub."""
     hass.data[DOMAIN][name] = {"hub": hub}
@@ -100,6 +103,7 @@ class ABBPowerOnePVISunSpecHub:
         name,
         host,
         port,
+        slave_id,
         scan_interval,
     ):
         """Initialize the Modbus hub."""
@@ -107,6 +111,7 @@ class ABBPowerOnePVISunSpecHub:
         self._client = ModbusTcpClient(host=host, port=port)
         self._lock = threading.Lock()
         self._name = name
+        self._slave_id = slave_id
         self._scan_interval = timedelta(seconds=scan_interval)
         self._unsub_interval_method = None
         self._sensors = []
@@ -224,14 +229,14 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
-        inverter_data = self.read_holding_registers(unit=2, address=4, count=64)
+        inverter_data = self.read_holding_registers(unit=self._slave_id, address=4, count=64)
         if inverter_data.isError():
-            _LOGGER.error("Reading data failed! Inverter is unreachable on ID=2.")
-            inverter_data = self.read_holding_registers(unit=247, address=4, count=64)
-            if inverter_data.isError():
-                # both ID=2 and ID=247 don't work, so we return False
-                _LOGGER.error("Reading data failed! Inverter is unreachable on ID=247.")
-                return False
+            _LOGGER.error("Reading data failed! Inverter is unreachable on ID=" + self._slave_id)
+            # inverter_data = self.read_holding_registers(unit=247, address=4, count=64)
+            # if inverter_data.isError():
+            #     # both ID=2 and ID=247 don't work, so we return False
+            #     _LOGGER.error("Reading data failed! Inverter is unreachable on ID=247.")
+            return False
 
         # No connection errors, we can start scraping registers
         decoder = BinaryPayloadDecoder.fromRegisters(

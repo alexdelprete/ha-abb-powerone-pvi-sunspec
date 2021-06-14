@@ -7,7 +7,7 @@ from homeassistant.const import (
 )
 
 DOMAIN = "abb_powerone_pvi_sunspec"
-CONF_SLAVE_ID = "test"
+CONF_SLAVE_ID = ""
 DEFAULT_SLAVE_ID = 2
 DEFAULT_NAME = "ABB P1 Inverter"
 DEFAULT_PORT = 502

@@ -7,14 +7,10 @@ from homeassistant.const import (
 )
 
 DOMAIN = "abb_powerone_pvi_sunspec"
-CONF_NAME = "Inverter's Name"
-DEFAULT_NAME = "ABB Power-One"
-CONF_HOST = "Hostname/IP"
-CONF_PORT = "TCP Port"
-DEFAULT_PORT = 502
 CONF_SLAVE_ID = "Modbus Slave ID"
 DEFAULT_SLAVE_ID = 2
-CONF_SCAN_INTERVAL = "Polling frequency (seconds)"
+DEFAULT_NAME = "ABB Power-One"
+DEFAULT_PORT = 502
 DEFAULT_SCAN_INTERVAL = 60
 MANUFACTURER = "ABB Power-One"
 ATTR_STATUS_DESCRIPTION = "status_description"

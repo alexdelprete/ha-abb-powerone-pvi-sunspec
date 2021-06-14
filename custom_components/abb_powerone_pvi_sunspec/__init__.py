@@ -13,7 +13,7 @@ from pymodbus.exceptions import ConnectionException
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
-#from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_SLAVE_ID, CONF_SCAN_INTERVAL
+from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
 from homeassistant.core import callback
 from homeassistant.helpers.event import async_track_time_interval
@@ -21,14 +21,10 @@ from homeassistant.helpers.event import async_track_time_interval
 from .const import (
     DEVICE_MODEL,
     DOMAIN,
-    CONF_NAME,
     DEFAULT_NAME,
-    CONF_HOST,
-    CONF_PORT,
     DEFAULT_PORT,
     CONF_SLAVE_ID,
     DEFAULT_SLAVE_ID,
-    CONF_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
     DEVICE_STATUS,
     DEVICE_GLOBAL_STATUS,
@@ -41,7 +37,7 @@ ABB_POWERONE_PVI_SUNSPEC_SCHEMA = vol.Schema(
         vol.Required(CONF_NAME, default=DEFAULT_NAME): cv.string,
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.positive_int,
-        vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): int,
+        vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): cv.positive_int,
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.positive_int,
     }
 )

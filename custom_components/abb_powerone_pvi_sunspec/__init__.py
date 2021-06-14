@@ -272,14 +272,14 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
-        realtime_data = self.read_holding_registers(unit=2, address=72, count=92)
+        realtime_data = self.read_holding_registers(unit=self._slave_id, address=72, count=92)
         if realtime_data.isError():
-            _LOGGER.error("Reading data failed! Inverter is unreachable on ID=2.")
-            realtime_data = self.read_holding_registers(unit=247, address=72, count=92)
-            if realtime_data.isError():
-                # both ID=2 and ID=247 don't work, so we return False
-                _LOGGER.error("Reading data failed! Inverter is unreachable on ID=247.")
-                return False
+            _LOGGER.error("Reading data failed! Inverter is unreachable on ID=" + self._slave_id)
+            # realtime_data = self.read_holding_registers(unit=247, address=72, count=92)
+            # if realtime_data.isError():
+            #     # both ID=2 and ID=247 don't work, so we return False
+            #     _LOGGER.error("Reading data failed! Inverter is unreachable on ID=247.")
+            return False
 
         # No connection errors, we can start scraping registers
         decoder = BinaryPayloadDecoder.fromRegisters(

@@ -5,12 +5,17 @@ import voluptuous as vol
 
 from homeassistant.core import HomeAssistant, callback
 from homeassistant import config_entries
-from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_SLAVE_ID, CONF_SCAN_INTERVAL
+#from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_SLAVE_ID, CONF_SCAN_INTERVAL
 from .const import (
     DOMAIN,
+    CONF_NAME,
     DEFAULT_NAME,
+    CONF_HOST,
+    CONF_PORT,
     DEFAULT_PORT,
+    CONF_SLAVE_ID,
     DEFAULT_SLAVE_ID,
+    CONF_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
 )
 

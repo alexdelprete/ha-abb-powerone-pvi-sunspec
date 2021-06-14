@@ -7,9 +7,14 @@ from homeassistant.const import (
 )
 
 DOMAIN = "abb_powerone_pvi_sunspec"
+CONF_NAME = "ABB Power-One"
 DEFAULT_NAME = "ABB Power-One"
+CONF_HOST = ""
+CONF_PORT = 502
 DEFAULT_PORT = 502
+CONF_SLAVE_ID = 2
 DEFAULT_SLAVE_ID = 2
+CONF_SCAN_INTERVAL = 60
 DEFAULT_SCAN_INTERVAL = 60
 MANUFACTURER = "ABB Power-One"
 ATTR_STATUS_DESCRIPTION = "status_description"

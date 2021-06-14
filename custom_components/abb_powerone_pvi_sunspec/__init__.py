@@ -233,10 +233,6 @@ class ABBPowerOnePVISunSpecHub:
         inverter_data = self.read_holding_registers(unit=self._slave_id, address=4, count=64)
         if inverter_data.isError():
             _LOGGER.error("Reading data failed! Inverter is unreachable on ID=" + self._slave_id)
-            # inverter_data = self.read_holding_registers(unit=247, address=4, count=64)
-            # if inverter_data.isError():
-            #     # both ID=2 and ID=247 don't work, so we return False
-            #     _LOGGER.error("Reading data failed! Inverter is unreachable on ID=247.")
             return False
 
         # No connection errors, we can start scraping registers
@@ -276,10 +272,6 @@ class ABBPowerOnePVISunSpecHub:
         realtime_data = self.read_holding_registers(unit=self._slave_id, address=72, count=92)
         if realtime_data.isError():
             _LOGGER.error("Reading data failed! Inverter is unreachable on ID=" + self._slave_id)
-            # realtime_data = self.read_holding_registers(unit=247, address=72, count=92)
-            # if realtime_data.isError():
-            #     # both ID=2 and ID=247 don't work, so we return False
-            #     _LOGGER.error("Reading data failed! Inverter is unreachable on ID=247.")
             return False
 
         # No connection errors, we can start scraping registers

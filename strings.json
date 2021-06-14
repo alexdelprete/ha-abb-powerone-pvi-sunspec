@@ -8,7 +8,7 @@
           "name": "Assign name to the inverter (used as sensors' prefix)",
           "host": "IP address of the inverter",
           "port": "TCP port of the inverter",
-          "conf_slave_id": "Modbus Slave ID of the inverter",
+          "slave_id": "Modbus Slave ID of the inverter",
           "scan_interval": "Polling period for the modbus registers (seconds)"
         }
       }

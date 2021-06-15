@@ -1,9 +1,9 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec)
 
 # ha-abb-powerone-pvi-sunspec
-Home Assistant Custom Component to integrate data from ABB/Power-One/FIMER PV Inverters that support SunSpec Modbus (Sunspec M1, M103, M160), natively or through the VSN300 wifi logger card. The VSN300 provides a SunSpec to Aurora protocol adapter so that all modbus commands are translated to the proprietary Aurora protocol.
+HA Custom Component to integrate data from ABB/Power-One/FIMER PV Inverters that support SunSpec Modbus (Sunspec M1, M103, M160), natively or through the VSN300 wifi logger card. The VSN300 provides a SunSpec to Aurora protocol adapter so that all modbus commands are translated to the proprietary Aurora protocol.
 
-The component has been originally developed by @binsentsu for SolarEdge inverters, I adapted it, adding some features, for my Power-One Aurora PVI-10.0-OUTD 3-phase inverter to which I added a VSN300 card. It has also been tested with an ABB TRIO-8.5-TL-OUTD-S through a VSN300.
+The component has been originally developed by @binsentsu for SolarEdge inverters, I adapted it, adding some features, rewriting all the registers' mapping, for my Power-One Aurora PVI-10.0-OUTD 3-phase inverter to which I added a VSN300 card. It has also been tested with an ABB TRIO-8.5-TL-OUTD-S through a VSN300.
 
 Register address map has been implemented following the vendor's specification document: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/VSN300_SunSpec_register_map.xlsx
 

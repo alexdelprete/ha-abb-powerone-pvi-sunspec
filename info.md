@@ -1,14 +1,14 @@
 ## ABB Power-One PVI SunSpec
 
-Home assistant Custom Component to integrate data from ABB Power-One PVI 3-phase Inverters with support for SunSpec Modbus TCP (SunSpec M1, M103 and M160) through the VSN300 wifi logger card.
+HA Custom Component to integrate data from ABB Power-One PVI 3-phase Inverters that support SunSpec Modbus TCP (SunSpec M1, M103 and M160) through the VSN300 wifi logger card.
 
 ### Features
 
-- Installation through Config Flow UI
+- Installation/Configuration through Config Flow UI
 - Separate sensor per register
 - Works with Unit ID 2 or 247 (slave address)
 - Configurable polling interval
-- All modbus registers are read in 1 cycle for data consistency between sensors
+- All live modbus registers are read in 1 cycle for data consistency between sensors
 - Supports SunSpec models M1, M103, M160
 
 ### Configuration

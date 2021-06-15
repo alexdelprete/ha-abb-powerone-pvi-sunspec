@@ -222,7 +222,6 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def read_modbus_data_inverter(self):
-        # We connect to UnitID=2 first, if error, we try UnitID=247, else Fail
         # Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
         #
@@ -261,7 +260,6 @@ class ABBPowerOnePVISunSpecHub:
         return True
 
     def read_modbus_data_realtime(self):
-        # We connect to UnitID=2 first, if error, we try UnitID=247, else Fail
         # Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
         #

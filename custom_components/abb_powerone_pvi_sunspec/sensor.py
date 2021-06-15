@@ -18,8 +18,8 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, entry, async_add_entities):
     hub_name = entry.data[CONF_NAME]
     hub = hass.data[DOMAIN][hub_name]["hub"]
-    model = hass.data["comm_model"]
-    sw_version = hass.data["comm_version"]
+    model = hass.data[DOMAIN][hub_name]["comm_model"]
+    sw_version = hass.data[DOMAIN][hub_name]["comm_version"]
     _LOGGER.info("Model:" + model)
     _LOGGER.info("SW Ver:" + sw_version)
     device_info = {

@@ -47,11 +47,11 @@ class ABBPowerOnePVISunSpecSensor(Entity):
         """Initialize the sensor."""
         self._platform_name = platform_name
         self._hub = hub
-        self._key = key
+        self._device_info = device_info
         self._name = name
+        self._key = key
         self._unit_of_measurement = unit
         self._icon = icon
-        self._device_info = device_info
 
     async def async_added_to_hass(self):
         """Register callbacks."""
@@ -105,4 +105,11 @@ class ABBPowerOnePVISunSpecSensor(Entity):
 
     @property
     def device_info(self) -> Optional[Dict[str, Any]]:
+        self._device_info = {
+            "identifiers": {(DOMAIN, self._platform_name)},
+            "name": self._hub.data["comm_model"],
+            "model": self._hub.data["comm_model"],
+            "manufacturer": self._hub.data["comm_manufact"],
+            "sw_version": self._hub.data["comm_version"]
+        }        
         return self._device_info

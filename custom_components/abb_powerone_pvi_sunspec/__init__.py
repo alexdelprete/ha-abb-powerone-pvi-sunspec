@@ -334,7 +334,7 @@ class ABBPowerOnePVISunSpecHub:
         acenergy = decoder.decode_32bit_uint()
         acenergysf = decoder.decode_16bit_uint()
         acenergy = self.calculate_value(acenergy, acenergysf)
-        self.data["acenergy"] = round(acenergy * 0.001, 3)
+        self.data["acenergy"] = acenergy
 
         # skip register 97 to 100
         decoder.skip_bytes(8)

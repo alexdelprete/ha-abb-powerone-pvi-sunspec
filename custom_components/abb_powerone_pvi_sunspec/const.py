@@ -34,7 +34,7 @@ SENSOR_TYPES = {
     "AC_VoltageCN": ["AC Voltage CN", "acvoltagecn", "V", "mdi:lightning-bolt", DEVICE_CLASS_VOLTAGE],
     "AC_Power": ["AC Power", "acpower", "W", "mdi:solar-power", DEVICE_CLASS_POWER],
     "AC_Frequency": ["AC Frequency", "acfreq", "Hz", "mdi:sine-wave", None],
-    "AC_Energy": ["AC Energy", "acenergy", "kWh", "mdi:solar-power", DEVICE_CLASS_ENERGY],
+    "AC_Energy": ["AC Energy", "acenergy", "Wh", "mdi:solar-power", DEVICE_CLASS_ENERGY],
     "DC_Power": ["DC Power", "dcpower", "W", "mdi:solar-power", DEVICE_CLASS_POWER],
     "DC1_Curr": ["DC1 current", "dc1curr", "A", "mdi:current-ac", DEVICE_CLASS_CURRENT],
     "DC1_Volt": ["DC1 voltage", "dc1volt", "V", "mdi:lightning-bolt", DEVICE_CLASS_VOLTAGE],

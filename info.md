@@ -17,4 +17,4 @@ Go to the integrations page in your configuration and click on new integration -
 
 ### Sensors Preview
 
-<img style="border: 5px solid #767676;border-radius: 10px;max-width: 350px;width: 100%;box-sizing: border-box;" src="https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/blob/master/demo.png?raw=true" alt="Demo">
+<img style="border: 5px solid #767676;border-radius: 10px;max-width: 350px;width: 100%;box-sizing: border-box;" src="https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/blob/master/extrafiles/demo.png?raw=true" alt="Demo">

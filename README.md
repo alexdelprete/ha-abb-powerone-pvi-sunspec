@@ -5,7 +5,7 @@ HA Custom Component to integrate data from ABB/Power-One/FIMER PV Inverters that
 
 The component has been originally developed by @binsentsu for SolarEdge inverters, I adapted it, adding some features, rewriting all the registers' mapping, for my Power-One Aurora PVI-10.0-OUTD 3-phase inverter to which I added a VSN300 card. It has also been tested with an ABB TRIO-8.5-TL-OUTD-S through a VSN300.
 
-Register address map has been implemented following the vendor's specification document: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/VSN300_SunSpec_register_map.xlsx
+Register address map has been implemented following the vendor's specification document: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/VSN300_SunSpec_register_map.xlsx
 
 # Installation through HACS
 Install it through HACS adding this as a custom repository: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec

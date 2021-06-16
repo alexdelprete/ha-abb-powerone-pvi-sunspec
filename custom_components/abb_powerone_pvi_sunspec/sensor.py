@@ -22,10 +22,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
         "identifiers": {(DOMAIN, hub_name)},
         "name": hub_name,
         "manufacturer": ATTR_MANUFACTURER,
-        #"name": hub.data["comm_model"],
-        "model": hub.data["comm_model"],
-        "manufacturer": hub.data["comm_manufact"],
-        "sw_version": hub.data["comm_version"]   
+        # "name": hub.data["comm_model"],
+        # "model": hub.data["comm_model"],
+        # "manufacturer": hub.data["comm_manufact"],
+        # "sw_version": hub.data["comm_version"]   
     }
 
     entities = []

@@ -107,9 +107,9 @@ class ABBPowerOnePVISunSpecSensor(Entity):
     def device_info(self) -> Optional[Dict[str, Any]]:
         self._device_info = {
             "identifiers": {(DOMAIN, self._platform_name)},
-            "name": self._hub.data["comm_model"],
-            "model": self._hub.data["comm_model"],
-            "manufacturer": self._hub.data["comm_manufact"],
-            "sw_version": self._hub.data["comm_version"]
+            "name": self._hub.data[comm_model],
+            "model": self._hub.data[comm_model],
+            "manufacturer": self._hub.data[comm_manufact],
+            "sw_version": self._hub.data[comm_version]
         }        
         return self._device_info

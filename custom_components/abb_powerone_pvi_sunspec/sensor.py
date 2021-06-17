@@ -19,6 +19,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     hub_name = entry.data[CONF_NAME]
     hub = hass.data[DOMAIN][hub_name]["hub"]
     hub.read_modbus_data_inverter()
+    hub.read_modbus_data_realtime()
     device_info = {
         "identifiers": {(DOMAIN, hub_name)},
         "name": hub_name,

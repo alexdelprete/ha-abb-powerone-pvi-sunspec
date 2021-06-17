@@ -21,9 +21,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     hub.read_modbus_data_inverter()
     device_info = {
         "identifiers": {(DOMAIN, hub_name)},
-        #"name": hub_name,
-        #"manufacturer": ATTR_MANUFACTURER,
-        "name": hub.data["comm_model"],
+        "name": hub_name,
         "model": hub.data["comm_model"],
         "manufacturer": hub.data["comm_manufact"],
         "sw_version": hub.data["comm_version"]   

@@ -18,14 +18,15 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, entry, async_add_entities):
     hub_name = entry.data[CONF_NAME]
     hub = hass.data[DOMAIN][hub_name]["hub"]
+    hub.read_modbus_data_inverter()
     device_info = {
         "identifiers": {(DOMAIN, hub_name)},
-        "name": hub_name,
-        "manufacturer": ATTR_MANUFACTURER,
-        # "name": hub.data["comm_model"],
-        # "model": hub.data["comm_model"],
-        # "manufacturer": hub.data["comm_manufact"],
-        # "sw_version": hub.data["comm_version"]   
+        #"name": hub_name,
+        #"manufacturer": ATTR_MANUFACTURER,
+        "name": hub.data["comm_model"],
+        "model": hub.data["comm_model"],
+        "manufacturer": hub.data["comm_manufact"],
+        "sw_version": hub.data["comm_version"]   
     }
 
     entities = []

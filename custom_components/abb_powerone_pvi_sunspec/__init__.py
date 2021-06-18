@@ -19,7 +19,6 @@ from homeassistant.core import callback
 from homeassistant.helpers.event import async_track_time_interval
 
 from .const import (
-    DEVICE_MODEL,
     DOMAIN,
     DEFAULT_NAME,
     DEFAULT_PORT,
@@ -28,6 +27,7 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DEVICE_STATUS,
     DEVICE_GLOBAL_STATUS,
+    DEVICE_MODEL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -185,7 +185,7 @@ class ABBPowerOnePVISunSpecHub:
         try:
             return self.read_modbus_data_inverter() and self.read_modbus_data_realtime()
         except ConnectionException as ex:
-            _LOGGER.error("Reading data failed! Inverter is unreachable.")
+            _LOGGER.error("Reading data failed! Inverter is unreachable on ID=%s", self._slave_id)
             return True
 
     def read_modbus_data_inverter_stub(self):
@@ -231,7 +231,7 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 72 read 92 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
         inverter_data = self.read_holding_registers(unit=self._slave_id, address=4, count=64)
         if inverter_data.isError():
-            _LOGGER.error("Reading data failed! Inverter is unreachable on ID=" + self._slave_id)
+            _LOGGER.error("Reading data failed! Inverter is unreachable on ID=%s", self._slave_id)
             return False
 
         # No connection errors, we can start scraping registers
@@ -239,21 +239,22 @@ class ABBPowerOnePVISunSpecHub:
             inverter_data.registers, byteorder=Endian.Big
         )
 
-        # registers 4 to 1st byte of register 36
+        # registers 4 to 43
         comm_manufact = decoder.decode_string(size=32).decode("ascii")
         comm_model = decoder.decode_string(size=32).decode("ascii")
-        comm_options = decoder.decode_string(size=1).decode("ascii")
-        comm_options = ord(str(comm_options))
-        self.data["comm_options"] = comm_options
+        comm_options = decoder.decode_string(size=16).decode("ascii")
+        self.data["comm_manufact"] = str(comm_manufact)
+        self.data["comm_model"] = str(comm_model)
+        self.data["comm_options"] = str(comm_options)
 
+        # comm_options = ord(str(comm_options))
+        # self.data["comm_model"] = DEVICE_MODEL[comm_options]
         # skip 2nd byte of register 36 + registers 37-43
-        decoder.skip_bytes(15)
+        # decoder.skip_bytes(15)
 
-        # registers 44 to 68
+        # registers 44 to 67
         comm_version = decoder.decode_string(size=16).decode("ascii")
         comm_sernum = decoder.decode_string(size=32).decode("ascii")
-        self.data["comm_manufact"] = str(comm_manufact)
-        self.data["comm_model"] = DEVICE_MODEL[comm_options]
         self.data["comm_version"] = str(comm_version)
         self.data["comm_sernum"] = str(comm_sernum)
 
@@ -269,7 +270,7 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 72 read 92 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
         realtime_data = self.read_holding_registers(unit=self._slave_id, address=72, count=92)
         if realtime_data.isError():
-            _LOGGER.error("Reading data failed! Inverter is unreachable on ID=" + self._slave_id)
+            _LOGGER.error("Reading data failed! Inverter is unreachable on ID=%s", self._slave_id)
             return False
 
         # No connection errors, we can start scraping registers

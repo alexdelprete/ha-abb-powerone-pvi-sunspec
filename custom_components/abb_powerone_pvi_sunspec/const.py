@@ -8,13 +8,10 @@ from homeassistant.const import (
 
 DOMAIN = "abb_powerone_pvi_sunspec"
 CONF_SLAVE_ID = "slave_id"
-DEFAULT_SLAVE_ID = 2
-DEFAULT_NAME = "ABB P1 Inverter"
+DEFAULT_SLAVE_ID = 254
+DEFAULT_NAME = "ABB Inverter"
 DEFAULT_PORT = 502
 DEFAULT_SCAN_INTERVAL = 60
-MANUFACTURER = "ABB Power-One"
-ATTR_STATUS_DESCRIPTION = "status_description"
-ATTR_MANUFACTURER = "ABB Power-One"
 
 SENSOR_TYPES = {
     "Manufacturer": ["Manufacturer", "comm_manufact", None, "mdi:information-outline", None],

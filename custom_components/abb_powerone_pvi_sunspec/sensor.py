@@ -3,10 +3,6 @@ from typing import Optional, Dict, Any
 from .const import (
     SENSOR_TYPES,
     DOMAIN,
-    ATTR_STATUS_DESCRIPTION,
-    DEVICE_STATUS,
-    DEVICE_GLOBAL_STATUS,
-    ATTR_MANUFACTURER,
 )
 from homeassistant.helpers.entity import Entity
 from homeassistant.const import CONF_NAME

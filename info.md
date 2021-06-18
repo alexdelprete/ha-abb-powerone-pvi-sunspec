@@ -6,7 +6,7 @@ HA Custom Component to integrate data from ABB Power-One PVI 3-phase Inverters t
 
 - Installation/Configuration through Config Flow UI
 - Separate sensor per register
-- Works with Unit ID 2 or 247 (slave address)
+- Configurable inverter Modbus Slave Address
 - Configurable polling interval
 - All live modbus registers are read in 1 cycle for data consistency between sensors
 - Supports SunSpec models M1, M103, M160

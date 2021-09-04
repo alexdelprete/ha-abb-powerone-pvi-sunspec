@@ -35,6 +35,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
             sensor_info[2],
             sensor_info[3],
             sensor_info[4],
+            sensor_info[5],
         )
         entities.append(sensor)
     
@@ -46,17 +47,18 @@ class ABBPowerOnePVISunSpecSensor(Entity):
     """Representation of an ABB SunSpec Modbus sensor."""
 
     def __init__(
-        self, platform_name, hub, device_info, name, key, unit, icon, device_class
+        self, platform_name, hub, device_info, name, key, unit, icon, device_class, state_class
     ):
         """Initialize the sensor."""
         self._platform_name = platform_name
         self._hub = hub
-        self._key = key
+        self._device_info = device_info
         self._name = name
+        self._key = key
         self._unit_of_measurement = unit
         self._icon = icon
         self._device_class = device_class
-        self._device_info = device_info
+        self._state_class = state_class
 
     async def async_added_to_hass(self):
         """Register callbacks."""

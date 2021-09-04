@@ -24,6 +24,8 @@ from .const import (
     DEFAULT_PORT,
     CONF_SLAVE_ID,
     DEFAULT_SLAVE_ID,
+    CONF_BASE_ADDR,
+    DEFAULT_BASE_ADDR,    
     DEFAULT_SCAN_INTERVAL,
     DEVICE_STATUS,
     DEVICE_GLOBAL_STATUS,
@@ -38,6 +40,7 @@ ABB_POWERONE_PVI_SUNSPEC_SCHEMA = vol.Schema(
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.positive_int,
         vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): cv.positive_int,
+        vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): cv.positive_int,
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.positive_int,
     }
 )
@@ -61,12 +64,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     name = entry.data[CONF_NAME]
     port = entry.data[CONF_PORT]
     slave_id = entry.data[CONF_SLAVE_ID]
+    base_addr = entry.data[CONF_BASE_ADDR]
     scan_interval = entry.data[CONF_SCAN_INTERVAL]
 
     _LOGGER.debug("Setup %s.%s", DOMAIN, name)
 
     hub = ABBPowerOnePVISunSpecHub(
-        hass, name, host, port, slave_id, scan_interval
+        hass, name, host, port, slave_id, base_addr, scan_interval
     )
     """Register the hub."""
     hass.data[DOMAIN][name] = {"hub": hub}
@@ -105,6 +109,7 @@ class ABBPowerOnePVISunSpecHub:
         host,
         port,
         slave_id,
+        base_addr,
         scan_interval,
     ):
         """Initialize the Modbus hub."""
@@ -113,6 +118,7 @@ class ABBPowerOnePVISunSpecHub:
         self._lock = threading.Lock()
         self._name = name
         self._slave_id = slave_id
+        self._base_addr = base_addr
         self._scan_interval = timedelta(seconds=scan_interval)
         self._unsub_interval_method = None
         self._sensors = []
@@ -206,7 +212,7 @@ class ABBPowerOnePVISunSpecHub:
         self.data["acvoltagecn"] = 1
         self.data["acpower"] = 1
         self.data["acfreq"] = 1
-        self.data["acenergy"] = 1
+        self.data["totalenergy"] = 1
         self.data["dcpower"] = 1
         self.data["tempcab"] = 1
         self.data["tempoth"] = 1
@@ -229,7 +235,7 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
-        inverter_data = self.read_holding_registers(unit=self._slave_id, address=4, count=64)
+        inverter_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 4), count=64)
         if inverter_data.isError():
             _LOGGER.error("Reading data failed! Inverter is unreachable on ID=%s", self._slave_id)
             return False
@@ -268,7 +274,7 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
-        realtime_data = self.read_holding_registers(unit=self._slave_id, address=72, count=92)
+        realtime_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 72), count=92)
         if realtime_data.isError():
             _LOGGER.error("Reading data failed! Inverter is unreachable on ID=%s", self._slave_id)
             return False
@@ -330,10 +336,10 @@ class ABBPowerOnePVISunSpecHub:
         decoder.skip_bytes(12)
 
         # registers 94 to 96
-        acenergy = decoder.decode_32bit_uint()
-        acenergysf = decoder.decode_16bit_uint()
-        acenergy = self.calculate_value(acenergy, acenergysf)
-        self.data["acenergy"] = acenergy
+        totalenergy = decoder.decode_32bit_uint()
+        totalenergysf = decoder.decode_16bit_uint()
+        totalenergy = self.calculate_value(totalenergy, totalenergysf)
+        self.data["totalenergy"] = totalenergy
 
         # skip register 97 to 100
         decoder.skip_bytes(8)

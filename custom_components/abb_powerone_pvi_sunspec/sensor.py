@@ -35,7 +35,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
             sensor_info[2],
             sensor_info[3],
             sensor_info[4],
-            sensor_info[5]
+            sensor_info[5],
         )
         entities.append(sensor)
     

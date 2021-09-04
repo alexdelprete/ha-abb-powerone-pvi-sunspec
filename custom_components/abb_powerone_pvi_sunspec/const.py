@@ -55,8 +55,8 @@ SENSOR_TYPES = {
     "DC2_Curr": ["DC2 current", "dc2curr", ELECTRIC_CURRENT_AMPERE, "mdi:current-ac", DEVICE_CLASS_CURRENT, STATE_CLASS_MEASUREMENT],
     "DC2_Volt": ["DC2 voltage", "dc2volt", ELECTRIC_POTENTIAL_VOLT, "mdi:lightning-bolt", DEVICE_CLASS_VOLTAGE, STATE_CLASS_MEASUREMENT],
     "DC2_Power": ["DC2 power", "dc2power", POWER_WATT, "mdi:solar-power", DEVICE_CLASS_POWER, STATE_CLASS_MEASUREMENT],
-    "Status": ["Operating State", "status", None, "mdi:information-outline", None],
-    "Status_Vendor": ["Vendor Operating State", "statusvendor", None, "mdi:information-outline", None],
+    "Status": ["Operating State", "status", None, "mdi:information-outline", None, None],
+    "Status_Vendor": ["Vendor Operating State", "statusvendor", None, "mdi:information-outline", None, None],
     "Temp_Cab": ["Ambient Temperature", "tempcab", TEMP_CELSIUS, "mdi:temperature-celsius", DEVICE_CLASS_TEMPERATURE, STATE_CLASS_MEASUREMENT],
     "Temp_Oth": ["Inverter Temperature", "tempoth", TEMP_CELSIUS, "mdi:temperature-celsius", DEVICE_CLASS_TEMPERATURE, STATE_CLASS_MEASUREMENT],
 }

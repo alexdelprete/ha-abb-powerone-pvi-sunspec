@@ -102,7 +102,7 @@ class ABBPowerOnePVISunSpecSensor(Entity):
 
     @property
     def state_class(self):
-        """Return the sensor device_class."""
+        """Return the sensor state_class."""
         return self._state_class
 
     @property

@@ -101,6 +101,11 @@ class ABBPowerOnePVISunSpecSensor(Entity):
         return self._device_class
 
     @property
+    def state_class(self):
+        """Return the sensor device_class."""
+        return self._state_class
+
+    @property
     def state(self):
         """Return the state of the sensor."""
         if self._key in self._hub.data:

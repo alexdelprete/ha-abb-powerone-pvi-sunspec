@@ -2,6 +2,7 @@ from homeassistant.components.sensor import (
     STATE_CLASS_MEASUREMENT,
     STATE_CLASS_TOTAL_INCREASING,
 )
+
 from homeassistant.const import (
     DEVICE_CLASS_CURRENT,
     DEVICE_CLASS_ENERGY,
@@ -58,7 +59,7 @@ SENSOR_TYPES = {
     "Status": ["Operating State", "status", None, "mdi:information-outline", None, None],
     "Status_Vendor": ["Vendor Operating State", "statusvendor", None, "mdi:information-outline", None, None],
     "Temp_Cab": ["Ambient Temperature", "tempcab", TEMP_CELSIUS, "mdi:temperature-celsius", DEVICE_CLASS_TEMPERATURE, STATE_CLASS_MEASUREMENT],
-    "Temp_Oth": ["Inverter Temperature", "tempoth", TEMP_CELSIUS, "mdi:temperature-celsius", DEVICE_CLASS_TEMPERATURE, STATE_CLASS_MEASUREMENT]
+    "Temp_Oth": ["Inverter Temperature", "tempoth", TEMP_CELSIUS, "mdi:temperature-celsius", DEVICE_CLASS_TEMPERATURE, STATE_CLASS_MEASUREMENT],
 }
 
 DEVICE_MODEL = {

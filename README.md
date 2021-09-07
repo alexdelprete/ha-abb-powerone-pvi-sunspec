@@ -1,11 +1,14 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec)
 
 # ha-abb-powerone-pvi-sunspec
-HA Custom Component to integrate data from ABB/Power-One/FIMER PV three-phase inverters that support SunSpec Modbus (Sunspec M1, M103, M160), natively or through the VSN300 wifi logger card. The VSN300 provides a SunSpec to Aurora protocol adapter so that all modbus commands are translated to the proprietary Aurora protocol.
+HA Custom Component to integrate data from ABB/Power-One/FIMER PV mono-phase and three-phase inverters that support SunSpec Modbus (Sunspec M1, M103, M160), natively or through the VSNx00 wifi logger card. The VSNx00 provides a SunSpec to Aurora protocol adapter so that all modbus commands are translated to the proprietary Aurora protocol.
 
-The component has been originally developed by @binsentsu for SolarEdge inverters, I adapted it, adding some features, rewriting all the registers' mapping, for my Power-One Aurora PVI-10.0-OUTD 3-phase inverter to which I added a VSN300 card. It has also been tested with an ABB TRIO-8.5-TL-OUTD-S through a VSN300.
+The component has been originally developed by @binsentsu for SolarEdge inverters, I adapted it, adding some features, rewriting all the registers' mapping, for my Power-One Aurora PVI-10.0-OUTD 3-phase inverter to which I added a VSN300 card. It has also been tested with an ABB TRIO-8.5-TL-OUTD-S through a VSN300 and REACT2-3.6-TL through a VSN700 datalogger.
 
-Register address map has been implemented following the vendor's specification document: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/VSN300_SunSpec_register_map.xlsx
+Register address map has been implemented following the vendor's specification document:
+https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/SunSpec_VSN300register_map.xlsx
+https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/SunSpec_REACT2_PICS_Rev_003.xlsx
+https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/SunSpec_PICS-ABB-TRIO-50.0-TL-OUTD.xlsx
 
 # Installation through HACS
 Install it through HACS adding this as a custom repository: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec then go to the integrations page in your configuration and click on new integration -> ABB Power-One PVI SunSpec.

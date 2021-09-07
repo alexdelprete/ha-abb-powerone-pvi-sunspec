@@ -1,12 +1,15 @@
 import logging
 from typing import Optional, Dict, Any
 from .const import (
-    SENSOR_TYPES,
     DOMAIN,
+    SENSOR_TYPES_SINGLE_PHASE,
+    SENSOR_TYPES_THREE_PHASE,
+    INVERTER_TYPE
 )
-from homeassistant.helpers.entity import Entity
 from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
+
+from homeassistant.components.sensor import SensorEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,25 +28,39 @@ async def async_setup_entry(hass, entry, async_add_entities):
     }
 
     entities = []
-    for sensor_info in SENSOR_TYPES.values():
-        sensor = ABBPowerOnePVISunSpecSensor(
-            hub_name,
-            hub,
-            device_info,
-            sensor_info[0],
-            sensor_info[1],
-            sensor_info[2],
-            sensor_info[3],
-            sensor_info[4],
-            sensor_info[5],
-        )
-        entities.append(sensor)
-    
+    if hub.data["invtype"] == INVERTER_TYPE[101]:
+        for sensor_info in SENSOR_TYPES_SINGLE_PHASE.values():
+            sensor = ABBPowerOnePVISunSpecSensor(
+                hub_name,
+                hub,
+                device_info,
+                sensor_info[0],
+                sensor_info[1],
+                sensor_info[2],
+                sensor_info[3],
+                sensor_info[4],
+                sensor_info[5],
+            )
+            entities.append(sensor)
+    elif hub.data["invtype"] == INVERTER_TYPE[103]:
+        for sensor_info in SENSOR_TYPES_THREE_PHASE.values():
+            sensor = ABBPowerOnePVISunSpecSensor(
+                hub_name,
+                hub,
+                device_info,
+                sensor_info[0],
+                sensor_info[1],
+                sensor_info[2],
+                sensor_info[3],
+                sensor_info[4],
+                sensor_info[5],
+            )
+            entities.append(sensor)
     async_add_entities(entities)
     return True
 
 
-class ABBPowerOnePVISunSpecSensor(Entity):
+class ABBPowerOnePVISunSpecSensor(SensorEntity):
     """Representation of an ABB SunSpec Modbus sensor."""
 
     def __init__(

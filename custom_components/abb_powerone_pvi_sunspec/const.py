@@ -28,9 +28,30 @@ CONF_BASE_ADDR = "base_addr"
 DEFAULT_BASE_ADDR = 40000
 DEFAULT_NAME = "ABB Inverter"
 DEFAULT_PORT = 502
-DEFAULT_SCAN_INTERVAL = 60
+DEFAULT_SCAN_INTERVAL = 30
 
-SENSOR_TYPES = {
+SENSOR_TYPES_SINGLE_PHASE = {
+    "Manufacturer": ["Manufacturer", "comm_manufact", None, "mdi:information-outline", None, None],
+    "Model": ["Model", "comm_model", None, "mdi:information-outline", None, None],
+    "Options": ["Options", "comm_options", None, "mdi:information-outline", None, None],
+    "Version": ["Firmware Version", "comm_version", None, "mdi:information-outline", None, None],
+    "Serial": ["Serial", "comm_sernum", None, "mdi:information-outline", None, None],
+    "Inverter_Type": ["Inverter Type", "invtype", None, "mdi:information-outline", None, None],
+    "AC_Current": ["AC Current", "accurrent", ELECTRIC_CURRENT_AMPERE, "mdi:current-ac", DEVICE_CLASS_CURRENT, STATE_CLASS_MEASUREMENT],
+    "AC_VoltageAN": ["AC Voltage AN", "acvoltagean", ELECTRIC_POTENTIAL_VOLT, "mdi:lightning-bolt", DEVICE_CLASS_VOLTAGE, STATE_CLASS_MEASUREMENT],
+    "AC_Power": ["AC Power", "acpower", POWER_WATT, "mdi:solar-power", DEVICE_CLASS_POWER, STATE_CLASS_MEASUREMENT],
+    "AC_Frequency": ["AC Frequency", "acfreq", FREQUENCY_HERTZ, "mdi:sine-wave", None, STATE_CLASS_MEASUREMENT],
+    "Total_Energy": ["Total Energy", "totalenergy", ENERGY_WATT_HOUR, "mdi:solar-power", DEVICE_CLASS_ENERGY, STATE_CLASS_TOTAL_INCREASING],
+    "DC_Curr": ["DC Current", "dccurr", ELECTRIC_CURRENT_AMPERE, "mdi:current-ac", DEVICE_CLASS_CURRENT, STATE_CLASS_MEASUREMENT],
+    "DC_Volt": ["DC Voltage", "dcvolt", ELECTRIC_POTENTIAL_VOLT, "mdi:lightning-bolt", DEVICE_CLASS_VOLTAGE, STATE_CLASS_MEASUREMENT],
+    "DC_Power": ["DC Power", "dcpower", POWER_WATT, "mdi:solar-power", DEVICE_CLASS_POWER, STATE_CLASS_MEASUREMENT],
+    "Status": ["Operating State", "status", None, "mdi:information-outline", None, None],
+    "Status_Vendor": ["Vendor Operating State", "statusvendor", None, "mdi:information-outline", None, None],
+    "Temp_Cab": ["Ambient Temperature", "tempcab", TEMP_CELSIUS, "mdi:temperature-celsius", DEVICE_CLASS_TEMPERATURE, STATE_CLASS_MEASUREMENT],
+    "Temp_Oth": ["Inverter Temperature", "tempoth", TEMP_CELSIUS, "mdi:temperature-celsius", DEVICE_CLASS_TEMPERATURE, STATE_CLASS_MEASUREMENT],
+}
+
+SENSOR_TYPES_THREE_PHASE = {
     "Manufacturer": ["Manufacturer", "comm_manufact", None, "mdi:information-outline", None, None],
     "Model": ["Model", "comm_model", None, "mdi:information-outline", None, None],
     "Options": ["Options", "comm_options", None, "mdi:information-outline", None, None],
@@ -50,8 +71,6 @@ SENSOR_TYPES = {
     "AC_Power": ["AC Power", "acpower", POWER_WATT, "mdi:solar-power", DEVICE_CLASS_POWER, STATE_CLASS_MEASUREMENT],
     "AC_Frequency": ["AC Frequency", "acfreq", FREQUENCY_HERTZ, "mdi:sine-wave", None, STATE_CLASS_MEASUREMENT],
     "Total_Energy": ["Total Energy", "totalenergy", ENERGY_WATT_HOUR, "mdi:solar-power", DEVICE_CLASS_ENERGY, STATE_CLASS_TOTAL_INCREASING],
-    "DC_Curr": ["DC Current", "dccurr", ELECTRIC_CURRENT_AMPERE, "mdi:current-ac", DEVICE_CLASS_CURRENT, STATE_CLASS_MEASUREMENT],
-    "DC_Volt": ["DC Voltage", "dcvolt", ELECTRIC_POTENTIAL_VOLT, "mdi:lightning-bolt", DEVICE_CLASS_VOLTAGE, STATE_CLASS_MEASUREMENT],
     "DC_Power": ["DC Power", "dcpower", POWER_WATT, "mdi:solar-power", DEVICE_CLASS_POWER, STATE_CLASS_MEASUREMENT],
     "DC1_Curr": ["DC1 Current", "dc1curr", ELECTRIC_CURRENT_AMPERE, "mdi:current-ac", DEVICE_CLASS_CURRENT, STATE_CLASS_MEASUREMENT],
     "DC1_Volt": ["DC1 Voltage", "dc1volt", ELECTRIC_POTENTIAL_VOLT, "mdi:lightning-bolt", DEVICE_CLASS_VOLTAGE, STATE_CLASS_MEASUREMENT],

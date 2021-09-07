@@ -9,12 +9,7 @@ from .const import (
 from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
 
-from homeassistant.components.sensor import (
-    STATE_CLASS_MEASUREMENT,
-    STATE_CLASS_TOTAL_INCREASING,
-    PLATFORM_SCHEMA,
-    SensorEntity,
-)
+from homeassistant.components.sensor import SensorEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -81,12 +76,6 @@ class ABBPowerOnePVISunSpecSensor(SensorEntity):
         self._icon = icon
         self._device_class = device_class
         self._state_class = state_class
-
-        if self._state_class == STATE_CLASS_TOTAL_INCREASING:
-            self._attr_state_class = STATE_CLASS_TOTAL_INCREASING
-        elif self._state_class == STATE_CLASS_MEASUREMENT:
-            self._attr_state_class = STATE_CLASS_MEASUREMENT
-
 
     async def async_added_to_hass(self):
         """Register callbacks."""

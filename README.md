@@ -16,6 +16,9 @@ Copy contents of custom_components folder to your home-assistant config/custom_c
 # Enabling Modbus TCP on the inverter
 Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Slave ID) of the inverter (depends on the model, default on some models is 2 on others is 247) and during the configuration of the component, input the appropriate Slave address.
 
+# Configuration Parameters Explained
+
+
 # Coffee
 If you like this integration, I'll gladly accept some quality coffee, but don't feel obliged. :)
 

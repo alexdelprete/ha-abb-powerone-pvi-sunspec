@@ -29,9 +29,6 @@ Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Slave ID) 
 
 <img style="border: 5px solid #767676;border-radius: 10px;max-width: 350px;width: 40%;box-sizing: border-box;" src="https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/blob/master/extrafiles/config.png?raw=true" alt="Config">
 
-# Configuration Parameters Explained
-
-
 # Coffee
 If you like this integration, I'll gladly accept some quality coffee, but please don't feel obliged. :)
 

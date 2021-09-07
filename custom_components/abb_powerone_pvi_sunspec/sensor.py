@@ -6,13 +6,14 @@ from .const import (
     SENSOR_TYPES_THREE_PHASE,
     INVERTER_TYPE
 )
-from homeassistant.helpers.entity import Entity
 from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
 
 from homeassistant.components.sensor import (
     STATE_CLASS_MEASUREMENT,
     STATE_CLASS_TOTAL_INCREASING,
+    PLATFORM_SCHEMA,
+    SensorEntity,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -64,7 +65,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     return True
 
 
-class ABBPowerOnePVISunSpecSensor(Entity):
+class ABBPowerOnePVISunSpecSensor(SensorEntity):
     """Representation of an ABB SunSpec Modbus sensor."""
 
     def __init__(

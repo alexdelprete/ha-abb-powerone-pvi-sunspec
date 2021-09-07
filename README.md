@@ -5,10 +5,10 @@ HA Custom Component to integrate data from ABB/Power-One/FIMER PV mono-phase and
 
 The component has been originally developed by @binsentsu for SolarEdge inverters, I adapted it, adding some features, rewriting all the registers' mapping, for my Power-One Aurora PVI-10.0-OUTD 3-phase inverter to which I added a VSN300 card. It has also been tested with an ABB TRIO-8.5-TL-OUTD-S through a VSN300 and REACT2-3.6-TL through a VSN700 datalogger.
 
-Register address map has been implemented following the vendor's specification document:
-https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/SunSpec_VSN300register_map.xlsx
-https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/SunSpec_REACT2_PICS_Rev_003.xlsx
-https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/SunSpec_PICS-ABB-TRIO-50.0-TL-OUTD.xlsx
+Register address map has been implemented following the vendor's specification documentation listed here:
+- https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/SunSpec_VSN300register_map.xlsx
+- https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/SunSpec_REACT2_PICS_Rev_003.xlsx
+- https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/SunSpec_PICS-ABB-TRIO-50.0-TL-OUTD.xlsx
 
 # Installation through HACS
 Install it through HACS adding this as a custom repository: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec then go to the integrations page in your configuration and click on new integration -> ABB Power-One PVI SunSpec.

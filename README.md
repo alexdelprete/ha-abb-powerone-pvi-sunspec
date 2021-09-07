@@ -27,7 +27,9 @@ Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Slave ID) 
 - **register map base address**: it's the base address from where the register map starts, usually it's 40000, but for VSN300 datalogger it's 0
 - **polling period**: frequency, in seconds, to read the registers and update the sensors
 
+<img style="border: 5px solid #767676;border-radius: 10px;max-width: 350px;width: 40%;box-sizing: border-box;" src="https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/blob/master/extrafiles/config.png?raw=true" alt="Config">
+
 # Coffee
-If you like this integration, I'll gladly accept some quality coffee, but don't feel obliged. :)
+If you like this integration, I'll gladly accept some quality coffee, but please don't feel obliged. :)
 
 <a href="https://www.buymeacoffee.com/alexdelprete" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/black_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a><br>

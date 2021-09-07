@@ -17,7 +17,7 @@ Install it through HACS adding this as a custom repository: https://github.com/a
 Copy contents of custom_components folder to your home-assistant config/custom_components folder. Restart Home Assistant, and then the integration can be added and configured through the native integration setup UI. If you don't see it in the native integrations list, press ctrl-F5 to refresh the browser while you're on that page and retry.
 
 # Enabling Modbus TCP on the inverter
-Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Slave ID) of the inverter (depends on the model, default on some models is 2 on others is 247) and during the configuration of the component, input the appropriate Slave address.
+Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Slave ID) of the inverter (depends on the model, default on some models is 2 on others is 247) and during the configuration of the component, use the appropriate Slave address.
 
 # Configuration Parameters Explained
 - **custom name**: name for the inverter, that will be used as prefix for sensors created by the component

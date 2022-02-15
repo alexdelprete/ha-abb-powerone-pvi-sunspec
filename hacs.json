@@ -1,12 +1,8 @@
 {
-  "domain": "abb_powerone_pvi_sunspec",
   "name": "ABB Power-One PVI SunSpec",
-  "documentation": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
-  "issue_tracker": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues",
-  "requirements": ["pymodbus==1.5.2"],
-  "dependencies": [],
-  "codeowners": ["@alexdelprete"],
-  "iot_class": "local_polling",
-  "config_flow": true,
-  "version": "1.0"
+  "content_in_root": false,
+  "domains": ["sensor"],
+  "render_readme": false,
+  "homeassistant": "2021.8.0",
+  "iot_class": ["Local Polling"]
 }

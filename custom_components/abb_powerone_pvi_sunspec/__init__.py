@@ -193,7 +193,7 @@ class ABBPowerOnePVISunSpecHub:
             return self.read_modbus_data_inverter() and self.read_modbus_data_realtime()
         except ConnectionException as ex:
             _LOGGER.error("Reading data failed! Inverter is unreachable on ID=%s", self._slave_id)
-            return True
+            return False
 
     def read_modbus_data_inverter_stub(self):
         self.data["comm_manufact"] = ""

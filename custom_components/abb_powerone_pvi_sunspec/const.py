@@ -178,6 +178,7 @@ DEVICE_GLOBAL_STATUS = {
     100: "Counting EEprom",
     101: "Freeze",
     200: "Dsp Programming",
+    999: "Not Available"
 }
 
 DEVICE_STATUS = {
@@ -222,4 +223,5 @@ DEVICE_STATUS = {
     46: "Grid Fail",
     47: "Input OC",
     255: "Inverter Dsp not programmed",
+    999: "Not Available"
 }

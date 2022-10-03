@@ -25,7 +25,7 @@ from .const import (
     CONF_SLAVE_ID,
     DEFAULT_SLAVE_ID,
     CONF_BASE_ADDR,
-    DEFAULT_BASE_ADDR,    
+    DEFAULT_BASE_ADDR,
     DEFAULT_SCAN_INTERVAL,
     DEVICE_STATUS,
     DEVICE_GLOBAL_STATUS,
@@ -332,7 +332,7 @@ class ABBPowerOnePVISunSpecHub:
             acvoltagecn = decoder.decode_16bit_uint()
         else:
             decoder.skip_bytes(4)
-        
+
         acvoltagesf = decoder.decode_16bit_int()
 
         acvoltagean = self.calculate_value(acvoltagean, acvoltagesf)
@@ -391,7 +391,7 @@ class ABBPowerOnePVISunSpecHub:
         self.data["dcpower"] = round(dcpower, abs(dcpowersf))
 
         # register 103
-        tempcab = decoder.decode_16bit_int()        
+        tempcab = decoder.decode_16bit_int()
         # skip registers 104-105
         decoder.skip_bytes(4)
         # register 106 to 107
@@ -406,10 +406,16 @@ class ABBPowerOnePVISunSpecHub:
 
         # register 108
         status = decoder.decode_16bit_int()
+        # make sure the value is in the known status list
+        if status not in DEVICE_STATUS:
+            statusvendor = 999
         self.data["status"] = DEVICE_STATUS[status]
 
         # register 109
         statusvendor = decoder.decode_16bit_int()
+        # make sure the value is in the known status list
+        if statusvendor not in DEVICE_GLOBAL_STATUS:
+            statusvendor = 999
         self.data["statusvendor"] = DEVICE_GLOBAL_STATUS[statusvendor]
 
         # skip register 110 to 123

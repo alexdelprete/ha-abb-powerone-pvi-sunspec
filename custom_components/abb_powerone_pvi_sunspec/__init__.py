@@ -192,7 +192,8 @@ class ABBPowerOnePVISunSpecHub:
         try:
             return self.read_modbus_data_inverter() and self.read_modbus_data_realtime()
         except ConnectionException as ex:
-            _LOGGER.error("Reading data failed! Inverter is unreachable on ID=%s", self._slave_id)
+            _LOGGER.error("Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.error("Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return True
 
     def read_modbus_data_inverter_stub(self):
@@ -254,9 +255,9 @@ class ABBPowerOnePVISunSpecHub:
         comm_manufact = decoder.decode_string(size=32).decode("ascii")
         comm_model = decoder.decode_string(size=32).decode("ascii")
         comm_options = decoder.decode_string(size=16).decode("ascii")
-        _LOGGER.info("Manufacturer: %s", comm_manufact)
-        _LOGGER.info("Model: %s", comm_model)
-        _LOGGER.info("Options: %s", comm_options)
+        _LOGGER.error("Manufacturer: %s", comm_manufact)
+        _LOGGER.error("Model: %s", comm_model)
+        _LOGGER.error("Options: %s", comm_options)
         self.data["comm_manufact"] = str(comm_manufact)
         self.data["comm_model"] = str(comm_model)
         self.data["comm_options"] = str(comm_options)
@@ -283,8 +284,8 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
         realtime_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 70), count=94)
-        _LOGGER.info("Slave ID: %s", self._slave_id)
-        _LOGGER.info("Base Address: %s", self._base_addr)
+        _LOGGER.error("Slave ID: %s", self._slave_id)
+        _LOGGER.error("Base Address: %s", self._base_addr)
         if realtime_data.isError():
             _LOGGER.error("Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.error("Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
@@ -297,7 +298,7 @@ class ABBPowerOnePVISunSpecHub:
 
         # register 70
         invtype = decoder.decode_16bit_uint()
-        _LOGGER.info("Inverter Type: %s", invtype)
+        _LOGGER.error("Inverter Type: %s", invtype)
         # make sure the value is in the known status list
         if invtype not in INVERTER_TYPE:
             _LOGGER.error("Unknown Inverter Type: %s", invtype)

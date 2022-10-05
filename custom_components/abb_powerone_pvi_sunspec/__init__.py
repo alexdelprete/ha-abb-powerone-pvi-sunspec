@@ -194,7 +194,7 @@ class ABBPowerOnePVISunSpecHub:
         except ConnectionException as ex:
             _LOGGER.error("Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.error("Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
-            return True
+            return False
 
     def read_modbus_data_inverter_stub(self):
         self.data["comm_manufact"] = ""

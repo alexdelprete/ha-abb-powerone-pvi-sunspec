@@ -24,7 +24,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         "name": hub_name,
         "model": hub.data["comm_model"],
         "manufacturer": hub.data["comm_manufact"],
-        "sw_version": hub.data["comm_version"]   
+        "sw_version": hub.data["comm_version"]
     }
 
     entities = []
@@ -129,7 +129,7 @@ class ABBPowerOnePVISunSpecSensor(SensorEntity):
             return self._hub.data[self._key]
 
     @property
-    def state_attributes(self) -> Optional[Dict[str, Any]]:     
+    def state_attributes(self) -> Optional[Dict[str, Any]]:
         return None
 
     @property

@@ -232,7 +232,7 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def read_modbus_data_inverter(self):
-        # Max number of registers in one read for Modbus/TCP is 123
+        # A single register is 2 bytes. Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
         #
         # So we have to do 2 read-cycles, one for M1 and the other for M103+M160
@@ -280,7 +280,8 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 72 read 92 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
         realtime_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 70), count=94)
         if realtime_data.isError():
-            _LOGGER.error("Reading data failed! Inverter is unreachable on ID=%s", self._slave_id)
+            _LOGGER.error("Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.error("Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers
@@ -290,6 +291,10 @@ class ABBPowerOnePVISunSpecHub:
 
         # register 70
         invtype = decoder.decode_16bit_uint()
+        # make sure the value is in the known status list
+        if invtype not in INVERTER_TYPE:
+            _LOGGER.error("Unknown Inverter Type: %s", invtype)
+            invtype = 999
         self.data["invtype"] = INVERTER_TYPE[invtype]
 
         # skip register 71
@@ -408,13 +413,15 @@ class ABBPowerOnePVISunSpecHub:
         status = decoder.decode_16bit_int()
         # make sure the value is in the known status list
         if status not in DEVICE_STATUS:
-            statusvendor = 999
+            _LOGGER.error("Unkown Operating State: %s", status)
+            status = 999
         self.data["status"] = DEVICE_STATUS[status]
 
         # register 109
         statusvendor = decoder.decode_16bit_int()
         # make sure the value is in the known status list
         if statusvendor not in DEVICE_GLOBAL_STATUS:
+            _LOGGER.error("Unkown Vendor Operating State: %s", statusvendor)
             statusvendor = 999
         self.data["statusvendor"] = DEVICE_GLOBAL_STATUS[statusvendor]
 

@@ -87,6 +87,7 @@ SENSOR_TYPES_THREE_PHASE = {
 INVERTER_TYPE = {
     101: "Single Phase",
     103: "Three Phase",
+    999: "Unknown"
 }
 
 DEVICE_MODEL = {

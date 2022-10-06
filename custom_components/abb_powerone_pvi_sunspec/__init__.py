@@ -20,11 +20,11 @@ from homeassistant.helpers.event import async_track_time_interval
 
 from .const import (
     DOMAIN,
+    CONF_SLAVE_ID,
+    CONF_BASE_ADDR,
     DEFAULT_NAME,
     DEFAULT_PORT,
-    CONF_SLAVE_ID,
     DEFAULT_SLAVE_ID,
-    CONF_BASE_ADDR,
     DEFAULT_BASE_ADDR,
     DEFAULT_SCAN_INTERVAL,
     DEVICE_STATUS,
@@ -192,8 +192,8 @@ class ABBPowerOnePVISunSpecHub:
         try:
             return self.read_modbus_data_inverter() and self.read_modbus_data_realtime()
         except ConnectionException as ex:
-            _LOGGER.error("(init) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.error("(init) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+            _LOGGER.error("(read_data) Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.error("(read_data) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
     def read_modbus_data_inverter_stub(self):
@@ -272,8 +272,8 @@ class ABBPowerOnePVISunSpecHub:
         # registers 44 to 67
         comm_version = decoder.decode_string(size=16).decode("ascii")
         comm_sernum = decoder.decode_string(size=32).decode("ascii")
-        _LOGGER.error("(read_inv) Version: %s", comm_manufact)
-        _LOGGER.error("(read_inv) Sernum: %s", comm_model)
+        _LOGGER.error("(read_inv) Version: %s", comm_version)
+        _LOGGER.error("(read_inv) Sernum: %s", comm_sernum)
         self.data["comm_version"] = str(comm_version)
         self.data["comm_sernum"] = str(comm_sernum)
 
@@ -286,13 +286,13 @@ class ABBPowerOnePVISunSpecHub:
         # So we have to do 2 read-cycles, one for M1 and the other for M103+M160
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
-        # Start address 72 read 92 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
-        realtime_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 70), count=94)
-        _LOGGER.error("(read_rt) Slave ID: %s", self._slave_id)
-        _LOGGER.error("(read_rt) Base Address: %s", self._base_addr)
+        # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
+        realtime_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 70), count=54)
+        _LOGGER.error("(read_rt_1) Slave ID: %s", self._slave_id)
+        _LOGGER.error("(read_rt_1) Base Address: %s", self._base_addr)
         if realtime_data.isError():
-            _LOGGER.error("(read_rt) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.error("(read_rt) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+            _LOGGER.error("(read_rt_1) Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.error("(read_rt_1) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers
@@ -302,13 +302,13 @@ class ABBPowerOnePVISunSpecHub:
 
         # register 70
         invtype = decoder.decode_16bit_uint()
-        _LOGGER.error("(read_rt) Inverter Type (int): %s", invtype)
-        _LOGGER.error("(read_rt) Inverter Type (str): %s", INVERTER_TYPE[invtype])
+        _LOGGER.error("(read_rt_1) Inverter Type (int): %s", invtype)
+        _LOGGER.error("(read_rt_1) Inverter Type (str): %s", INVERTER_TYPE[invtype])
         # make sure the value is in the known status list
         if invtype not in INVERTER_TYPE:
             invtype = 999
-            _LOGGER.error("(read_rt) Inverter Type Unknown (int): %s", invtype)
-            _LOGGER.error("(read_rt) Inverter Type Unknown (str): %s", INVERTER_TYPE[invtype])
+            _LOGGER.error("(read_rt_1) Inverter Type Unknown (int): %s", invtype)
+            _LOGGER.error("(read_rt_1) Inverter Type Unknown (str): %s", INVERTER_TYPE[invtype])
         self.data["invtype"] = INVERTER_TYPE[invtype]
 
         # skip register 71
@@ -441,6 +441,16 @@ class ABBPowerOnePVISunSpecHub:
 
         # skip register 110 to 123
         decoder.skip_bytes(28)
+
+        # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
+        # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
+        realtime_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 124), count=40)
+        _LOGGER.error("(read_rt_2) Slave ID: %s", self._slave_id)
+        _LOGGER.error("(read_rt_2) Base Address: %s", self._base_addr)
+        if realtime_data.isError():
+            _LOGGER.error("(read_rt_2) Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.error("(read_rt_2) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+            return False
 
         if invtype == 103:
             # registers 124 to 126

@@ -26,10 +26,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
         "manufacturer": hub.data["comm_manufact"],
         "sw_version": hub.data["comm_version"]
     }
-    _LOGGER.error("(sensor) Model: %s", hub.data["comm_model"])
-    _LOGGER.error("(sensor) Manufacturer: %s", hub.data["comm_manufact"])
-    _LOGGER.error("(sensor) SW Version: %s", hub.data["comm_version"])
-    _LOGGER.error("(sensor) Inverter Type (str): %s", hub.data["invtype"])
+    _LOGGER.debug("(sensor) Model: %s", hub.data["comm_model"])
+    _LOGGER.debug("(sensor) Manufacturer: %s", hub.data["comm_manufact"])
+    _LOGGER.debug("(sensor) SW Version: %s", hub.data["comm_version"])
+    _LOGGER.debug("(sensor) Inverter Type (str): %s", hub.data["invtype"])
     entities = []
     if hub.data["invtype"] == INVERTER_TYPE[101]:
         for sensor_info in SENSOR_TYPES_SINGLE_PHASE.values():

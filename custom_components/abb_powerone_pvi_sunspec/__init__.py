@@ -241,8 +241,8 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read (M101 or M103)+M160 (Realtime Power/Energy Data) in 1-pass
         inverter_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 4), count=64)
-        _LOGGER.error("(read_inv) Slave ID: %s", self._slave_id)
-        _LOGGER.error("(read_inv) Base Address: %s", self._base_addr)
+        _LOGGER.debug("(read_inv) Slave ID: %s", self._slave_id)
+        _LOGGER.debug("(read_inv) Base Address: %s", self._base_addr)
         if inverter_data.isError():
             _LOGGER.error("(read_inv) Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.error("(read_inv) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
@@ -257,9 +257,9 @@ class ABBPowerOnePVISunSpecHub:
         comm_manufact = decoder.decode_string(size=32).decode("ascii")
         comm_model = decoder.decode_string(size=32).decode("ascii")
         comm_options = decoder.decode_string(size=16).decode("ascii")
-        _LOGGER.error("(read_inv) Manufacturer: %s", comm_manufact)
-        _LOGGER.error("(read_inv) Model: %s", comm_model)
-        _LOGGER.error("(read_inv) Options: %s", comm_options)
+        _LOGGER.debug("(read_inv) Manufacturer: %s", comm_manufact)
+        _LOGGER.debug("(read_inv) Model: %s", comm_model)
+        _LOGGER.debug("(read_inv) Options: %s", comm_options)
         self.data["comm_manufact"] = str(comm_manufact)
         self.data["comm_model"] = str(comm_model)
         self.data["comm_options"] = str(comm_options)
@@ -272,8 +272,8 @@ class ABBPowerOnePVISunSpecHub:
         # registers 44 to 67
         comm_version = decoder.decode_string(size=16).decode("ascii")
         comm_sernum = decoder.decode_string(size=32).decode("ascii")
-        _LOGGER.error("(read_inv) Version: %s", comm_version)
-        _LOGGER.error("(read_inv) Sernum: %s", comm_sernum)
+        _LOGGER.debug("(read_inv) Version: %s", comm_version)
+        _LOGGER.debug("(read_inv) Sernum: %s", comm_sernum)
         self.data["comm_version"] = str(comm_version)
         self.data["comm_sernum"] = str(comm_sernum)
 
@@ -288,8 +288,8 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
         realtime_data_1 = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 70), count=40)
-        _LOGGER.error("(read_rt_1) Slave ID: %s", self._slave_id)
-        _LOGGER.error("(read_rt_1) Base Address: %s", self._base_addr)
+        _LOGGER.debug("(read_rt_1) Slave ID: %s", self._slave_id)
+        _LOGGER.debug("(read_rt_1) Base Address: %s", self._base_addr)
         if realtime_data_1.isError():
             _LOGGER.error("(read_rt_1) Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.error("(read_rt_1) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
@@ -302,8 +302,8 @@ class ABBPowerOnePVISunSpecHub:
 
         # register 70
         invtype = decoder.decode_16bit_uint()
-        _LOGGER.error("(read_rt_1) Inverter Type (int): %s", invtype)
-        _LOGGER.error("(read_rt_1) Inverter Type (str): %s", INVERTER_TYPE[invtype])
+        _LOGGER.debug("(read_rt_1) Inverter Type (int): %s", invtype)
+        _LOGGER.debug("(read_rt_1) Inverter Type (str): %s", INVERTER_TYPE[invtype])
         # make sure the value is in the known status list
         if invtype not in INVERTER_TYPE:
             invtype = 999
@@ -451,8 +451,8 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
         realtime_data_2 = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 124), count=40)
-        _LOGGER.error("(read_rt_2) Slave ID: %s", self._slave_id)
-        _LOGGER.error("(read_rt_2) Base Address: %s", self._base_addr)
+        _LOGGER.debug("(read_rt_2) Slave ID: %s", self._slave_id)
+        _LOGGER.debug("(read_rt_2) Base Address: %s", self._base_addr)
         if realtime_data_2.isError():
             _LOGGER.error("(read_rt_2) Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.error("(read_rt_2) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)

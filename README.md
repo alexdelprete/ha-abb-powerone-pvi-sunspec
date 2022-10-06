@@ -20,11 +20,11 @@ Copy contents of custom_components folder to your home-assistant config/custom_c
 Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Slave ID) of the inverter (depends on the model, default on some models is 2 on others is 247) and during the configuration of the component, use the appropriate Slave address.
 
 # Configuration Parameters Explained
-- **custom name**: name for the inverter, that will be used as prefix for sensors created by the component
-- **ip/hostname**: IP or hostname of the inverter
-- **tcp port**: tcp port of the datalogger
-- **slave id**: it's the unit id of the inverter in the chain (you can have multiple inverters in one chain, default is 254 usually, but on some it's 2)
-- **register map base address**: it's the base address from where the register map starts, usually it's 40000, but for VSN300 datalogger it's 0
+- **custom name**: custom name for the inverter, that will be used as prefix for sensors created by the component
+- **ip/hostname**: IP/hostname of the inverter
+- **tcp port**: TCP port of the datalogger
+- **slave id**: the unit id of the inverter in the chain (you can have multiple inverters in one chain, default is 254 usually, but on some it's 2)
+- **register map base address**: the base address from where the register map starts, usually it's 40000, but for ABB VSN300/VSN700 dataloggers it's 0
 - **polling period**: frequency, in seconds, to read the registers and update the sensors
 
 <img style="border: 5px solid #767676;border-radius: 10px;max-width: 350px;width: 40%;box-sizing: border-box;" src="https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/blob/master/extrafiles/config.png?raw=true" alt="Config">

@@ -7,27 +7,23 @@ from homeassistant.const import (
     DEVICE_CLASS_CURRENT,
     DEVICE_CLASS_ENERGY,
     DEVICE_CLASS_POWER,
-    DEVICE_CLASS_POWER_FACTOR,
     DEVICE_CLASS_TEMPERATURE,
     DEVICE_CLASS_VOLTAGE,
     ELECTRIC_CURRENT_AMPERE,
-    ELECTRIC_CURRENT_MILLIAMPERE,
     ELECTRIC_POTENTIAL_VOLT,
-    ENERGY_KILO_WATT_HOUR,
     ENERGY_WATT_HOUR,
     FREQUENCY_HERTZ,
     POWER_WATT,
     TEMP_CELSIUS,
-    TIME_HOURS,
 )
 
 DOMAIN = "abb_powerone_pvi_sunspec"
-CONF_SLAVE_ID = "slave_id"
-DEFAULT_SLAVE_ID = 254
 CONF_BASE_ADDR = "base_addr"
-DEFAULT_BASE_ADDR = 40000
+CONF_SLAVE_ID = "slave_id"
 DEFAULT_NAME = "ABB Inverter"
 DEFAULT_PORT = 502
+DEFAULT_SLAVE_ID = 254
+DEFAULT_BASE_ADDR = 40000
 DEFAULT_SCAN_INTERVAL = 30
 
 SENSOR_TYPES_SINGLE_PHASE = {
@@ -88,52 +84,6 @@ INVERTER_TYPE = {
     101: "Single Phase",
     103: "Three Phase",
     999: "Unknown"
-}
-
-DEVICE_MODEL = {
-    49: "PVI-3.0-OUTD",
-    50: "PVI-3.3-OUTD",
-    51: "PVI-3.6-OUTD",
-    52: "PVI-4.2-OUTD",
-    53: "PVI-5000-OUTD",
-    54: "PVI-6000-OUTD",
-    65: "PVI-CENTRAL-350 Liquid Cooled (AC gathering)",
-    66: "PVI-CENTRAL-350 Liquid Cooled (display board)",
-    67: "PVI-CENTRAL-50 module",
-    68: "PVI-12.5-OUTD",
-    69: "PVI-CENTRAL-67 module",
-    70: "TRIO-27.6-TL-OUTD (output 480 VAC)",
-    71: "UNO-2.5-OUTD",
-    72: "PVI-4.6-OUTD-I",
-    74: "PVI-1700-OUTD",
-    76: "PVI-CENTRAL-350 Liquid Cooled (control board)",
-    77: "PVI-CENTRAL-250",
-    78: "PVI-12.5-OUTD Universal (output 400 VAC)",
-    79: "PVI-3600-OUTD",
-    80: "3-phase interface (3G74)",
-    81: "PVI-8.0-OUTD Universal PLUS (output 400 VAC)",
-    84: "PVI-12.5-OUTD-I (output 480 VAC)",
-    85: "PVI-12.5-OUTD-I (output 208 VAC)",
-    86: "PVI-12.5-OUTD-I (output 380 VAC)",
-    88: "PVI-10.0-OUTD",
-    89: "TRIO-27.6-TL-OUTD (output 400 VAC)",
-    90: "PVI-12.5-OUTD-I (output 600 VAC)",
-    99: "CDD",
-    102: "TRIO-20-TL-OUTD (output 480 VAC)",
-    103: "UNO-2.0-OUTD",
-    104: "PVI-3.8-OUTD-I",
-    105: "PVI-2000-IND",
-    106: "PVI-1700-IND",
-    108: "PVI-3600-IND",
-    110: "PVI-10.0-OUTD Universal (output 400 VAC)",
-    111: "PVI-2000-OUTD",
-    113: "PVI-8.0-OUTD Universal (output 400 VAC)",
-    116: "PVI-10.0-OUTD-I (output 480 VAC)",
-    117: "PVI-10.0-OUTD-I (output 208 VAC)",
-    118: "PVI-10.0-OUTD-I (output 380 VAC)",
-    119: "PVI-10.0-I-OUTD (output 480 VAC – current limit 12 A)",
-    121: "TRIO-20-TL-OUTD (output 400 VAC)",
-    122: "PVI-10.0-OUTD-I (output 600 VAC)",
 }
 
 DEVICE_GLOBAL_STATUS = {
@@ -226,4 +176,50 @@ DEVICE_STATUS = {
     47: "Input OC",
     255: "Inverter Dsp not programmed",
     999: "Not Available"
+}
+
+DEVICE_MODEL = {
+    49: "PVI-3.0-OUTD",
+    50: "PVI-3.3-OUTD",
+    51: "PVI-3.6-OUTD",
+    52: "PVI-4.2-OUTD",
+    53: "PVI-5000-OUTD",
+    54: "PVI-6000-OUTD",
+    65: "PVI-CENTRAL-350 Liquid Cooled (AC gathering)",
+    66: "PVI-CENTRAL-350 Liquid Cooled (display board)",
+    67: "PVI-CENTRAL-50 module",
+    68: "PVI-12.5-OUTD",
+    69: "PVI-CENTRAL-67 module",
+    70: "TRIO-27.6-TL-OUTD (output 480 VAC)",
+    71: "UNO-2.5-OUTD",
+    72: "PVI-4.6-OUTD-I",
+    74: "PVI-1700-OUTD",
+    76: "PVI-CENTRAL-350 Liquid Cooled (control board)",
+    77: "PVI-CENTRAL-250",
+    78: "PVI-12.5-OUTD Universal (output 400 VAC)",
+    79: "PVI-3600-OUTD",
+    80: "3-phase interface (3G74)",
+    81: "PVI-8.0-OUTD Universal PLUS (output 400 VAC)",
+    84: "PVI-12.5-OUTD-I (output 480 VAC)",
+    85: "PVI-12.5-OUTD-I (output 208 VAC)",
+    86: "PVI-12.5-OUTD-I (output 380 VAC)",
+    88: "PVI-10.0-OUTD",
+    89: "TRIO-27.6-TL-OUTD (output 400 VAC)",
+    90: "PVI-12.5-OUTD-I (output 600 VAC)",
+    99: "CDD",
+    102: "TRIO-20-TL-OUTD (output 480 VAC)",
+    103: "UNO-2.0-OUTD",
+    104: "PVI-3.8-OUTD-I",
+    105: "PVI-2000-IND",
+    106: "PVI-1700-IND",
+    108: "PVI-3600-IND",
+    110: "PVI-10.0-OUTD Universal (output 400 VAC)",
+    111: "PVI-2000-OUTD",
+    113: "PVI-8.0-OUTD Universal (output 400 VAC)",
+    116: "PVI-10.0-OUTD-I (output 480 VAC)",
+    117: "PVI-10.0-OUTD-I (output 208 VAC)",
+    118: "PVI-10.0-OUTD-I (output 380 VAC)",
+    119: "PVI-10.0-I-OUTD (output 480 VAC – current limit 12 A)",
+    121: "TRIO-20-TL-OUTD (output 400 VAC)",
+    122: "PVI-10.0-OUTD-I (output 600 VAC)",
 }

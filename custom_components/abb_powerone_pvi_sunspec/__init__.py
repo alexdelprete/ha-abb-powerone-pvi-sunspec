@@ -190,19 +190,13 @@ class ABBPowerOnePVISunSpecHub:
 
     def read_modbus_data(self):
         try:
-            return self.read_modbus_data_inverter() and self.read_modbus_data_realtime()
+            return self.read_modbus_data_inverter() and self.read_modbus_data_realtime_pass_1() and self.read_modbus_data_realtime_pass_2()
         except ConnectionException as ex:
             _LOGGER.error("(read_data) Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.error("(read_data) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
     def read_modbus_data_inverter_stub(self):
-        self.data["comm_manufact"] = ""
-        self.data["comm_model"] = ""
-        self.data["comm_options"] = 1
-        self.data["comm_version"] = ""
-        self.data["comm_sernum"] = ""
-        self.data["invtype"] = ""
         self.data["accurrent"] = 1
         self.data["accurrenta"] = 1
         self.data["accurrentb"] = 1
@@ -215,20 +209,26 @@ class ABBPowerOnePVISunSpecHub:
         self.data["acvoltagecn"] = 1
         self.data["acpower"] = 1
         self.data["acfreq"] = 1
-        self.data["totalenergy"] = 1
+        self.data["comm_options"] = 1
+        self.data["comm_manufact"] = ""
+        self.data["comm_model"] = ""
+        self.data["comm_version"] = ""
+        self.data["comm_sernum"] = ""
         self.data["dccurr"] = 1
         self.data["dcvolt"] = 1
         self.data["dcpower"] = 1
-        self.data["tempcab"] = 1
-        self.data["tempoth"] = 1
-        self.data["status"] = ""
-        self.data["statusvendor"] = ""
         self.data["dc1curr"] = 1
         self.data["dc1volt"] = 1
         self.data["dc1power"] = 1
         self.data["dc2curr"] = 1
         self.data["dc2volt"] = 1
         self.data["dc2power"] = 1
+        self.data["invtype"] = ""
+        self.data["status"] = ""
+        self.data["statusvendor"] = ""
+        self.data["totalenergy"] = 1
+        self.data["tempcab"] = 1
+        self.data["tempoth"] = 1
         return True
 
 
@@ -279,7 +279,7 @@ class ABBPowerOnePVISunSpecHub:
 
         return True
 
-    def read_modbus_data_realtime(self):
+    def read_modbus_data_realtime_pass_1(self):
         # Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
         #
@@ -287,17 +287,17 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
-        realtime_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 70), count=54)
+        realtime_data_1 = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 70), count=40)
         _LOGGER.error("(read_rt_1) Slave ID: %s", self._slave_id)
         _LOGGER.error("(read_rt_1) Base Address: %s", self._base_addr)
-        if realtime_data.isError():
+        if realtime_data_1.isError():
             _LOGGER.error("(read_rt_1) Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.error("(read_rt_1) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers
         decoder = BinaryPayloadDecoder.fromRegisters(
-            realtime_data.registers, byteorder=Endian.Big
+            realtime_data_1.registers, byteorder=Endian.Big
         )
 
         # register 70
@@ -317,7 +317,7 @@ class ABBPowerOnePVISunSpecHub:
         # registers 72 to 76
         accurrent = decoder.decode_16bit_uint()
 
-        if invtype == 103:
+        if self.data["invtype"] == "Three Phase":
             accurrenta = decoder.decode_16bit_uint()
             accurrentb = decoder.decode_16bit_uint()
             accurrentc = decoder.decode_16bit_uint()
@@ -328,7 +328,7 @@ class ABBPowerOnePVISunSpecHub:
         accurrent = self.calculate_value(accurrent, accurrentsf)
         self.data["accurrent"] = round(accurrent, abs(accurrentsf))
 
-        if invtype == 103:
+        if self.data["invtype"] == "Three Phase":
             accurrenta = self.calculate_value(accurrenta, accurrentsf)
             accurrentb = self.calculate_value(accurrentb, accurrentsf)
             accurrentc = self.calculate_value(accurrentc, accurrentsf)
@@ -337,7 +337,7 @@ class ABBPowerOnePVISunSpecHub:
             self.data["accurrentc"] = round(accurrentc, abs(accurrentsf))
 
         # registers 77 to 83
-        if invtype == 103:
+        if self.data["invtype"] == "Three Phase":
             acvoltageab = decoder.decode_16bit_uint()
             acvoltagebc = decoder.decode_16bit_uint()
             acvoltageca = decoder.decode_16bit_uint()
@@ -346,7 +346,7 @@ class ABBPowerOnePVISunSpecHub:
 
         acvoltagean = decoder.decode_16bit_uint()
 
-        if invtype == 103:
+        if self.data["invtype"] == "Three Phase":
             acvoltagebn = decoder.decode_16bit_uint()
             acvoltagecn = decoder.decode_16bit_uint()
         else:
@@ -357,7 +357,7 @@ class ABBPowerOnePVISunSpecHub:
         acvoltagean = self.calculate_value(acvoltagean, acvoltagesf)
         self.data["acvoltagean"] = round(acvoltagean, abs(acvoltagesf))
 
-        if invtype == 103:
+        if self.data["invtype"] == "Three Phase":
             acvoltageab = self.calculate_value(acvoltageab, acvoltagesf)
             acvoltagebc = self.calculate_value(acvoltagebc, acvoltagesf)
             acvoltageca = self.calculate_value(acvoltageca, acvoltagesf)
@@ -439,20 +439,31 @@ class ABBPowerOnePVISunSpecHub:
             statusvendor = 999
         self.data["statusvendor"] = DEVICE_GLOBAL_STATUS[statusvendor]
 
-        # skip register 110 to 123
-        decoder.skip_bytes(28)
+        return True
 
+
+    def read_modbus_data_realtime_pass_2(self):
+        # Max number of registers in one read for Modbus/TCP is 123
+        # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
+        #
+        # So we have to do 2 read-cycles, one for M1 and the other for M103+M160
+        #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
-        realtime_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 124), count=40)
+        realtime_data_2 = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 124), count=40)
         _LOGGER.error("(read_rt_2) Slave ID: %s", self._slave_id)
         _LOGGER.error("(read_rt_2) Base Address: %s", self._base_addr)
-        if realtime_data.isError():
+        if realtime_data_2.isError():
             _LOGGER.error("(read_rt_2) Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.error("(read_rt_2) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
-        if invtype == 103:
+        # No connection errors, we can start scraping registers
+        decoder = BinaryPayloadDecoder.fromRegisters(
+            realtime_data_2.registers, byteorder=Endian.Big
+        )
+
+        if self.data["invtype"] == "Three Phase":
             # registers 124 to 126
             dcasf = decoder.decode_16bit_int()
             dcvsf = decoder.decode_16bit_int()

@@ -178,6 +178,7 @@ DEVICE_GLOBAL_STATUS = {
     99: "Erasing External EEprom",
     100: "Counting EEprom",
     101: "Freeze",
+    116: "Standby",
     200: "Dsp Programming",
     999: "Not Available"
 }

@@ -261,13 +261,15 @@ class ABBPowerOnePVISunSpecHub:
         _LOGGER.debug("(read_inv) Model: %s", comm_model)
         _LOGGER.debug("(read_inv) Options: %s", comm_options)
         self.data["comm_manufact"] = str(comm_manufact)
-        self.data["comm_options"] = ord(str(comm_options))
+        self.data["comm_options"] = str(comm_options)
+        self.data["comm_model"] = str(comm_model)
+
         # Model based on options register, if unknown, raise an error to report it
-        if self.data["comm_options"] in DEVICE_MODEL:
-            self.data["comm_model"] = DEVICE_MODEL[comm_options]
-        else:
-            _LOGGER.error("(read_inv) Model unknown, report to @alexdelprete on the forum the following data: Manuf.: %s - Model: %s - Options: %s", comm_manufact, comm_model, comm_options)
-            self.data["comm_model"] = str(comm_model)
+        # if self.data["comm_options"] in DEVICE_MODEL:
+        #     self.data["comm_model"] = DEVICE_MODEL[comm_options]
+        # else:
+        #     _LOGGER.error("(read_inv) Model unknown, report to @alexdelprete on the forum the following data: Manuf.: %s - Model: %s - Options: %s", comm_manufact, comm_model, comm_options)
+        #     self.data["comm_model"] = str(comm_model)
 
         # registers 44 to 67
         comm_version = decoder.decode_string(size=16).decode("ascii")

@@ -427,10 +427,12 @@ class ABBPowerOnePVISunSpecHub:
         # register 106 to 107
         tempoth = decoder.decode_16bit_int()
         tempsf = decoder.decode_16bit_int()
-        tempoth = self.calculate_value(tempoth, tempsf)
-        # Fix for tempcab: SF must be -2 not -1 as per specs
-        # tempcab = self.calculate_value(tempcab, -2)
+        # Fix for tempcab: in some inverters SF must be -2 not -1 as per specs
+        tempcab_fix = tempcab
         tempcab = self.calculate_value(tempcab, tempsf)
+        if tempcab > 50:
+            tempcab = self.calculate_value(tempcab_fix, -2)
+        tempoth = self.calculate_value(tempoth, tempsf)
         self.data["tempoth"] = round(tempoth, abs(tempsf))
         self.data["tempcab"] = round(tempcab, abs(tempsf))
 

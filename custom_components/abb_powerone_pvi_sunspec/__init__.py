@@ -240,17 +240,17 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read (M101 or M103)+M160 (Realtime Power/Energy Data) in 1-pass
-        inverter_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 4), count=64)
+        read_model_1_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 4), count=64)
         _LOGGER.debug("(read_inv) Slave ID: %s", self._slave_id)
         _LOGGER.debug("(read_inv) Base Address: %s", self._base_addr)
-        if inverter_data.isError():
+        if read_model_1_data.isError():
             _LOGGER.error("(read_inv) Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.error("(read_inv) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers
         decoder = BinaryPayloadDecoder.fromRegisters(
-            inverter_data.registers, byteorder=Endian.Big
+            read_model_1_data.registers, byteorder=Endian.Big
         )
 
         # registers 4 to 43
@@ -262,14 +262,22 @@ class ABBPowerOnePVISunSpecHub:
         _LOGGER.debug("(read_inv) Options: %s", comm_options)
         self.data["comm_manufact"] = str(comm_manufact)
         self.data["comm_options"] = str(comm_options)
-        self.data["comm_model"] = str(comm_model)
 
         # Model based on options register, if unknown, raise an error to report it
-        # if self.data["comm_options"] in DEVICE_MODEL:
-        #     self.data["comm_model"] = DEVICE_MODEL[comm_options]
-        # else:
-        #     _LOGGER.error("(read_inv) Model unknown, report to @alexdelprete on the forum the following data: Manuf.: %s - Model: %s - Options: %s", comm_manufact, comm_model, comm_options)
-        #     self.data["comm_model"] = str(comm_model)
+        # First char is the model: if non-printable char, hex string of the char is provided
+        # So we need to check if it's a char or an hex value string and convert both to a number
+        # Then we lookup in the model table, if it's there, good, otherwise we provide the given model
+        opt_model = self.data["comm_options"]
+        if opt_model.startswith('0x'):
+            opt_model = int(opt_model[0:3], 16)
+        else:
+            opt_model = ord(opt_model[0])
+
+        if opt_model in DEVICE_MODEL:
+            self.data["comm_model"] = DEVICE_MODEL[opt_model]
+        else:
+            _LOGGER.error("(read_inv) Model unknown, report to @alexdelprete on the forum the following data: Manuf.: %s - Model: %s - Options: %s", comm_manufact, comm_model, comm_options)
+            self.data["comm_model"] = str(comm_model)
 
         # registers 44 to 67
         comm_version = decoder.decode_string(size=16).decode("ascii")
@@ -290,17 +298,17 @@ class ABBPowerOnePVISunSpecHub:
         #   - Sweep 1 (M1): Start address 4 read 64 registers to read M1 (Common Inverter Info)
         #   - Sweep 2 (M103): Start address 70 read 40 registers to read M103+M160 (Realtime Power/Energy Data)
         #   - Sweep 3 (M160): Start address 124 read 40 registers to read M1 (Common Inverter Info)
-        realtime_data_1 = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 70), count=40)
+        read_model_101_103_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 70), count=40)
         _LOGGER.debug("(read_rt_1) Slave ID: %s", self._slave_id)
         _LOGGER.debug("(read_rt_1) Base Address: %s", self._base_addr)
-        if realtime_data_1.isError():
+        if read_model_101_103_data.isError():
             _LOGGER.error("(read_rt_1) Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.error("(read_rt_1) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers
         decoder = BinaryPayloadDecoder.fromRegisters(
-            realtime_data_1.registers, byteorder=Endian.Big
+            read_model_101_103_data.registers, byteorder=Endian.Big
         )
 
         # register 70
@@ -453,17 +461,17 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
-        realtime_data_2 = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 124), count=40)
+        read_model_160_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 124), count=40)
         _LOGGER.debug("(read_rt_2) Slave ID: %s", self._slave_id)
         _LOGGER.debug("(read_rt_2) Base Address: %s", self._base_addr)
-        if realtime_data_2.isError():
+        if read_model_160_data.isError():
             _LOGGER.error("(read_rt_2) Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.error("(read_rt_2) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers
         decoder = BinaryPayloadDecoder.fromRegisters(
-            realtime_data_2.registers, byteorder=Endian.Big
+            read_model_160_data.registers, byteorder=Endian.Big
         )
 
         if self.data["invtype"] == "Three Phase":

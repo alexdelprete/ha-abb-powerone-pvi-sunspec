@@ -130,7 +130,7 @@ DEVICE_GLOBAL_STATUS = {
     101: "Freeze",
     116: "Standby",
     200: "Dsp Programming",
-    999: "Not Available"
+    999: "Unknown"
 }
 
 DEVICE_STATUS = {
@@ -175,7 +175,7 @@ DEVICE_STATUS = {
     46: "Grid Fail",
     47: "Input OC",
     255: "Inverter Dsp not programmed",
-    999: "Not Available"
+    999: "Unkown",
 }
 
 DEVICE_MODEL = {
@@ -200,6 +200,7 @@ DEVICE_MODEL = {
     79: "PVI-3600-OUTD",
     80: "3-phase interface (3G74)",
     81: "PVI-8.0-OUTD Universal PLUS (output 400 VAC)",
+    82: "TRIO-8.5-TL-OUTD-S",
     84: "PVI-12.5-OUTD-I (output 480 VAC)",
     85: "PVI-12.5-OUTD-I (output 208 VAC)",
     86: "PVI-12.5-OUTD-I (output 380 VAC)",
@@ -216,6 +217,7 @@ DEVICE_MODEL = {
     110: "PVI-10.0-OUTD Universal (output 400 VAC)",
     111: "PVI-2000-OUTD",
     113: "PVI-8.0-OUTD Universal (output 400 VAC)",
+    114: "TRIO-5.8-OUTD (output 400 VAC)",
     116: "PVI-10.0-OUTD-I (output 480 VAC)",
     117: "PVI-10.0-OUTD-I (output 208 VAC)",
     118: "PVI-10.0-OUTD-I (output 380 VAC)",

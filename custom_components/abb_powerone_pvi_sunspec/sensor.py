@@ -18,7 +18,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, entry, async_add_entities):
     hub_name = entry.data[CONF_NAME]
     hub = hass.data[DOMAIN][hub_name]["hub"]
-    hub.read_modbus_data()
+    hub.read_sunspec_modbus_data()
     device_info = {
         "identifiers": {(DOMAIN, hub_name)},
         "name": hub_name,
@@ -82,13 +82,13 @@ class ABBPowerOnePVISunSpecSensor(SensorEntity):
 
     async def async_added_to_hass(self):
         """Register callbacks."""
-        self._hub.async_add_abb_powerone_pvi_sunspec_sensor(self._modbus_data_updated)
+        self._hub.async_add_sunspec_modbus_sensor(self._sunspec_modbus_data_updated)
 
     async def async_will_remove_from_hass(self) -> None:
-        self._hub.async_remove_abb_powerone_pvi_sunspec_sensor(self._modbus_data_updated)
+        self._hub.async_remove_sunspec_modbus_sensor(self._sunspec_modbus_data_updated)
 
     @callback
-    def _modbus_data_updated(self):
+    def _sunspec_modbus_data_updated(self):
         self.async_write_ha_state()
 
     @callback

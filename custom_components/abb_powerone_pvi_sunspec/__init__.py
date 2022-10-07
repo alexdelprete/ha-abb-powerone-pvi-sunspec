@@ -126,19 +126,19 @@ class ABBPowerOnePVISunSpecHub:
         self.data = {}
 
     @callback
-    def async_add_abb_powerone_pvi_sunspec_sensor(self, update_callback):
+    def async_add_sunspec_modbus_sensor(self, update_callback):
         """Listen for data updates."""
         # This is the first sensor, set up interval.
         if not self._sensors:
             self.connect()
             self._unsub_interval_method = async_track_time_interval(
-                self._hass, self.async_refresh_modbus_data, self._scan_interval
+                self._hass, self.async_refresh_sunspec_modbus_data, self._scan_interval
             )
 
         self._sensors.append(update_callback)
 
     @callback
-    def async_remove_abb_powerone_pvi_sunspec_sensor(self, update_callback):
+    def async_remove_sunspec_modbus_sensor(self, update_callback):
         """Remove data update."""
         self._sensors.remove(update_callback)
 
@@ -148,12 +148,12 @@ class ABBPowerOnePVISunSpecHub:
             self._unsub_interval_method = None
             self.close()
 
-    async def async_refresh_modbus_data(self, _now: Optional[int] = None) -> None:
+    async def async_refresh_sunspec_modbus_data(self, _now: Optional[int] = None) -> None:
         """Time to update."""
         if not self._sensors:
             return
 
-        update_result = self.read_modbus_data()
+        update_result = self.read_sunspec_modbus_data()
 
         if update_result:
             for update_callback in self._sensors:
@@ -183,20 +183,20 @@ class ABBPowerOnePVISunSpecHub:
     def calculate_value(self, value, sf):
         return value * 10 ** sf
 
-    def read_modbus_data_stub(self):
+    def read_sunspec_modbus_data_stub(self):
         return (
-            self.read_modbus_data_inverter_stub()
+            self.read_sunspec_modbus_stub()
         )
 
-    def read_modbus_data(self):
+    def read_sunspec_modbus_data(self):
         try:
-            return self.read_modbus_data_inverter() and self.read_modbus_data_realtime_pass_1() and self.read_modbus_data_realtime_pass_2()
+            return self.read_sunspec_modbus_model_1() and self.read_sunspec_modbus_model_101_103() and self.read_sunspec_modbus_model_160()
         except ConnectionException as ex:
             _LOGGER.error("(read_data) Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.error("(read_data) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
-    def read_modbus_data_inverter_stub(self):
+    def read_sunspec_modbus_stub(self):
         self.data["accurrent"] = 1
         self.data["accurrenta"] = 1
         self.data["accurrentb"] = 1
@@ -232,7 +232,7 @@ class ABBPowerOnePVISunSpecHub:
         return True
 
 
-    def read_modbus_data_inverter(self):
+    def read_sunspec_modbus_model_1(self):
         # A single register is 2 bytes. Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
         #
@@ -261,13 +261,13 @@ class ABBPowerOnePVISunSpecHub:
         _LOGGER.debug("(read_inv) Model: %s", comm_model)
         _LOGGER.debug("(read_inv) Options: %s", comm_options)
         self.data["comm_manufact"] = str(comm_manufact)
-        self.data["comm_model"] = str(comm_model)
-        self.data["comm_options"] = str(comm_options)
-
-        # comm_options = ord(str(comm_options))
-        # self.data["comm_model"] = DEVICE_MODEL[comm_options]
-        # skip 2nd byte of register 36 + registers 37-43
-        # decoder.skip_bytes(15)
+        self.data["comm_options"] = ord(str(comm_options))
+        # Model based on options register, if unknown, raise an error to report it
+        if self.data["comm_options"] in DEVICE_MODEL:
+            self.data["comm_model"] = DEVICE_MODEL[comm_options]
+        else:
+            _LOGGER.error("(read_inv) Model unknown, report to @alexdelprete on the forum the following data: Manuf.: %s - Model: %s - Options: %s", comm_manufact, comm_model, comm_options)
+            self.data["comm_model"] = str(comm_model)
 
         # registers 44 to 67
         comm_version = decoder.decode_string(size=16).decode("ascii")
@@ -279,14 +279,15 @@ class ABBPowerOnePVISunSpecHub:
 
         return True
 
-    def read_modbus_data_realtime_pass_1(self):
+    def read_sunspec_modbus_model_101_103(self):
         # Max number of registers in one read for Modbus/TCP is 123
-        # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
+        # (ref.: https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251)
         #
-        # So we have to do 2 read-cycles, one for M1 and the other for M103+M160
-        #
-        # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
-        # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
+        # So we could do 2 sweeps, one for M1 and the other for M103+M160. Since some old inverters have problems
+        # with large sweeps, we'll split it in 3 sweeps:
+        #   - Sweep 1 (M1): Start address 4 read 64 registers to read M1 (Common Inverter Info)
+        #   - Sweep 2 (M103): Start address 70 read 40 registers to read M103+M160 (Realtime Power/Energy Data)
+        #   - Sweep 3 (M160): Start address 124 read 40 registers to read M1 (Common Inverter Info)
         realtime_data_1 = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 70), count=40)
         _LOGGER.debug("(read_rt_1) Slave ID: %s", self._slave_id)
         _LOGGER.debug("(read_rt_1) Base Address: %s", self._base_addr)
@@ -427,7 +428,7 @@ class ABBPowerOnePVISunSpecHub:
         status = decoder.decode_16bit_int()
         # make sure the value is in the known status list
         if status not in DEVICE_STATUS:
-            _LOGGER.error("Unkown Operating State: %s", status)
+            _LOGGER.error("Unknown Operating State: %s", status)
             status = 999
         self.data["status"] = DEVICE_STATUS[status]
 
@@ -435,14 +436,14 @@ class ABBPowerOnePVISunSpecHub:
         statusvendor = decoder.decode_16bit_int()
         # make sure the value is in the known status list
         if statusvendor not in DEVICE_GLOBAL_STATUS:
-            _LOGGER.error("(init) Unkown Vendor Operating State: %s", statusvendor)
+            _LOGGER.error("(init) Unknown Vendor Operating State: %s", statusvendor)
             statusvendor = 999
         self.data["statusvendor"] = DEVICE_GLOBAL_STATUS[statusvendor]
 
         return True
 
 
-    def read_modbus_data_realtime_pass_2(self):
+    def read_sunspec_modbus_model_160(self):
         # Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
         #

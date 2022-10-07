@@ -276,7 +276,7 @@ class ABBPowerOnePVISunSpecHub:
         if opt_model in DEVICE_MODEL:
             self.data["comm_model"] = DEVICE_MODEL[opt_model]
         else:
-            _LOGGER.error("(read_inv) Model unknown, report to @alexdelprete on the forum the following data: Manuf.: %s - Model: %s - Options: %s" - OptModel: %s, comm_manufact, comm_model, self.data["comm_options"], opt_model)
+            _LOGGER.error("(read_inv) Model unknown, report to @alexdelprete on the forum the following data: Manuf.: %s - Model: %s - Options: %s - OptModel: %s", self.data["comm_manufact"], self.data["comm_model"], self.data["comm_options"], opt_model)
             self.data["comm_model"] = str(comm_model)
 
         # registers 44 to 67

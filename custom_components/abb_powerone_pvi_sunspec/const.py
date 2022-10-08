@@ -179,6 +179,8 @@ DEVICE_STATUS = {
 }
 
 DEVICE_MODEL = {
+    13: "REACT2-UNO-5.0-TL",
+    14: "REACT2-UNO-3.6-TL",
     49: "PVI-3.0-OUTD",
     50: "PVI-3.3-OUTD",
     51: "PVI-3.6-OUTD",

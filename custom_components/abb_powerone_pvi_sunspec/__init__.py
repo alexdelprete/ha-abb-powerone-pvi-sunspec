@@ -260,24 +260,26 @@ class ABBPowerOnePVISunSpecHub:
         _LOGGER.debug("(read_inv) Manufacturer: %s", comm_manufact)
         _LOGGER.debug("(read_inv) Model: %s", comm_model)
         _LOGGER.debug("(read_inv) Options: %s", comm_options)
-        self.data["comm_manufact"] = str(comm_manufact)
-        self.data["comm_options"] = str(comm_options)
-
+        self.data["comm_manufact"] = str.strip(comm_manufact)
+        self.data["comm_model"] = str.strip(comm_model)
+        self.data["comm_options"] = str.strip(comm_options)
         # Model based on options register, if unknown, raise an error to report it
         # First char is the model: if non-printable char, hex string of the char is provided
         # So we need to check if it's a char or an hex value string and convert both to a number
         # Then we lookup in the model table, if it's there, good, otherwise we provide the given model
+        # test also with opt_model = '0x0DED/0xFFFF'
         opt_model = self.data["comm_options"]
         if opt_model.startswith('0x'):
-            opt_model = int(opt_model[0:3], 16)
+            opt_model_int = int(opt_model[0:4], 16)
+            _LOGGER.debug("(opt_notprintable) opt_model: %s - opt_model_int: %s", opt_model, opt_model_int)
         else:
-            opt_model = ord(opt_model[0])
-
-        if opt_model in DEVICE_MODEL:
-            self.data["comm_model"] = DEVICE_MODEL[opt_model]
+            opt_model_int = ord(opt_model[0])
+            _LOGGER.debug("(opt_printable) opt_model: %s - opt_model_int: %s", opt_model, opt_model_int)
+        if opt_model_int in DEVICE_MODEL:
+            self.data["comm_model"] = DEVICE_MODEL[opt_model_int]
+            _LOGGER.debug("(opt_comm_model) comm_model: %s", self.data["comm_model"])
         else:
-            _LOGGER.error("(read_inv) Model unknown, report to @alexdelprete on the forum the following data: Manuf.: %s - Model: %s - Options: %s - OptModel: %s", self.data["comm_manufact"], self.data["comm_model"], self.data["comm_options"], opt_model)
-            self.data["comm_model"] = str(comm_model)
+            _LOGGER.error("(opt_comm_model) Model unknown, report to @alexdelprete on the forum the following data: Manuf.: %s - Model: %s - Options: %s - OptModel: %s - OptModelInt: %s", self.data["comm_manufact"], self.data["comm_model"], self.data["comm_options"], opt_model, opt_model_int)
 
         # registers 44 to 67
         comm_version = decoder.decode_string(size=16).decode("ascii")

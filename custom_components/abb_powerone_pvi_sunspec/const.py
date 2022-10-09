@@ -179,6 +179,7 @@ DEVICE_STATUS = {
 }
 
 DEVICE_MODEL = {
+     1: "UNO-DM-4.0-TL-PLUS-SB",
     13: "REACT2-UNO-5.0-TL",
     14: "REACT2-UNO-3.6-TL",
     49: "PVI-3.0-OUTD",
@@ -203,6 +204,7 @@ DEVICE_MODEL = {
     80: "3-phase interface (3G74)",
     81: "PVI-8.0-OUTD Universal PLUS (output 400 VAC)",
     82: "TRIO-8.5-TL-OUTD-S",
+    83: "PVS-12.5-TL",
     84: "PVI-12.5-OUTD-I (output 480 VAC)",
     85: "PVI-12.5-OUTD-I (output 208 VAC)",
     86: "PVI-12.5-OUTD-I (output 380 VAC)",
@@ -215,6 +217,7 @@ DEVICE_MODEL = {
     104: "PVI-3.8-OUTD-I",
     105: "PVI-2000-IND",
     106: "PVI-1700-IND",
+    107: "TRIO-7.5-OUTD (output 400 VAC)",
     108: "PVI-3600-IND",
     110: "PVI-10.0-OUTD Universal (output 400 VAC)",
     111: "PVI-2000-OUTD",

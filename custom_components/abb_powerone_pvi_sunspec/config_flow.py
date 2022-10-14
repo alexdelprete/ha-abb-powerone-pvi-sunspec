@@ -2,20 +2,14 @@ import ipaddress
 import re
 
 import voluptuous as vol
-
-from homeassistant.core import HomeAssistant, callback
 from homeassistant import config_entries
-from homeassistant.const import CONF_NAME, CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
-from .const import (
-    DOMAIN,
-    DEFAULT_NAME,
-    DEFAULT_PORT,
-    CONF_SLAVE_ID,
-    DEFAULT_SLAVE_ID,
-    CONF_BASE_ADDR,
-    DEFAULT_BASE_ADDR,
-    DEFAULT_SCAN_INTERVAL,
-)
+from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
+                                 CONF_SCAN_INTERVAL)
+from homeassistant.core import HomeAssistant, callback
+
+from .const import (CONF_BASE_ADDR, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
+                    DEFAULT_NAME, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
+                    DEFAULT_SLAVE_ID, DOMAIN)
 
 DATA_SCHEMA = vol.Schema(
     {

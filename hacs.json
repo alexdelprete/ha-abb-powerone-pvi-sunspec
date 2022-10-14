@@ -2,5 +2,5 @@
   "name": "ABB Power-One PVI SunSpec",
   "content_in_root": false,
   "render_readme": false,
-  "homeassistant": "2021.8.0"
+  "homeassistant": "2022.7.0"
 }

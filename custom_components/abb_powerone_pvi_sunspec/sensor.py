@@ -1,16 +1,13 @@
 import logging
 import time
-from typing import Optional, Dict, Any
-from .const import (
-    DOMAIN,
-    SENSOR_TYPES_SINGLE_PHASE,
-    SENSOR_TYPES_THREE_PHASE,
-    INVERTER_TYPE
-)
+from typing import Any, Dict, Optional
+
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
 
-from homeassistant.components.sensor import SensorEntity
+from .const import (DOMAIN, INVERTER_TYPE, SENSOR_TYPES_SINGLE_PHASE,
+                    SENSOR_TYPES_THREE_PHASE)
 
 _LOGGER = logging.getLogger(__name__)
 

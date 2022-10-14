@@ -1,21 +1,10 @@
-from homeassistant.components.sensor import (
-    STATE_CLASS_MEASUREMENT,
-    STATE_CLASS_TOTAL_INCREASING,
-)
-
-from homeassistant.const import (
-    DEVICE_CLASS_CURRENT,
-    DEVICE_CLASS_ENERGY,
-    DEVICE_CLASS_POWER,
-    DEVICE_CLASS_TEMPERATURE,
-    DEVICE_CLASS_VOLTAGE,
-    ELECTRIC_CURRENT_AMPERE,
-    ELECTRIC_POTENTIAL_VOLT,
-    ENERGY_WATT_HOUR,
-    FREQUENCY_HERTZ,
-    POWER_WATT,
-    TEMP_CELSIUS,
-)
+from homeassistant.components.sensor import (STATE_CLASS_MEASUREMENT,
+                                             STATE_CLASS_TOTAL_INCREASING)
+from homeassistant.const import (DEVICE_CLASS_CURRENT, DEVICE_CLASS_ENERGY,
+                                 DEVICE_CLASS_POWER, DEVICE_CLASS_TEMPERATURE,
+                                 DEVICE_CLASS_VOLTAGE, ELECTRIC_CURRENT_AMPERE,
+                                 ELECTRIC_POTENTIAL_VOLT, ENERGY_WATT_HOUR,
+                                 FREQUENCY_HERTZ, POWER_WATT, TEMP_CELSIUS)
 
 DOMAIN = "abb_powerone_pvi_sunspec"
 CONF_BASE_ADDR = "base_addr"

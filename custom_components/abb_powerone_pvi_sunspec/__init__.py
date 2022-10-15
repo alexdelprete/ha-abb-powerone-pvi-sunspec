@@ -163,10 +163,10 @@ class ABBPowerOnePVISunSpecHub:
         with self._lock:
             self._client.connect()
 
-    def read_holding_registers(self, unit, address, count):
+    def read_holding_registers(self, slave, address, count):
         """Read holding registers."""
         with self._lock:
-            kwargs = {"unit": unit} if unit else {}
+            kwargs = {"slave": slave} if slave else {}
             return self._client.read_holding_registers(address, count, **kwargs)
 
     def calculate_value(self, value, sf):
@@ -229,7 +229,7 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read (M101 or M103)+M160 (Realtime Power/Energy Data) in 1-pass
-        read_model_1_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 4), count=64)
+        read_model_1_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 4), count=64)
         _LOGGER.debug("(read_inv) Slave ID: %s", self._slave_id)
         _LOGGER.debug("(read_inv) Base Address: %s", self._base_addr)
         if read_model_1_data.isError():
@@ -289,7 +289,7 @@ class ABBPowerOnePVISunSpecHub:
         #   - Sweep 1 (M1): Start address 4 read 64 registers to read M1 (Common Inverter Info)
         #   - Sweep 2 (M103): Start address 70 read 40 registers to read M103+M160 (Realtime Power/Energy Data)
         #   - Sweep 3 (M160): Start address 124 read 40 registers to read M1 (Common Inverter Info)
-        read_model_101_103_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 70), count=40)
+        read_model_101_103_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 70), count=40)
         _LOGGER.debug("(read_rt_1) Slave ID: %s", self._slave_id)
         _LOGGER.debug("(read_rt_1) Base Address: %s", self._base_addr)
         if read_model_101_103_data.isError():
@@ -454,7 +454,7 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
-        read_model_160_data = self.read_holding_registers(unit=self._slave_id, address=(self._base_addr + 124), count=40)
+        read_model_160_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 124), count=40)
         _LOGGER.debug("(read_rt_2) Slave ID: %s", self._slave_id)
         _LOGGER.debug("(read_rt_2) Base Address: %s", self._base_addr)
         if read_model_160_data.isError():

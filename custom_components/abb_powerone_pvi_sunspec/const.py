@@ -168,11 +168,12 @@ DEVICE_STATUS = {
 }
 
 DEVICE_MODEL = {
-     1: "UNO-DM-4.0-TL-PLUS-SB",
+     1: "UNO-DM-4.0-TL-PLUS",
      3: "UNO-DM-4.6-TL-PLUS",
     12: "UNO-DM-3.0-TL-PLUS",
     13: "REACT2-UNO-5.0-TL",
     14: "REACT2-UNO-3.6-TL",
+    16: "UNO-DM-6.0-TL-PLUS",
     49: "PVI-3.0-OUTD",
     50: "PVI-3.3-OUTD",
     51: "PVI-3.6-OUTD",

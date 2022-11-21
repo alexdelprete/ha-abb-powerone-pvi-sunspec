@@ -454,7 +454,7 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
-        read_model_160_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 124), count=40)
+        read_model_160_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 122), count=42)
         _LOGGER.debug("(read_rt_2) Slave ID: %s", self._slave_id)
         _LOGGER.debug("(read_rt_2) Base Address: %s", self._base_addr)
         if read_model_160_data.isError():
@@ -467,38 +467,57 @@ class ABBPowerOnePVISunSpecHub:
             read_model_160_data.registers, byteorder=Endian.Big
         )
 
-        if self.data["invtype"] == "Three Phase":
-            # registers 124 to 126
-            dcasf = decoder.decode_16bit_int()
-            dcvsf = decoder.decode_16bit_int()
-            dcwsf = decoder.decode_16bit_int()
+        # register 122
+        multi_mppt_id = decoder.decode_16bit_int()
 
-            # skip register 127 to 140
-            decoder.skip_bytes(28)
+        # skip register 123
+        decoder.skip_bytes(2)
 
-            # registers 141 to 143
-            dc1curr = decoder.decode_16bit_uint()
-            dc1volt = decoder.decode_16bit_uint()
-            dc1power = decoder.decode_16bit_uint()
-            dc1curr = self.calculate_value(dc1curr, dcasf)
-            self.data["dc1curr"] = round(dc1curr, abs(dcasf))
-            dc1volt = self.calculate_value(dc1volt, dcvsf)
-            self.data["dc1volt"] = round(dc1volt, abs(dcvsf))
-            dc1power = self.calculate_value(dc1power, dcwsf)
-            self.data["dc1power"] = round(dc1power, abs(dcwsf))
+        # registers 124 to 126
+        dcasf = decoder.decode_16bit_int()
+        dcvsf = decoder.decode_16bit_int()
+        dcwsf = decoder.decode_16bit_int()
 
-            # skip register 144 to 160
-            decoder.skip_bytes(34)
+        # skip register 127 to 129
+        decoder.skip_bytes(6)
 
-            # registers 161 to 163
-            dc2curr = decoder.decode_16bit_uint()
-            dc2volt = decoder.decode_16bit_uint()
-            dc2power = decoder.decode_16bit_uint()
-            dc2curr = self.calculate_value(dc2curr, dcasf)
-            self.data["dc2curr"] = round(dc2curr, abs(dcasf))
-            dc2volt = self.calculate_value(dc2volt, dcvsf)
-            self.data["dc2volt"] = round(dc2volt, abs(dcvsf))
-            dc2power = self.calculate_value(dc2power, dcwsf)
-            self.data["dc2power"] = round(dc2power, abs(dcwsf))
+        # register 130 (# of DC modules)
+        multi_mppt_nr = decoder.decode_16bit_int()
+
+        if multi_mppt_id == 160:
+
+            # if we have at least one DC module
+            if multi_mppt_nr >= 1:
+
+                # skip register 131 to 140
+                decoder.skip_bytes(20)
+
+                # registers 141 to 143
+                dc1curr = decoder.decode_16bit_uint()
+                dc1volt = decoder.decode_16bit_uint()
+                dc1power = decoder.decode_16bit_uint()
+                dc1curr = self.calculate_value(dc1curr, dcasf)
+                self.data["dc1curr"] = round(dc1curr, abs(dcasf))
+                dc1volt = self.calculate_value(dc1volt, dcvsf)
+                self.data["dc1volt"] = round(dc1volt, abs(dcvsf))
+                dc1power = self.calculate_value(dc1power, dcwsf)
+                self.data["dc1power"] = round(dc1power, abs(dcwsf))
+
+            # if we have more than one DC module
+            if multi_mppt_nr > 1:
+
+                # skip register 144 to 160
+                decoder.skip_bytes(34)
+
+                # registers 161 to 163
+                dc2curr = decoder.decode_16bit_uint()
+                dc2volt = decoder.decode_16bit_uint()
+                dc2power = decoder.decode_16bit_uint()
+                dc2curr = self.calculate_value(dc2curr, dcasf)
+                self.data["dc2curr"] = round(dc2curr, abs(dcasf))
+                dc2volt = self.calculate_value(dc2volt, dcvsf)
+                self.data["dc2volt"] = round(dc2volt, abs(dcvsf))
+                dc2power = self.calculate_value(dc2power, dcwsf)
+                self.data["dc2power"] = round(dc2power, abs(dcwsf))
 
         return True

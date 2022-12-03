@@ -8,8 +8,7 @@ from typing import Optional
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
-                                 CONF_SCAN_INTERVAL)
+from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTERVAL)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_time_interval
 from pymodbus.client import ModbusTcpClient
@@ -179,10 +178,13 @@ class ABBPowerOnePVISunSpecHub:
 
     def read_sunspec_modbus_data(self):
         try:
-            return self.read_sunspec_modbus_model_1() and self.read_sunspec_modbus_model_101_103() and self.read_sunspec_modbus_model_160()
+            return (
+                self.read_sunspec_modbus_model_1()
+                and self.read_sunspec_modbus_model_101_103()
+                and self.read_sunspec_modbus_model_160()
+            )
         except ConnectionException as ex:
-            _LOGGER.error("(read_data) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.error("(read_data) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+            _LOGGER.error("(read_data) Error: check Slave ID: %s & Base Address: %s", self._slave_id, self._base_addr)
             return False
 
     def read_sunspec_modbus_stub(self):
@@ -390,7 +392,11 @@ class ABBPowerOnePVISunSpecHub:
         totalenergy = decoder.decode_32bit_uint()
         totalenergysf = decoder.decode_16bit_uint()
         totalenergy = self.calculate_value(totalenergy, totalenergysf)
-        self.data["totalenergy"] = totalenergy
+        # ensure that totalenergy is always an increasing value (total_increasing)
+        if totalenergy >= self.data["totalenergy"]:
+            self.data["totalenergy"] = totalenergy
+        else:
+            _LOGGER.error("(read_rt_1) Total Energy less than previous value! Value Read: %s - Previous Value: %s", totalenergy, self.data["totalenergy"])
 
         # registers 97 to 100 (for monophase inverters)
         if invtype == 101:

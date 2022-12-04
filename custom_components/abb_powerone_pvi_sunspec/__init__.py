@@ -171,23 +171,7 @@ class ABBPowerOnePVISunSpecHub:
     def calculate_value(self, value, sf):
         return value * 10 ** sf
 
-    def read_sunspec_modbus_data_stub(self):
-        return (
-            self.read_sunspec_modbus_stub()
-        )
-
-    def read_sunspec_modbus_data(self):
-        try:
-            return (
-                self.read_sunspec_modbus_model_1()
-                and self.read_sunspec_modbus_model_101_103()
-                and self.read_sunspec_modbus_model_160()
-            )
-        except ConnectionException as ex:
-            _LOGGER.error("(read_data) Error: check Slave ID: %s & Base Address: %s", self._slave_id, self._base_addr)
-            return False
-
-    def read_sunspec_modbus_stub(self):
+    def read_sunspec_modbus_init(self):
         self.data["accurrent"] = 1
         self.data["accurrenta"] = 1
         self.data["accurrentb"] = 1
@@ -221,6 +205,19 @@ class ABBPowerOnePVISunSpecHub:
         self.data["tempcab"] = 1
         self.data["tempoth"] = 1
         return True
+
+
+    def read_sunspec_modbus_data(self):
+        try:
+            return (
+                self.read_sunspec_modbus_init()
+                and self.read_sunspec_modbus_model_1()
+                and self.read_sunspec_modbus_model_101_103()
+                and self.read_sunspec_modbus_model_160()
+            )
+        except ConnectionException as ex:
+            _LOGGER.error("(read_data) Error: check Slave ID: %s & Base Address: %s", self._slave_id, self._base_addr)
+            return False
 
 
     def read_sunspec_modbus_model_1(self):
@@ -393,6 +390,8 @@ class ABBPowerOnePVISunSpecHub:
         totalenergysf = decoder.decode_16bit_uint()
         totalenergy = self.calculate_value(totalenergy, totalenergysf)
         # ensure that totalenergy is always an increasing value (total_increasing)
+        _LOGGER.debug("(read_rt_1) Total Energy Value Read: %s", totalenergy)
+        _LOGGER.debug("(read_rt_1) Total Energy Previous Value: %s", self.data["totalenergy"])
         if totalenergy >= self.data["totalenergy"]:
             self.data["totalenergy"] = totalenergy
         else:

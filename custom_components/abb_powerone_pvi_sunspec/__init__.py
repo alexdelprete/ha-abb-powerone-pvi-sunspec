@@ -210,8 +210,7 @@ class ABBPowerOnePVISunSpecHub:
     def read_sunspec_modbus_data(self):
         try:
             return (
-                self.read_sunspec_modbus_init()
-                and self.read_sunspec_modbus_model_1()
+                self.read_sunspec_modbus_model_1()
                 and self.read_sunspec_modbus_model_101_103()
                 and self.read_sunspec_modbus_model_160()
             )

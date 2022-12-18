@@ -140,7 +140,6 @@ class ABBPowerOnePVISunSpecConfigFlowOptions(config_entries.OptionsFlow):
         _LOGGER.debug(
             "Saving config entry with title %s, data: %s", title, self.settings
         )
-        self.hass.config_entries.async_update_entry(
+        return self.hass.config_entries.async_update_entry(
             self.config_entry, data=self.settings, title=title
         )
-        return self.async_create_entry(title="", data=self.settings)

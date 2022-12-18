@@ -23,11 +23,11 @@ _LOGGER = logging.getLogger(__name__)
 
 DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
-        vol.Required(CONF_HOST): str,
-        vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
-        vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): int,
-        vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): int,
+        vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
+        vol.Optional(CONF_HOST): str,
+        vol.Optional(CONF_PORT, default=DEFAULT_PORT): int,
+        vol.Optional(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): int,
+        vol.Optional(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): int,
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
     }
 )
@@ -125,10 +125,10 @@ class ABBPowerOnePVISunSpecConfigFlowOptions(config_entries.OptionsFlow):
             step_id="user_options",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_PORT, default=port): int,
-                    vol.Required(CONF_SLAVE_ID, default=slave_id): int,
-                    vol.Required(CONF_BASE_ADDR, default=base_addr): int,
-                    vol.Required(CONF_SCAN_INTERVAL, default=scan_interval): int,
+                    vol.Optional(CONF_PORT, default=port): int,
+                    vol.Optional(CONF_SLAVE_ID, default=slave_id): int,
+                    vol.Optional(CONF_BASE_ADDR, default=base_addr): int,
+                    vol.Optional(CONF_SCAN_INTERVAL, default=scan_interval): int,
                 }
             ),
             errors=errors,
@@ -140,6 +140,7 @@ class ABBPowerOnePVISunSpecConfigFlowOptions(config_entries.OptionsFlow):
         _LOGGER.debug(
             "Saving config entry with title %s, data: %s", title, self.settings
         )
-        return self.hass.config_entries.async_update_entry(
+        self.hass.config_entries.async_update_entry(
             self.config_entry, data=self.settings, title=title
         )
+        return self.async_create_entry(title="", data=self.settings)

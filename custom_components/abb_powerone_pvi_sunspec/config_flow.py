@@ -84,44 +84,64 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(
-        config_entry: config_entries.ConfigEntry,
-    ) -> ABBPowerOnePVISunSpecConfigFlowOptions:
+    def async_get_options_flow(config_entry):
         """Get the options flow for this handler."""
         return ABBPowerOnePVISunSpecConfigFlowOptions(config_entry)
 
 
 class ABBPowerOnePVISunSpecConfigFlowOptions(config_entries.OptionsFlow):
-    """Handle a option flow for tado."""
+    """Config flow options handler"""
 
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        """Initialize options flow."""
+    def __init__(self, config_entry):
+        """Initialize options flow"""
         self.config_entry = config_entry
+        self.settings = {}
+        self.coordinator = None
 
-    async def async_step_init(self, user_input=None):
-        """Handle options flow."""
+    async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
+        """Manage the options"""
+        self.coordinator = self.hass.data[DOMAIN][self.config_entry.entry_id]
+        return await self.async_step_host_options()
+
+    async def async_step_host_options(self, user_input=None):
+        """Handle a flow initialized by the user"""
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            self.options.update(user_input)
+            return await self._update_options()
 
-        port = self.config_entry.options.get(
-            CONF_PORT, self.config_entry.data.get(CONF_PORT)
-        )
-        slave_id = self.config_entry.options.get(
-            CONF_SLAVE_ID, self.config_entry.data.get(CONF_SLAVE_ID)
-        )
-        base_addr = self.config_entry.options.get(
-            CONF_BASE_ADDR, self.config_entry.data.get(CONF_BASE_ADDR)
-        )
-        scan_interval = self.config_entry.options.get(
-            CONF_SCAN_INTERVAL, self.config_entry.data.get(CONF_SCAN_INTERVAL)
+        return await self.show_settings_form()
+
+    async def show_settings_form(self, data=None, errors=None):
+        """Show options form"""
+        settings = data or self.config_entry.data
+        port = settings.get(CONF_PORT)
+        slave_id = settings.get(CONF_SLAVE_ID)
+        base_addr = settings.get(CONF_BASE_ADDR)
+        scan_interval = settings.get(CONF_SCAN_INTERVAL)
+
+        return self.async_show_form(
+            step_id="host_options",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_PORT, default=port): int,
+                    vol.Required(CONF_SLAVE_ID, default=slave_id): int,
+                    vol.Required(CONF_BASE_ADDR, default=base_addr): int,
+                    vol.Required(CONF_SCAN_INTERVAL, default=scan_interval): int,
+                }
+            ),
+            errors=errors,
         )
 
-        data_schema_opt = vol.Schema(
-            {
-                vol.Required(CONF_PORT, default=port): int,
-                vol.Required(CONF_SLAVE_ID, default=slave_id): int,
-                vol.Required(CONF_BASE_ADDR, default=base_addr): int,
-                vol.Required(CONF_SCAN_INTERVAL, default=scan_interval): int,
-            }
+    async def _update_options(self):
+        """Update config entry options."""
+        # self.settings[CONF_PORT] = 503
+        # self.settings[CONF_ENABLED_MODELS] = [160, 103]
+        title = f"{self.settings[CONF_HOST]}:{self.settings[CONF_PORT]}:{self.settings[CONF_SLAVE_ID]}:{self.settings[CONF_BASE_ADDR]}:{self.settings[CONF_SCAN_INTERVAL]}"
+        _LOGGER.debug(
+            "Saving config entry with title %s, data: %s",
+            title,
+            self.settings,
         )
-        return self.async_show_form(step_id="init", data_schema=data_schema_opt)
+        return self.hass.config_entries.async_update_entry(
+            self.config_entry, data=self.settings, title=title
+        )

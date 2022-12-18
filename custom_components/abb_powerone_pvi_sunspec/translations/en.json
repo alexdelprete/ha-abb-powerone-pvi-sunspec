@@ -28,17 +28,12 @@
         "title": "Inverter Connection Configuration",
         "description": "If you need help with the configuration go to: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
         "data": {
-          "name": "Custom Name of the inverter (used for sensors' prefix)",
-          "host": "IP or hostname",
           "port": "TCP port",
           "slave_id": "Modbus Slave address of the inverter",
           "base_addr": "Modbus Register Map Base Address",
           "scan_interval": "Polling period (in seconds)"
         }
       }
-    },
-    "error": {
-      "connection": "Failed to connect, check hostname and port"
     }
   }
 }

@@ -103,14 +103,13 @@ class ABBPowerOnePVISunSpecConfigFlowOptions(config_entries.OptionsFlow):
 
     async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
         """Manage the options"""
-        self.coordinator = self.hass.data[DOMAIN][self.config_entry.entry_id]
         return await self.async_step_host_options()
 
     async def async_step_host_options(self, user_input=None):
         """Handle a flow initialized by the user"""
         if user_input is not None:
             self.options.update(user_input)
-            _LOGGER.debug("Host Setttings: %s", user_input)
+            _LOGGER.debug("Host Settings: %s", user_input)
             return await self._update_options()
 
         return await self.show_settings_form()
@@ -139,7 +138,9 @@ class ABBPowerOnePVISunSpecConfigFlowOptions(config_entries.OptionsFlow):
     async def _update_options(self):
         """Update config entry options"""
         title = f"{self.settings[CONF_HOST]}:{self.settings[CONF_PORT]}:{self.settings[CONF_SLAVE_ID]}:{self.settings[CONF_BASE_ADDR]}:{self.settings[CONF_SCAN_INTERVAL]}"
-        _LOGGER.debug("Saving config entry with title %s, data: %s", title, self.settings)
+        _LOGGER.debug(
+            "Saving config entry with title %s, data: %s", title, self.settings
+        )
         return self.hass.config_entries.async_update_entry(
             self.config_entry, data=self.settings, title=title
         )

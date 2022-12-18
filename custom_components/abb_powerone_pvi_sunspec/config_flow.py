@@ -18,6 +18,8 @@ from .const import (
     DOMAIN,
 )
 
+_LOGGER = logging.getLogger(__name__)
+
 DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
@@ -107,6 +109,7 @@ class ABBPowerOnePVISunSpecConfigFlowOptions(config_entries.OptionsFlow):
         """Handle a flow initialized by the user"""
         if user_input is not None:
             self.options.update(user_input)
+            _LOGGER.debug("Host Setttings: %s", user_input)
             return await self._update_options()
 
         return await self.show_settings_form()
@@ -133,15 +136,9 @@ class ABBPowerOnePVISunSpecConfigFlowOptions(config_entries.OptionsFlow):
         )
 
     async def _update_options(self):
-        """Update config entry options."""
-        # self.settings[CONF_PORT] = 503
-        # self.settings[CONF_ENABLED_MODELS] = [160, 103]
+        """Update config entry options"""
         title = f"{self.settings[CONF_HOST]}:{self.settings[CONF_PORT]}:{self.settings[CONF_SLAVE_ID]}:{self.settings[CONF_BASE_ADDR]}:{self.settings[CONF_SCAN_INTERVAL]}"
-        _LOGGER.debug(
-            "Saving config entry with title %s, data: %s",
-            title,
-            self.settings,
-        )
+        _LOGGER.debug("Saving config entry with title %s, data: %s", title, self.settings)
         return self.hass.config_entries.async_update_entry(
             self.config_entry, data=self.settings, title=title
         )

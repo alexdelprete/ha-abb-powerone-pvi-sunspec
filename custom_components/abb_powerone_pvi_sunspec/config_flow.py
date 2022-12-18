@@ -116,8 +116,6 @@ class ABBPowerOnePVISunSpecConfigFlowOptions(config_entries.OptionsFlow):
     async def show_settings_form(self, data=None, errors=None):
         """Show options form"""
         settings = data or self.config_entry.data
-        name = settings.get(CONF_NAME) # pylint: disable=unused-variable
-        host = settings.get(CONF_HOST) # pylint: disable=unused-variable
         port = settings.get(CONF_PORT)
         slave_id = settings.get(CONF_SLAVE_ID)
         base_addr = settings.get(CONF_BASE_ADDR)
@@ -138,7 +136,7 @@ class ABBPowerOnePVISunSpecConfigFlowOptions(config_entries.OptionsFlow):
 
     async def _update_options(self):
         """Update config entry options"""
-        #title = f"{self.settings[CONF_NAME]}:{self.settings[CONF_HOST]}:{self.settings[CONF_PORT]}:{self.settings[CONF_SLAVE_ID]}:{self.settings[CONF_BASE_ADDR]}:{self.settings[CONF_SCAN_INTERVAL]}"
+        title = f"{self.settings[CONF_PORT]}:{self.settings[CONF_SLAVE_ID]}:{self.settings[CONF_BASE_ADDR]}:{self.settings[CONF_SCAN_INTERVAL]}"
         _LOGGER.debug(
             "Saving config entry with title %s, data: %s", title, self.settings
         )

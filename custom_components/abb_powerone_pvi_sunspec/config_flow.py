@@ -1,15 +1,22 @@
+"""Adds config flow"""
 import ipaddress
 import re
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
-                                 CONF_SCAN_INTERVAL)
+from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant, callback
 
-from .const import (CONF_BASE_ADDR, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
-                    DEFAULT_NAME, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
-                    DEFAULT_SLAVE_ID, DOMAIN)
+from .const import (
+    CONF_BASE_ADDR,
+    CONF_SLAVE_ID,
+    DEFAULT_BASE_ADDR,
+    DEFAULT_NAME,
+    DEFAULT_PORT,
+    DEFAULT_SCAN_INTERVAL,
+    DEFAULT_SLAVE_ID,
+    DOMAIN,
+)
 
 DATA_SCHEMA = vol.Schema(
     {
@@ -42,7 +49,7 @@ def abb_powerone_pvi_sunspec_entries(hass: HomeAssistant):
 
 
 class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """ABB Power-One PVI SunSpec configflow"""
+    """ABB Power-One PVI SunSpec config flow"""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
@@ -75,3 +82,46 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user", data_schema=DATA_SCHEMA, errors=errors
         )
 
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> ABBPowerOnePVISunSpecConfigFlowOptions:
+        """Get the options flow for this handler."""
+        return ABBPowerOnePVISunSpecConfigFlowOptions(config_entry)
+
+
+class ABBPowerOnePVISunSpecConfigFlowOptions(config_entries.OptionsFlow):
+    """Handle a option flow for tado."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize options flow."""
+        self.config_entry = config_entry
+
+    async def async_step_init(self, user_input=None):
+        """Handle options flow."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        port = self.config_entry.options.get(
+            CONF_PORT, self.config_entry.data.get(CONF_PORT)
+        )
+        slave_id = self.config_entry.options.get(
+            CONF_SLAVE_ID, self.config_entry.data.get(CONF_SLAVE_ID)
+        )
+        base_addr = self.config_entry.options.get(
+            CONF_BASE_ADDR, self.config_entry.data.get(CONF_BASE_ADDR)
+        )
+        scan_interval = self.config_entry.options.get(
+            CONF_SCAN_INTERVAL, self.config_entry.data.get(CONF_SCAN_INTERVAL)
+        )
+
+        data_schema_opt = vol.Schema(
+            {
+                vol.Required(CONF_PORT, default=port): int,
+                vol.Required(CONF_SLAVE_ID, default=slave_id): int,
+                vol.Required(CONF_BASE_ADDR, default=base_addr): int,
+                vol.Required(CONF_SCAN_INTERVAL, default=scan_interval): int,
+            }
+        )
+        return self.async_show_form(step_id="init", data_schema=data_schema_opt)

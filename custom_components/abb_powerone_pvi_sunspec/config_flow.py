@@ -1,33 +1,25 @@
-"""Adds config flow"""
-import logging
+""" Implements HA Config Flow """
+
 import ipaddress
 import re
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTERVAL
+from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
+                                 CONF_SCAN_INTERVAL)
 from homeassistant.core import HomeAssistant, callback
 
-from .const import (
-    CONF_BASE_ADDR,
-    CONF_SLAVE_ID,
-    DEFAULT_BASE_ADDR,
-    DEFAULT_NAME,
-    DEFAULT_PORT,
-    DEFAULT_SCAN_INTERVAL,
-    DEFAULT_SLAVE_ID,
-    DOMAIN,
-)
-
-_LOGGER = logging.getLogger(__name__)
+from .const import (CONF_BASE_ADDR, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
+                    DEFAULT_NAME, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
+                    DEFAULT_SLAVE_ID, DOMAIN)
 
 DATA_SCHEMA = vol.Schema(
     {
-        vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
-        vol.Optional(CONF_HOST): str,
-        vol.Optional(CONF_PORT, default=DEFAULT_PORT): int,
-        vol.Optional(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): int,
-        vol.Optional(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): int,
+        vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
+        vol.Required(CONF_HOST): str,
+        vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
+        vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): int,
+        vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): int,
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
     }
 )
@@ -52,7 +44,7 @@ def abb_powerone_pvi_sunspec_entries(hass: HomeAssistant):
 
 
 class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """ABB Power-One PVI SunSpec config flow"""
+    """ABB Power-One PVI SunSpec configflow"""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
@@ -84,9 +76,3 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=DATA_SCHEMA, errors=errors
         )
-
-    @staticmethod
-    @callback
-    def async_get_options_flow(config_entry):
-        """Get the options flow for this handler."""
-        return ABBPowerOnePVISunSpecConfigFlow(config_entry)

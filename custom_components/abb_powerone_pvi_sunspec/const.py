@@ -218,7 +218,7 @@ DEVICE_MODEL = {
     116: "PVI-10.0-OUTD-I (output 480 VAC)",
     117: "PVI-10.0-OUTD-I (output 208 VAC)",
     118: "PVI-10.0-OUTD-I (output 380 VAC)",
-    119: "PVI-10.0-I-OUTD (output 480 VAC)",
+    119: "PVI-10.0-I-OUTD (output 480 VAC – current limit 12 A)",
     121: "TRIO-20-TL-OUTD (output 400 VAC)",
     122: "PVI-10.0-OUTD-I (output 600 VAC)",
 }

@@ -49,13 +49,6 @@ def abb_powerone_pvi_sunspec_entries(hass: HomeAssistant):
     )
 
 
-@staticmethod
-@callback
-def async_get_options_flow(config_entry):
-    """Get the options flow for this handler."""
-    return ABBPowerOnePVISunSpecConfigFlow(config_entry)
-
-
 class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """ABB Power-One PVI SunSpec configflow"""
     VERSION = 1
@@ -84,6 +77,12 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=DATA_SCHEMA, errors=errors
         )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        """Get the options flow for this handler."""
+        return ABBPowerOnePVISunSpecConfigFlow(config_entry)
 
     def _host_in_configuration_exists(self, host) -> bool:
         """Return True if host exists in configuration."""

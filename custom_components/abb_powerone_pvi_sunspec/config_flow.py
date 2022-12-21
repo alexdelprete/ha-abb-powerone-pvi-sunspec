@@ -23,26 +23,6 @@ from .const import (
     DOMAIN,
 )
 
-DATA_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
-        vol.Required(CONF_HOST): str,
-        vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
-        vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): int,
-        vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): int,
-        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
-    }
-)
-
-DATA_SCHEMA_OPT = vol.Schema(
-    {
-        vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
-        vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): int,
-        vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): int,
-        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
-    }
-)
-
 
 def host_valid(host):
     """Return True if hostname or IP address is valid."""
@@ -88,8 +68,25 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 )
 
         return self.async_show_form(
-            step_id="user", data_schema=DATA_SCHEMA, errors=errors
+            step_id="user",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
+                    vol.Required(CONF_HOST): str,
+                    vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
+                    vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): int,
+                    vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): int,
+                    vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
+                }
+            ),
+            errors=errors,
         )
+
+    def _host_in_configuration_exists(self, host) -> bool:
+        """Return True if host exists in configuration."""
+        if host in abb_powerone_pvi_sunspec_entries(self.hass):
+            return True
+        return False
 
     @staticmethod
     @callback
@@ -97,11 +94,6 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Get the options flow for this handler."""
         return ABBPowerOnePVISunSpecOptionsFlow(config_entry)
 
-    def _host_in_configuration_exists(self, host) -> bool:
-        """Return True if host exists in configuration."""
-        if host in abb_powerone_pvi_sunspec_entries(self.hass):
-            return True
-        return False
 
 class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
     """ABB Power-One PVI SunSpec Options Flow"""
@@ -110,16 +102,44 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         self.config_entry = config_entry
+        self.settings = {}
+        self.options = dict(config_entry.options)
 
     async def async_step_init(self, user_input=None):
         """Handle the initial step."""
         errors = {}
 
+        port = self.config_entry.options.get(
+            CONF_PORT, self.config_entry.data.get(CONF_PORT)
+        )
+        slave_id = self.config_entry.options.get(
+            CONF_SLAVE_ID, self.config_entry.data.get(CONF_SLAVE_ID)
+        )
+        base_addr = self.config_entry.options.get(
+            CONF_BASE_ADDR, self.config_entry.data.get(CONF_BASE_ADDR)
+        )
+        scan_interval = self.config_entry.options.get(
+            CONF_SCAN_INTERVAL, self.config_entry.data.get(CONF_SCAN_INTERVAL)
+        )
+
         if user_input is not None:
-            return self.async_create_entry(
-                title=user_input[CONF_NAME], data=user_input
+            self.settings.update(user_input)
+            self.options.update(user_input)
+            title = f"{self.settings[CONF_PORT]}:{self.settings[CONF_SLAVE_ID]}:{self.settings[CONF_BASE_ADDR]}:{self.settings[CONF_SCAN_INTERVAL]}"
+            self.hass.config_entries.async_update_entry(
+                self.config_entry, data=self.settings, title=title
             )
+            return self.async_create_entry(title="", data=self.options)
 
         return self.async_show_form(
-            step_id="user_options", data_schema=DATA_SCHEMA_OPT, errors=errors
+            step_id="user_settings",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_PORT, default=port): int,
+                    vol.Required(CONF_SLAVE_ID, default=slave_id): int,
+                    vol.Required(CONF_BASE_ADDR, default=base_addr): int,
+                    vol.Required(CONF_SCAN_INTERVAL, default=scan_interval): int,
+                }
+            ),
+            errors=errors,
         )

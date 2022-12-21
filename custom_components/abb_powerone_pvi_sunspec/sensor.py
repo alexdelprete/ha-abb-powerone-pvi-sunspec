@@ -1,5 +1,6 @@
+"""Sensors of ABB Power-One PVI SunSpec"""
 import logging
-import time
+#import time
 from typing import Any, Dict, Optional
 
 from homeassistant.components.sensor import SensorEntity
@@ -13,6 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
+    """Setup sensor platform"""
     hub_name = entry.data[CONF_NAME]
     hub = hass.data[DOMAIN][hub_name]["hub"]
     hub.read_sunspec_modbus_init()
@@ -62,12 +64,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 
 class ABBPowerOnePVISunSpecSensor(SensorEntity):
-    """Representation of an ABB SunSpec Modbus sensor."""
+    """Representation of an ABB SunSpec Modbus sensor"""
 
     def __init__(
         self, platform_name, hub, device_info, name, key, unit, icon, device_class, state_class
     ):
-        """Initialize the sensor."""
+        """Initialize the sensor"""
         self._platform_name = platform_name
         self._hub = hub
         self._device_info = device_info
@@ -79,10 +81,11 @@ class ABBPowerOnePVISunSpecSensor(SensorEntity):
         self._state_class = state_class
 
     async def async_added_to_hass(self):
-        """Register callbacks."""
+        """Register callbacks"""
         self._hub.async_add_sunspec_modbus_sensor(self._sunspec_modbus_data_updated)
 
     async def async_will_remove_from_hass(self) -> None:
+        """Unregister callbacks"""
         self._hub.async_remove_sunspec_modbus_sensor(self._sunspec_modbus_data_updated)
 
     @callback
@@ -96,16 +99,17 @@ class ABBPowerOnePVISunSpecSensor(SensorEntity):
 
     @property
     def name(self):
-        """Return the name."""
+        """Return the name"""
         return f"{self._platform_name} ({self._name})"
 
     @property
     def unique_id(self) -> Optional[str]:
+        """Return the ID"""
         return f"{self._platform_name}_{self._key}"
 
     @property
     def unit_of_measurement(self):
-        """Return the unit of measurement."""
+        """Return the unit of measurement"""
         return self._unit_of_measurement
 
     @property
@@ -131,6 +135,7 @@ class ABBPowerOnePVISunSpecSensor(SensorEntity):
 
     @property
     def state_attributes(self) -> Optional[Dict[str, Any]]:
+        """Return the attributes"""
         return None
 
     @property
@@ -140,4 +145,5 @@ class ABBPowerOnePVISunSpecSensor(SensorEntity):
 
     @property
     def device_info(self) -> Optional[Dict[str, Any]]:
+        """Return device information"""
         return self._device_info

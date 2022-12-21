@@ -8,7 +8,7 @@ from typing import Optional
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTERVAL)
+# from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTERVAL)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_time_interval
 from pymodbus.client import ModbusTcpClient
@@ -16,10 +16,10 @@ from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException
 from pymodbus.payload import BinaryPayloadDecoder
 
-from .const import (CONF_BASE_ADDR, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
-                    DEFAULT_NAME, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
-                    DEFAULT_SLAVE_ID, DEVICE_GLOBAL_STATUS, DEVICE_MODEL,
-                    DEVICE_STATUS, DOMAIN, INVERTER_TYPE)
+from .const import (CONF_NAME, CONF_HOST, CONF_PORT, CONF_SLAVE_ID, CONF_BASE_ADDR,
+                    CONF_SCAN_INTERVAL, DEFAULT_BASE_ADDR, DEFAULT_NAME, DEFAULT_PORT,
+                    DEFAULT_SCAN_INTERVAL, DEFAULT_SLAVE_ID, DEVICE_GLOBAL_STATUS,
+                    DEVICE_MODEL, DEVICE_STATUS, DOMAIN, INVERTER_TYPE)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,8 +49,8 @@ async def async_setup(hass, config):
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up ABB Power-One PVI SunSpec"""
-    host = entry.data[CONF_HOST]
     name = entry.data[CONF_NAME]
+    host = entry.data[CONF_HOST]
     port = entry.data[CONF_PORT]
     slave_id = entry.data[CONF_SLAVE_ID]
     base_addr = entry.data[CONF_BASE_ADDR]
@@ -61,7 +61,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hub = ABBPowerOnePVISunSpecHub(
         hass, name, host, port, slave_id, base_addr, scan_interval
     )
-    """Register the hub."""
+    # Register the hub
     hass.data[DOMAIN][name] = {"hub": hub}
 
     for component in PLATFORMS:
@@ -72,7 +72,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 
 async def async_unload_entry(hass, entry):
-    """Unload ABB Power-One PVI SunSpec entry."""
+    """Unload ABB Power-One PVI SunSpec entry"""
     unload_ok = all(
         await asyncio.gather(
             *[
@@ -89,7 +89,7 @@ async def async_unload_entry(hass, entry):
 
 
 class ABBPowerOnePVISunSpecHub:
-    """Thread safe wrapper class for pymodbus."""
+    """Thread safe wrapper class for pymodbus"""
 
     def __init__(
         self,
@@ -101,7 +101,7 @@ class ABBPowerOnePVISunSpecHub:
         base_addr,
         scan_interval,
     ):
-        """Initialize the Modbus hub."""
+        """Initialize the Modbus hub"""
         self._hass = hass
         self._client = ModbusTcpClient(host=host, port=port)
         self._lock = threading.Lock()
@@ -115,7 +115,7 @@ class ABBPowerOnePVISunSpecHub:
 
     @callback
     def async_add_sunspec_modbus_sensor(self, update_callback):
-        """Listen for data updates."""
+        """Listen for data updates"""
         # This is the first sensor, set up interval.
         if not self._sensors:
             self.connect()
@@ -127,7 +127,7 @@ class ABBPowerOnePVISunSpecHub:
 
     @callback
     def async_remove_sunspec_modbus_sensor(self, update_callback):
-        """Remove data update."""
+        """Remove data update"""
         self._sensors.remove(update_callback)
 
         if not self._sensors:
@@ -137,7 +137,7 @@ class ABBPowerOnePVISunSpecHub:
             self.close()
 
     async def async_refresh_sunspec_modbus_data(self, _now: Optional[int] = None) -> None:
-        """Time to update."""
+        """Time to update"""
         if not self._sensors:
             return
 
@@ -149,29 +149,31 @@ class ABBPowerOnePVISunSpecHub:
 
     @property
     def name(self):
-        """Return the name of this hub."""
+        """Return the name of this hub"""
         return self._name
 
     def close(self):
-        """Disconnect client."""
+        """Disconnect client"""
         with self._lock:
             self._client.close()
 
     def connect(self):
-        """Connect client."""
+        """Connect client"""
         with self._lock:
             self._client.connect()
 
     def read_holding_registers(self, slave, address, count):
-        """Read holding registers."""
+        """Read holding registers"""
         with self._lock:
             kwargs = {"slave": slave} if slave else {}
             return self._client.read_holding_registers(address, count, **kwargs)
 
     def calculate_value(self, value, sf):
+        """Apply Scale Factor"""
         return value * 10 ** sf
 
     def read_sunspec_modbus_init(self):
+        """Initialize Dataset"""
         self.data["accurrent"] = 1
         self.data["accurrenta"] = 1
         self.data["accurrentb"] = 1
@@ -208,6 +210,7 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def read_sunspec_modbus_data(self):
+        """Main Read Function"""
         try:
             return (
                 self.read_sunspec_modbus_model_1()
@@ -220,6 +223,7 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def read_sunspec_modbus_model_1(self):
+        """Read SunSpec Model 1 Data"""
         # A single register is 2 bytes. Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
         #
@@ -279,6 +283,7 @@ class ABBPowerOnePVISunSpecHub:
         return True
 
     def read_sunspec_modbus_model_101_103(self):
+        """Read SunSpec Model 101/103 Data"""
         # Max number of registers in one read for Modbus/TCP is 123
         # (ref.: https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251)
         #
@@ -451,6 +456,7 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def read_sunspec_modbus_model_160(self):
+        """Read SunSpec Model 160 Data"""
         # Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
         #

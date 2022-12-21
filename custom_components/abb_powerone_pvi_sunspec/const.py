@@ -1,3 +1,4 @@
+"""Constants for ABB Power-One PVI SunSpec"""
 from homeassistant.components.sensor import (STATE_CLASS_MEASUREMENT,
                                              STATE_CLASS_TOTAL_INCREASING)
 from homeassistant.const import (DEVICE_CLASS_CURRENT, DEVICE_CLASS_ENERGY,
@@ -7,8 +8,12 @@ from homeassistant.const import (DEVICE_CLASS_CURRENT, DEVICE_CLASS_ENERGY,
                                  FREQUENCY_HERTZ, POWER_WATT, TEMP_CELSIUS)
 
 DOMAIN = "abb_powerone_pvi_sunspec"
-CONF_BASE_ADDR = "base_addr"
+CONF_NAME = "name"
+CONF_HOST = "host"
+CONF_PORT = "port"
 CONF_SLAVE_ID = "slave_id"
+CONF_BASE_ADDR = "base_addr"
+CONF_SCAN_INTERVAL = "scan_interval"
 DEFAULT_NAME = "ABB Inverter"
 DEFAULT_PORT = 502
 DEFAULT_SLAVE_ID = 247

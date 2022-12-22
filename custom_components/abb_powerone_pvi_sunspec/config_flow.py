@@ -5,23 +5,14 @@ import re
 
 import voluptuous as vol
 from homeassistant import config_entries
-# from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTERVAL
+from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
+                                 CONF_SCAN_INTERVAL)
 from homeassistant.core import HomeAssistant, callback
 
-from .const import (
-    CONF_NAME,
-    CONF_HOST,
-    CONF_PORT,
-    CONF_SLAVE_ID,
-    CONF_BASE_ADDR,
-    CONF_SCAN_INTERVAL,
-    DEFAULT_BASE_ADDR,
-    DEFAULT_NAME,
-    DEFAULT_PORT,
-    DEFAULT_SCAN_INTERVAL,
-    DEFAULT_SLAVE_ID,
-    DOMAIN,
-)
+from .const import (CONF_BASE_ADDR, CONF_HOST, CONF_NAME, CONF_PORT,
+                    CONF_SCAN_INTERVAL, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
+                    DEFAULT_NAME, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
+                    DEFAULT_SLAVE_ID, DOMAIN)
 
 
 def host_valid(host):

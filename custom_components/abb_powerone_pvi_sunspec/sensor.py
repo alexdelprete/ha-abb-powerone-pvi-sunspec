@@ -1,6 +1,5 @@
 """Sensors of ABB Power-One PVI SunSpec"""
 import logging
-#import time
 from typing import Any, Dict, Optional
 
 from homeassistant.components.sensor import SensorEntity

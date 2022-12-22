@@ -8,7 +8,8 @@ from typing import Optional
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
-# from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTERVAL)
+from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
+                                 CONF_SCAN_INTERVAL)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_time_interval
 from pymodbus.client import ModbusTcpClient
@@ -16,10 +17,10 @@ from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException
 from pymodbus.payload import BinaryPayloadDecoder
 
-from .const import (CONF_NAME, CONF_HOST, CONF_PORT, CONF_SLAVE_ID, CONF_BASE_ADDR,
-                    CONF_SCAN_INTERVAL, DEFAULT_BASE_ADDR, DEFAULT_NAME, DEFAULT_PORT,
-                    DEFAULT_SCAN_INTERVAL, DEFAULT_SLAVE_ID, DEVICE_GLOBAL_STATUS,
-                    DEVICE_MODEL, DEVICE_STATUS, DOMAIN, INVERTER_TYPE)
+from .const import (CONF_BASE_ADDR, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
+                    DEFAULT_NAME, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
+                    DEFAULT_SLAVE_ID, DEVICE_GLOBAL_STATUS, DEVICE_MODEL,
+                    DEVICE_STATUS, DOMAIN, INVERTER_TYPE)
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -86,15 +86,15 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_PORT,
                         default=DEFAULT_PORT,
-                    ): cv.int,
+                    ): vol.Coerce(int),
                     vol.Required(
                         CONF_SLAVE_ID,
                         default=DEFAULT_SLAVE_ID,
-                    ): cv.int,
+                    ): vol.Coerce(int),
                     vol.Required(
                         CONF_BASE_ADDR,
                         default=DEFAULT_BASE_ADDR,
-                    ): cv.int,
+                    ): vol.Coerce(int),
                     vol.Required(
                         CONF_SCAN_INTERVAL,
                         default=DEFAULT_SCAN_INTERVAL,
@@ -135,15 +135,15 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
                         vol.Required(
                             CONF_PORT,
                             default=self.config_entry.data[CONF_PORT],
-                        ): cv.int,
+                        ): vol.Coerce(int),
                         vol.Required(
                             CONF_SLAVE_ID,
                             default=self.config_entry.data[CONF_SLAVE_ID],
-                        ): cv.int,
+                        ): vol.Coerce(int),
                         vol.Required(
                             CONF_BASE_ADDR,
                             default=self.config_entry.data[CONF_BASE_ADDR],
-                        ): cv.int,
+                        ): vol.Coerce(int),
                         vol.Required(
                             CONF_SCAN_INTERVAL,
                             default=self.config_entry.data[CONF_SCAN_INTERVAL],

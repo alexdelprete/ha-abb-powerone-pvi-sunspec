@@ -106,7 +106,7 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             self.settings.update(user_input)
             _LOGGER.debug("User Options: %s", user_input)
-            self._update_options()
+            return self._update_options()
 
         return await self.show_settings_form()
 

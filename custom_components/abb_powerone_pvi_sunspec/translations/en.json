@@ -23,7 +23,6 @@
     }
   },
   "options": {
-    "title": "ABB Power-One PVI SunSpec",
     "step": {
       "init": {
         "title": "Inverter Connection Options",

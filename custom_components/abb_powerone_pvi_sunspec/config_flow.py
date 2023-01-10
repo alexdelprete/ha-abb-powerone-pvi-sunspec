@@ -99,7 +99,6 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
         """Manage the options."""
-        self.coordinator = self.hass.data[DOMAIN][self.config_entry.entry_id]
         return await self.async_step_user_options()
 
     async def async_step_user_options(self, user_input=None):

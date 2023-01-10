@@ -134,13 +134,12 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
     async def _update_options(self):
         """Update config entry options."""
         title = f"{self.settings[CONF_PORT]}:{self.settings[CONF_SLAVE_ID]}:{self.settings[CONF_BASE_ADDR]}:{self.settings[CONF_SCAN_INTERVAL]}"
-        _LOGGER.debug(
-            "Saving config entry with title %s, options %s",
+        _LOGGER.info(
+            "(ABB config_flow): Saving config entry with title %s, options %s",
             title,
             self.settings
         )
-        self.hass.config_entries.async_update_entry(
+
+        return self.hass.config_entries.async_update_entry(
             self.config_entry, data=self.settings, title=title
         )
-
-        return True

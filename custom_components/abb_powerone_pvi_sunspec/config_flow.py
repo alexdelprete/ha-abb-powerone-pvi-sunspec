@@ -1,5 +1,3 @@
-"""Implements HA Config Flow"""
-
 import ipaddress
 import re
 
@@ -13,9 +11,20 @@ from .const import (CONF_BASE_ADDR, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
                     DEFAULT_NAME, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
                     DEFAULT_SLAVE_ID, DOMAIN)
 
+DATA_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
+        vol.Required(CONF_HOST): str,
+        vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
+        vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): int,
+        vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): int,
+        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
+    }
+)
+
 
 def host_valid(host):
-    """Return True if hostname or IP address is valid."""
+    """Return True if hostname or IP address is valid"""
     try:
         if ipaddress.ip_address(host).version == (4 or 6):
             return True
@@ -26,19 +35,23 @@ def host_valid(host):
 
 @callback
 def abb_powerone_pvi_sunspec_entries(hass: HomeAssistant):
-    """Return the hosts already configured."""
+    """Return the hosts already configured"""
     return set(
         entry.data[CONF_HOST] for entry in hass.config_entries.async_entries(DOMAIN)
     )
 
 
 class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """ABB Power-One PVI SunSpec Config Flow"""
+    """ABB Power-One PVI SunSpec config flow"""
+
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        self.config_entry = config_entry
+    def _host_in_configuration_exists(self, host) -> bool:
+        """Return True if host exists in configuration."""
+        if host in abb_powerone_pvi_sunspec_entries(self.hass):
+            return True
+        return False
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
@@ -46,6 +59,7 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             host = user_input[CONF_HOST]
+
             if self._host_in_configuration_exists(host):
                 errors[CONF_HOST] = "already_configured"
             elif not host_valid(user_input[CONF_HOST]):
@@ -58,22 +72,5 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 )
 
         return self.async_show_form(
-            step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
-                    vol.Required(CONF_HOST): str,
-                    vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
-                    vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): int,
-                    vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): int,
-                    vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
-                }
-            ),
-            errors=errors,
+            step_id="user", data_schema=DATA_SCHEMA, errors=errors
         )
-
-    def _host_in_configuration_exists(self, host) -> bool:
-        """Return True if host exists in configuration."""
-        if host in abb_powerone_pvi_sunspec_entries(self.hass):
-            return True
-        return False

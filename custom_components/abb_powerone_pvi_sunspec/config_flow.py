@@ -1,4 +1,7 @@
+"""Config Flow of ABB Power-One PVI SunSpec"""
+
 import ipaddress
+import logging
 import re
 
 import voluptuous as vol
@@ -6,21 +9,14 @@ from homeassistant import config_entries
 from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
                                  CONF_SCAN_INTERVAL)
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import config_validation as cv
+from homeassistant.config_entries import ConfigEntry
 
 from .const import (CONF_BASE_ADDR, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
                     DEFAULT_NAME, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
                     DEFAULT_SLAVE_ID, DOMAIN)
 
-DATA_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
-        vol.Required(CONF_HOST): str,
-        vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
-        vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): int,
-        vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): int,
-        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
-    }
-)
+_LOGGER = logging.getLogger(__name__)
 
 
 def host_valid(host):
@@ -47,6 +43,12 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry):
+        """Initiate Options Flow Instance"""
+        return ABBPowerOnePVISunSpecOptionsFlow(config_entry)
+
     def _host_in_configuration_exists(self, host) -> bool:
         """Return True if host exists in configuration."""
         if host in abb_powerone_pvi_sunspec_entries(self.hass):
@@ -72,5 +74,77 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 )
 
         return self.async_show_form(
-            step_id="user", data_schema=DATA_SCHEMA, errors=errors
+            step_id="user",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_NAME,
+                        default=DEFAULT_NAME,
+                    ): cv.string,
+                    vol.Required(
+                        CONF_HOST,
+                    ): cv.string,
+                    vol.Required(
+                        CONF_PORT,
+                        default=DEFAULT_PORT,
+                    ): vol.Coerce(int),
+                    vol.Required(
+                        CONF_SLAVE_ID,
+                        default=DEFAULT_SLAVE_ID,
+                    ): vol.Coerce(int),
+                    vol.Required(
+                        CONF_BASE_ADDR,
+                        default=DEFAULT_BASE_ADDR,
+                    ): vol.Coerce(int),
+                    vol.Required(
+                        CONF_SCAN_INTERVAL,
+                        default=DEFAULT_SCAN_INTERVAL,
+                    ): vol.All(vol.Coerce(int), vol.Range(min=5, max=300)),
+                },
+            ),
+            errors=errors
         )
+
+class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
+    """Config flow options handler"""
+
+    VERSION = 1
+
+    def __init__(self, config_entry: ConfigEntry) -> None:
+        """Initialize option flow instance."""
+        self.config_entry = config_entry
+        self.data_schema=vol.Schema(
+            {
+                vol.Required(
+                    CONF_PORT,
+                    default=self.config_entry.data[CONF_PORT],
+                ): vol.Coerce(int),
+                vol.Required(
+                    CONF_SLAVE_ID,
+                    default=self.config_entry.data[CONF_SLAVE_ID],
+                ): vol.Coerce(int),
+                vol.Required(
+                    CONF_BASE_ADDR,
+                    default=self.config_entry.data[CONF_BASE_ADDR],
+                ): vol.Coerce(int),
+                vol.Required(
+                    CONF_SCAN_INTERVAL,
+                    default=self.config_entry.data[CONF_SCAN_INTERVAL],
+                ): vol.All(vol.Coerce(int), vol.Range(min=5, max=900)),
+            }
+        )
+    async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
+        """Manage the options."""
+
+        if user_input is not None:
+            if CONF_NAME in self.config_entry.data:
+                user_input[CONF_NAME] = self.config_entry.data[CONF_NAME]
+            if CONF_HOST in self.config_entry.data:
+                user_input[CONF_HOST] = self.config_entry.data[CONF_HOST]
+
+            self.hass.config_entries.async_update_entry(
+                self.config_entry, data=user_input, options=self.config_entry.options
+            )
+            return self.async_create_entry(title="", data={})
+
+        return self.async_show_form(step_id="init", data_schema=self.data_schema)

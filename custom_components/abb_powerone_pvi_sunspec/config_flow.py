@@ -1,4 +1,7 @@
+"""Config Flow of ABB Power-One PVI SunSpec"""
+
 import ipaddress
+import logging
 import re
 
 import voluptuous as vol
@@ -10,6 +13,8 @@ from homeassistant.core import HomeAssistant, callback
 from .const import (CONF_BASE_ADDR, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
                     DEFAULT_NAME, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
                     DEFAULT_SLAVE_ID, DOMAIN)
+
+_LOGGER = logging.getLogger(__name__)
 
 DATA_SCHEMA = vol.Schema(
     {
@@ -47,6 +52,12 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        """Hook for Options Flow"""
+        return ABBPowerOnePVISunSpecOptionsFlow(config_entry)
+
     def _host_in_configuration_exists(self, host) -> bool:
         """Return True if host exists in configuration."""
         if host in abb_powerone_pvi_sunspec_entries(self.hass):
@@ -74,3 +85,63 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=DATA_SCHEMA, errors=errors
         )
+
+class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
+    """Config flow options handler for sunspec."""
+
+    VERSION = 1
+
+    def __init__(self, config_entry):
+        """Initialize HACS options flow."""
+        self.config_entry = config_entry
+        self.settings = {}
+        self.coordinator = None
+
+    async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
+        """Manage the options."""
+        self.coordinator = self.hass.data[DOMAIN][self.config_entry.entry_id]
+        return await self.async_step_user_options()
+
+    async def async_step_user_options(self, user_input=None):
+        """Handle a flow initialized by the user."""
+        if user_input is not None:
+            self.settings.update(user_input)
+            _LOGGER.debug("User Options: %s", user_input)
+            self.show_settings_form()
+
+        return await self._update_options()
+
+    async def show_settings_form(self, data=None, errors=None):
+        """Show Options Form"""
+        settings = data or self.config_entry.data
+        port = settings.get(CONF_PORT)
+        slave_id = settings.get(CONF_SLAVE_ID)
+        base_addr = settings.get(CONF_BASE_ADDR)
+        scan_interval = settings.get(CONF_SCAN_INTERVAL)
+
+        return self.async_show_form(
+            step_id="user_options",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_PORT, default=port): int,
+                    vol.Required(CONF_SLAVE_ID, default=slave_id): int,
+                    vol.Required(CONF_BASE_ADDR, default=base_addr): int,
+                    vol.Required(CONF_SCAN_INTERVAL, default=scan_interval): int,
+                }
+            ),
+            errors=errors,
+        )
+
+    async def _update_options(self):
+        """Update config entry options."""
+        title = f"{self.settings[CONF_PORT]}:{self.settings[CONF_SLAVE_ID]}:{self.settings[CONF_BASE_ADDR]}:{self.settings[CONF_SCAN_INTERVAL]}"
+        _LOGGER.debug(
+            "Saving config entry with title %s, options %s",
+            title,
+            self.settings,
+        )
+        self.hass.config_entries.async_update_entry(
+            self.config_entry, data=self.settings, title=title
+        )
+
+        return True

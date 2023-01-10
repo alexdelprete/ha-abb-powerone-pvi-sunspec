@@ -24,7 +24,7 @@
   },
   "options": {
     "step": {
-      "user_settings": {
+      "user_options": {
         "title": "ABB Inverter Connection Configuration",
         "description": "If you need help with the configuration go to: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
         "data": {

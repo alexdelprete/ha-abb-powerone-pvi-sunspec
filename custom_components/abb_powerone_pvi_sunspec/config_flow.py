@@ -106,9 +106,9 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             self.settings.update(user_input)
             _LOGGER.debug("User Options: %s", user_input)
-            self.show_settings_form()
+            self._update_options()
 
-        return await self._update_options()
+        return await self.show_settings_form()
 
     async def show_settings_form(self, data=None, errors=None):
         """Show Options Form"""
@@ -137,7 +137,7 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
         _LOGGER.debug(
             "Saving config entry with title %s, options %s",
             title,
-            self.settings,
+            self.settings
         )
         self.hass.config_entries.async_update_entry(
             self.config_entry, data=self.settings, title=title

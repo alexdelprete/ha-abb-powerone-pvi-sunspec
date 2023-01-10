@@ -17,17 +17,6 @@ from .const import (CONF_BASE_ADDR, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
 
 _LOGGER = logging.getLogger(__name__)
 
-DATA_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_NAME, default=DEFAULT_NAME): cv.str,
-        vol.Required(CONF_HOST): cv.str,
-        vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.int,
-        vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): cv.int,
-        vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): cv.int,
-        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.int,
-    }
-)
-
 
 def host_valid(host):
     """Return True if hostname or IP address is valid"""
@@ -84,7 +73,35 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 )
 
         return self.async_show_form(
-            step_id="user", data_schema=DATA_SCHEMA, errors=errors
+            step_id="user",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_NAME,
+                        default=DEFAULT_NAME,
+                    ): cv.string,
+                    vol.Required(
+                        CONF_HOST,
+                    ): cv.string,
+                    vol.Required(
+                        CONF_PORT,
+                        default=DEFAULT_PORT,
+                    ): cv.int,
+                    vol.Required(
+                        CONF_SLAVE_ID,
+                        default=DEFAULT_SLAVE_ID,
+                    ): cv.int,
+                    vol.Required(
+                        CONF_BASE_ADDR,
+                        default=DEFAULT_BASE_ADDR,
+                    ): cv.int,
+                    vol.Required(
+                        CONF_SCAN_INTERVAL,
+                        default=DEFAULT_SCAN_INTERVAL,
+                    ): vol.All(vol.Coerce(int), vol.Range(min=5, max=300)),
+                },
+                errors=errors
+            )
         )
 
 class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
@@ -130,7 +147,7 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
                         vol.Required(
                             CONF_SCAN_INTERVAL,
                             default=self.config_entry.data[CONF_SCAN_INTERVAL],
-                        ): vol.All(vol.Coerce(int), vol.Range(min=1, max=300)),
+                        ): vol.All(vol.Coerce(int), vol.Range(min=5, max=300)),
                     }
-                ),
+                )
             )

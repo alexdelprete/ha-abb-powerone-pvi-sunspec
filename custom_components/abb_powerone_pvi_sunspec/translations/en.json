@@ -23,9 +23,10 @@
     }
   },
   "options": {
+    "title": "ABB Power-One PVI SunSpec",
     "step": {
       "user_options": {
-        "title": "ABB Inverter Connection Configuration",
+        "title": "Inverter Connection Options",
         "description": "If you need help with the configuration go to: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
         "data": {
           "port": "TCP port",

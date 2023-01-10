@@ -1,6 +1,5 @@
 {
   "config": {
-    "title": "ABB Power-One PVI SunSpec",
     "step": {
       "user": {
         "title": "Inverter Connection Configuration",

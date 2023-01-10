@@ -95,7 +95,6 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
         """Initialize HACS options flow."""
         self.config_entry = config_entry
         self.settings = {}
-        self.coordinator = None
 
     async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
         """Manage the options."""
@@ -106,6 +105,7 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             self.settings.update(user_input)
             _LOGGER.debug("User Options: %s", user_input)
+
             return self._update_options()
 
         return await self.show_settings_form()
@@ -140,6 +140,8 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
             self.settings
         )
 
-        return self.hass.config_entries.async_update_entry(
-            self.config_entry, data=self.settings, title=title
+        self.hass.config_entries.async_update_entry(
+            self.config_entry, data=self.settings, options=self.config_entry.options
         )
+
+        return self.async_create_entry(title="", data={})

@@ -25,9 +25,9 @@
   "options": {
     "title": "ABB Power-One PVI SunSpec",
     "step": {
-      "user_options": {
+      "init": {
         "title": "Inverter Connection Options",
-        "description": "If you need help with the configuration go to: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
+        "description": "Set Connection Options",
         "data": {
           "port": "TCP port",
           "slave_id": "Modbus Slave address of the inverter",

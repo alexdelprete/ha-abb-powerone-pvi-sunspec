@@ -9,6 +9,7 @@ from homeassistant import config_entries
 from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
                                  CONF_SCAN_INTERVAL)
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import config_validation as cv
 
 from .const import (CONF_BASE_ADDR, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
                     DEFAULT_NAME, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
@@ -18,12 +19,12 @@ _LOGGER = logging.getLogger(__name__)
 
 DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
-        vol.Required(CONF_HOST): str,
-        vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
-        vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): int,
-        vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): int,
-        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
+        vol.Required(CONF_NAME, default=DEFAULT_NAME): cv.str,
+        vol.Required(CONF_HOST): cv.str,
+        vol.Required(CONF_PORT, default=DEFAULT_PORT): cv.int,
+        vol.Required(CONF_SLAVE_ID, default=DEFAULT_SLAVE_ID): cv.int,
+        vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): cv.int,
+        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): cv.int,
     }
 )
 
@@ -91,57 +92,45 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
 
     VERSION = 1
 
-    def __init__(self, config_entry):
-        """Initialize HACS options flow."""
+    def __init__(self, config_entry: config_entries.ConfigEntry):
+        """Initialize options flow."""
         self.config_entry = config_entry
         self.settings = {}
 
     async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
         """Manage the options."""
-        return await self.async_step_user_options()
 
-    async def async_step_user_options(self, user_input=None):
-        """Handle a flow initialized by the user."""
         if user_input is not None:
-            self.settings.update(user_input)
-            _LOGGER.debug("User Options: %s", user_input)
+            if CONF_NAME in self.config_entry.data:
+                user_input[CONF_NAME] = self.config_entry.data[CONF_NAME]
+            if CONF_HOST in self.config_entry.data:
+                user_input[CONF_HOST] = self.config_entry.data[CONF_HOST]
 
-            return self._update_options()
-
-        return await self.show_settings_form()
-
-    async def show_settings_form(self, data=None, errors=None):
-        """Show Options Form"""
-        settings = data or self.config_entry.data
-        port = settings.get(CONF_PORT)
-        slave_id = settings.get(CONF_SLAVE_ID)
-        base_addr = settings.get(CONF_BASE_ADDR)
-        scan_interval = settings.get(CONF_SCAN_INTERVAL)
-
-        return self.async_show_form(
-            step_id="user_options",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_PORT, default=port): int,
-                    vol.Required(CONF_SLAVE_ID, default=slave_id): int,
-                    vol.Required(CONF_BASE_ADDR, default=base_addr): int,
-                    vol.Required(CONF_SCAN_INTERVAL, default=scan_interval): int,
-                }
-            ),
-            errors=errors,
-        )
-
-    async def _update_options(self):
-        """Update config entry options."""
-        title = f"{self.settings[CONF_PORT]}:{self.settings[CONF_SLAVE_ID]}:{self.settings[CONF_BASE_ADDR]}:{self.settings[CONF_SCAN_INTERVAL]}"
-        _LOGGER.info(
-            "(ABB config_flow): Saving config entry with title %s, options %s",
-            title,
-            self.settings
-        )
-
-        self.hass.config_entries.async_update_entry(
-            self.config_entry, data=self.settings, options=self.config_entry.options
-        )
-
-        return self.async_create_entry(title="", data={})
+            self.hass.config_entries.async_update_entry(
+                self.config_entry, data=user_input, options=self.config_entry.options
+            )
+            return self.async_create_entry(title="", data={})
+        else:
+            return self.async_show_form(
+                step_id="user_options",
+                data_schema=vol.Schema(
+                    {
+                        vol.Required(
+                            CONF_PORT,
+                            default=self.config_entry.data[CONF_PORT],
+                        ): cv.int,
+                        vol.Required(
+                            CONF_SLAVE_ID,
+                            default=self.config_entry.data[CONF_SLAVE_ID],
+                        ): cv.int,
+                        vol.Required(
+                            CONF_BASE_ADDR,
+                            default=self.config_entry.data[CONF_BASE_ADDR],
+                        ): cv.int,
+                        vol.Required(
+                            CONF_SCAN_INTERVAL,
+                            default=self.config_entry.data[CONF_SCAN_INTERVAL],
+                        ): vol.All(vol.Coerce(int), vol.Range(min=1, max=300)),
+                    }
+                ),
+            )

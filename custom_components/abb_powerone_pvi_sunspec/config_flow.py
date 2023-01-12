@@ -148,8 +148,7 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
                 self.config_entry, data=user_input, options=self.config_entry.options
             )
             # reload updated config entries (ht @fuatakgun)
-            if self._async_current_entries():
-                await self.hass.config_entries.async_reload(self.context["entry_id"])
+            await self.hass.config_entries.async_reload(self.context["entry_id"])
 
             # write empty options entries (ht @PeteRage / @fuatakgun)
             return self.async_create_entry(title="", data={})

@@ -111,7 +111,7 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
     VERSION = 1
 
     def __init__(self, config_entry: ConfigEntry) -> None:
-        """Initialize option flow instance."""
+        """Initialize option flow instance"""
         self.config_entry = config_entry
         self.data_schema=vol.Schema(
             {
@@ -134,17 +134,24 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
             }
         )
     async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
-        """Manage the options."""
+        """Manage the options"""
 
         if user_input is not None:
+            # complete non-edited entries before update (ht @PeteRage)
             if CONF_NAME in self.config_entry.data:
                 user_input[CONF_NAME] = self.config_entry.data[CONF_NAME]
             if CONF_HOST in self.config_entry.data:
                 user_input[CONF_HOST] = self.config_entry.data[CONF_HOST]
 
+            # write updated config entries (ht @PeteRage / @fuatakgun)
             self.hass.config_entries.async_update_entry(
                 self.config_entry, data=user_input, options=self.config_entry.options
             )
+            # reload updated config entries (ht @fuatakgun)
+            if self._async_current_entries():
+                await self.hass.config_entries.async_reload(self.context["entry_id"])
+
+            # write empty options entries (ht @PeteRage / @fuatakgun)
             return self.async_create_entry(title="", data={})
 
         return self.async_show_form(step_id="init", data_schema=self.data_schema)

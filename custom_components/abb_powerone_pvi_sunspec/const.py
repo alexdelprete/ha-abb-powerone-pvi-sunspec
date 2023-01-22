@@ -178,6 +178,7 @@ DEVICE_MODEL = {
     12: "UNO-DM-3.0-TL-PLUS",
     13: "REACT2-UNO-5.0-TL",
     14: "REACT2-UNO-3.6-TL",
+    15: "UNO-DM-5.0-TL-PLUS",
     16: "UNO-DM-6.0-TL-PLUS",
     49: "PVI-3.0-OUTD",
     50: "PVI-3.3-OUTD",

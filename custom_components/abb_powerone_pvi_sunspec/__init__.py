@@ -5,8 +5,8 @@ import threading
 from datetime import timedelta
 from typing import Optional
 
-import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
+import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
                                  CONF_SCAN_INTERVAL)
@@ -42,7 +42,7 @@ CONFIG_SCHEMA = vol.Schema(
 PLATFORMS = ["sensor"]
 
 
-async def async_setup(hass, config):
+async def async_setup(hass: HomeAssistant, entry: ConfigEntry):
     """Set up ABB Power-One PVI SunSpec component"""
     hass.data[DOMAIN] = {}
     return True
@@ -69,24 +69,32 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         hass.async_create_task(
             hass.config_entries.async_forward_entry_setup(entry, component)
         )
+    entry.add_update_listener(async_reload_entry)
     return True
 
 
-async def async_unload_entry(hass, entry):
-    """Unload ABB Power-One PVI SunSpec entry"""
-    unload_ok = all(
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Handle removal of an entry"""
+    coordinator = hass.data[DOMAIN][entry.data["name"]]
+    unloaded = all(
         await asyncio.gather(
             *[
                 hass.config_entries.async_forward_entry_unload(entry, component)
                 for component in PLATFORMS
+                if component in coordinator.platforms
             ]
         )
     )
-    if not unload_ok:
-        return False
+    if unloaded:
+        hass.data[DOMAIN].pop(entry.data["name"])
 
-    hass.data[DOMAIN].pop(entry.data["name"])
-    return True
+    return unloaded
+
+
+async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload config entry"""
+    await async_unload_entry(hass, entry)
+    await async_setup_entry(hass, entry)
 
 
 class ABBPowerOnePVISunSpecHub:

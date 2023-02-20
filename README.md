@@ -35,6 +35,9 @@ Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Slave ID) 
 
 <img style="border: 5px solid #767676;border-radius: 10px;max-width: 350px;width: 40%;box-sizing: border-box;" src="https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/blob/master/gfxfiles/config.png?raw=true" alt="Config">
 
+# Sensor screenshot
+<img style="border: 5px solid #767676;border-radius: 10px;max-width: 350px;width: 40%;box-sizing: border-box;" src="https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/blob/master/gfxfiles/demo.png?raw=true" alt="Config">
+
 # Coffee
 
 If you like this integration, I'll gladly accept some quality coffee, but please don't feel obliged. :)

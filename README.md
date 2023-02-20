@@ -8,9 +8,9 @@ The component has been originally developed by @binsentsu for SolarEdge inverter
 
 Register address map has been implemented following the vendor's specification documentation listed here:
 
-- https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/SunSpec_VSN300register_map.xlsx
-- https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/SunSpec_REACT2_PICS_Rev_003.xlsx
-- https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/extrafiles/SunSpec_PICS-ABB-TRIO-50.0-TL-OUTD.xlsx
+- https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/gfxfiles/SunSpec_VSN300register_map.xlsx
+- https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/gfxfiles/SunSpec_REACT2_PICS_Rev_003.xlsx
+- https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/gfxfiles/SunSpec_PICS-ABB-TRIO-50.0-TL-OUTD.xlsx
 
 # Installation through HACS
 
@@ -33,7 +33,7 @@ Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Slave ID) 
 - **register map base address**: the base address from where the register map starts, usually it's 40000, but for ABB VSN300/VSN700 dataloggers it's 0
 - **polling period**: frequency, in seconds, to read the registers and update the sensors
 
-<img style="border: 5px solid #767676;border-radius: 10px;max-width: 350px;width: 40%;box-sizing: border-box;" src="https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/blob/master/extrafiles/config.png?raw=true" alt="Config">
+<img style="border: 5px solid #767676;border-radius: 10px;max-width: 350px;width: 40%;box-sizing: border-box;" src="https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/blob/master/gfxfiles/config.png?raw=true" alt="Config">
 
 # Coffee
 

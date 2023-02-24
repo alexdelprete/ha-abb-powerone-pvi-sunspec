@@ -1,13 +1,13 @@
 {
   "domain": "abb_powerone_pvi_sunspec",
   "name": "ABB Power-One PVI SunSpec",
-  "documentation": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
-  "issue_tracker": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues",
   "codeowners": ["@alexdelprete"],
   "config_flow": true,
+  "documentation": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
   "integration_type": "hub",
-  "requirements": ["pymodbus>=3.1.1"],
-  "loggers": ["custom_components.abb_powerone_pvi_sunspec"],
   "iot_class": "local_polling",
-  "version": "2.6.2"
+  "issue_tracker": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues",
+  "loggers": ["custom_components.abb_powerone_pvi_sunspec"],
+  "requirements": ["pymodbus>=3.1.1"],
+  "version": "2.6.4"
 }

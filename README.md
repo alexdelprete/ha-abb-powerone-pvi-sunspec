@@ -27,10 +27,14 @@ Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Slave ID) 
 
 # Configuration Parameters Explained
 
+You can change configuration parameters (except custom name and ip/hostname) at runtime through the integration page configuration.
+
+![](https://user-images.githubusercontent.com/7027842/214734702-bf899013-5e28-47b5-87a7-827e49ca465b.gif)
+
 - **custom name**: custom name for the inverter, that will be used as prefix for sensors created by the component
-- **ip/hostname**: IP/hostname of the inverter
+- **ip/hostname**: IP/hostname of the inverter - this is used as unique_id, if you change it and reinstall you will lose historical data, that's why I advice to use hostname, so you can change IP without losing historical data
 - **tcp port**: TCP port of the datalogger
-- **slave id**: the unit id of the inverter in the chain (you can have multiple inverters in one chain, default is 254 usually, but on some it's 2)
+- **slave id**: the unit id of the inverter in the chain: default is 254, if using VS300/VS700 it's usually 2
 - **register map base address**: the base address from where the register map starts, usually it's 40000, but for ABB VSN300/VSN700 dataloggers it's 0
 - **polling period**: frequency, in seconds, to read the registers and update the sensors
 

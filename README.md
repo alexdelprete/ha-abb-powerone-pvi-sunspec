@@ -1,5 +1,4 @@
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec)
-
+<a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=alexdelprete&repository=ha-abb-powerone-pvi-sunspec&category=integration" target="_blank"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open your Home Assistant instance and open a repository inside the Home Assistant Community Store." /></a>
 # ha-abb-powerone-pvi-sunspec
 
 HA Custom Component to integrate data from ABB/Power-One/FIMER PV mono-phase and three-phase inverters that support SunSpec Modbus (Sunspec M1, M103, M160), natively or through the VSNx00 wifi logger card. The VSNx00 provides a SunSpec to Aurora protocol adapter so that all modbus commands are translated to the proprietary Aurora protocol.
@@ -14,7 +13,7 @@ Register address map has been implemented following the vendor's specification d
 
 # Installation through HACS
 
-Install it through HACS adding this as a custom repository: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec then go to the integrations page in your configuration and click on new integration -> ABB Power-One PVI SunSpec.
+This integration is available in HACS official repository. Click this button to open HA directly on the integration page so you can easily install it: [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=alexdelprete&repository=ha-abb-powerone-pvi-sunspec&category=integration)
 
 # Manual Installation
 

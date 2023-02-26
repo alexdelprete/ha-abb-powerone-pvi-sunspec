@@ -14,6 +14,7 @@ Register address map has been implemented following the vendor's specification d
 # Installation through HACS
 
 This integration is available in HACS official repository. Click this button to open HA directly on the integration page so you can easily install it:
+
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=alexdelprete&repository=ha-abb-powerone-pvi-sunspec&category=integration)
 
 # Manual Installation

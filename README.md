@@ -1,7 +1,7 @@
 <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=alexdelprete&repository=ha-abb-powerone-pvi-sunspec&category=integration" target="_blank"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open your Home Assistant instance and open a repository inside the Home Assistant Community Store." /></a>
 # ha-abb-powerone-pvi-sunspec
 
-HA Custom Component to integrate data from ABB/Power-One/FIMER PV mono-phase and three-phase inverters that support SunSpec Modbus (Sunspec M1, M103, M160), natively or through the VSNx00 wifi logger card. The VSNx00 provides a SunSpec to Aurora protocol adapter so that all modbus commands are translated to the proprietary Aurora protocol.
+HA Custom Component to integrate data from ABB/Power-One/FIMER PV mono-phase and three-phase inverters that support SunSpec Modbus Models M1/M103/M160, natively or through the VSN300/VSN700 wifi logger card. The VSN300/VSN700 cards provide a SunSpec to Aurora protocol adapter so that all modbus commands are translated to the proprietary Aurora protocol.
 
 The component has been originally developed by @binsentsu for SolarEdge inverters, I adapted it, adding some features, rewriting all the registers' mapping, for my Power-One Aurora PVI-10.0-OUTD 3-phase inverter to which I added a VSN300 card. It has also been tested with an ABB TRIO-8.5-TL-OUTD-S through a VSN300 and REACT2-3.6-TL through a VSN700 datalogger.
 
@@ -10,6 +10,16 @@ Register address map has been implemented following the vendor's specification d
 - https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/doc/SunSpec_VSN300register_map.xlsx
 - https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/doc/SunSpec_REACT2_PICS_Rev_003.xlsx
 - https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/raw/master/doc/SunSpec_PICS-ABB-TRIO-50.0-TL-OUTD.xlsx
+
+### Features
+
+- Installation/Configuration through Config Flow UI
+- Separate sensor per register
+- Configurable TCP modbus port, also at runtime (no restart needed)
+- Configurable modbus slave address, also at runtime (no restart needed)
+- Configurable register map base address, also at runtime (no restart needed)
+- Configurable polling interval, also at runtime (no restart needed)
+- Supports SunSpec models M1, M103, M160
 
 # Installation through HACS
 
@@ -25,9 +35,9 @@ Download the source code archive from the release page. Unpack the archive and c
 
 Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Slave ID) of the inverter (depends on the model, default on some models is 2 on others is 247) and during the configuration of the component, use the appropriate Slave address. Another important parameter is the registers map base address, default is 40000 but it may vary. All these parameters can be reconfigured after installation, clicking CONFIGURE on the integration.
 
-# Configuration Parameters Explained
+# Configuration
 
-You can change configuration parameters (except custom name and ip/hostname) at runtime through the integration page configuration.
+Configuration is done via config flow right after adding the integration. After the first configuration you can change parameters (except custom name and ip/hostname) at runtime through the integration page configuration, without the need to restart HA (this works since v2.5.0). 
 
 ![](https://user-images.githubusercontent.com/7027842/214734702-bf899013-5e28-47b5-87a7-827e49ca465b.gif)
 

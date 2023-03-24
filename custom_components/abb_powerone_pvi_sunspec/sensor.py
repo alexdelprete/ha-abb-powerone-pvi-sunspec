@@ -2,33 +2,35 @@
 import logging
 from typing import Any, Dict, Optional
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import CONF_NAME
-from homeassistant.core import callback
+from homeassistant.core import HomeAssistant, callback
 
 from .const import (DOMAIN, INVERTER_TYPE, SENSOR_TYPES_SINGLE_PHASE,
                     SENSOR_TYPES_THREE_PHASE)
 
 _LOGGER = logging.getLogger(__name__)
 
-
-async def async_setup_entry(hass, entry, async_add_entities):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     """Setup sensor platform"""
     hub_name = entry.data[CONF_NAME]
     hub = hass.data[DOMAIN][hub_name]["hub"]
     hub.read_sunspec_modbus_init()
     hub.read_sunspec_modbus_data()
     device_info = {
-        "identifiers": {(DOMAIN, hub_name)},
+        "identifiers": {(DOMAIN, hub.data["comm_sernum"])},
         "name": hub_name,
         "model": hub.data["comm_model"],
         "manufacturer": hub.data["comm_manufact"],
         "sw_version": hub.data["comm_version"]
     }
-    _LOGGER.debug("(sensor) Model: %s", hub.data["comm_model"])
+    _LOGGER.debug("(sensor) Name: %s", entry.data[CONF_NAME])
     _LOGGER.debug("(sensor) Manufacturer: %s", hub.data["comm_manufact"])
+    _LOGGER.debug("(sensor) Model: %s", hub.data["comm_model"])
     _LOGGER.debug("(sensor) SW Version: %s", hub.data["comm_version"])
     _LOGGER.debug("(sensor) Inverter Type (str): %s", hub.data["invtype"])
+    _LOGGER.debug("(sensor) Serial#: %s", hub.data["comm_sernum"])
     entities = []
     if hub.data["invtype"] == INVERTER_TYPE[101]:
         for sensor_info in SENSOR_TYPES_SINGLE_PHASE.values():

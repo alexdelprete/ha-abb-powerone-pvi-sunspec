@@ -73,6 +73,30 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     return True
 
 
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Migrate an old config entry."""
+    version = entry.version
+
+    # 1-> 2: Migration format
+    if version == 1:
+        hub_name = entry.data[CONF_NAME]
+        hub = hass.data[DOMAIN][hub_name]["hub"]
+        # hub.read_sunspec_modbus_init()
+        # hub.read_sunspec_modbus_data()
+        _LOGGER.warning("Migrating from version %s", version)
+        old_uid = entry.unique_id
+        new_uid = hub.data["comm_sernum"]
+        if old_uid != new_uid:
+            hass.config_entries.async_update_entry(
+                entry, unique_id=new_uid
+            )
+            _LOGGER.warning("Migration to version %s complete: OLD_UID: %s - NEW_UID: %s", entry.version, old_uid, new_uid)
+        if entry.unique_id == new_uid:
+            entry.version = 2
+            _LOGGER.warning("Migration to version %s complete: NEW_UID: %s", entry.version, entry.unique_id)
+    return True
+
+
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Handle removal of an entry"""
     unloaded = all(

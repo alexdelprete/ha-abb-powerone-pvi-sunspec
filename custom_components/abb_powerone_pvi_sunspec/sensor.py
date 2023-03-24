@@ -19,7 +19,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     hub.read_sunspec_modbus_init()
     hub.read_sunspec_modbus_data()
     device_info = {
-        "identifiers": {(DOMAIN, hub.data["comm_sernum"])},
+        "identifiers": {(DOMAIN, hub_name)},
         "name": hub_name,
         "model": hub.data["comm_model"],
         "manufacturer": hub.data["comm_manufact"],

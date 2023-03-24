@@ -73,28 +73,28 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     return True
 
 
-async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry):
-    """Migrate an old config entry."""
-    version = entry.version
+# async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry):
+#     """Migrate an old config entry."""
+#     version = entry.version
 
-    # 1-> 2: Migration format
-    if version == 1:
-        hub_name = entry.data[CONF_NAME]
-        hub = hass.data[DOMAIN][hub_name]["hub"]
-        # hub.read_sunspec_modbus_init()
-        # hub.read_sunspec_modbus_data()
-        _LOGGER.warning("Migrating from version %s", version)
-        old_uid = entry.unique_id
-        new_uid = hub.data["comm_sernum"]
-        if old_uid != new_uid:
-            hass.config_entries.async_update_entry(
-                entry, unique_id=new_uid
-            )
-            _LOGGER.warning("Migration to version %s complete: OLD_UID: %s - NEW_UID: %s", entry.version, old_uid, new_uid)
-        if entry.unique_id == new_uid:
-            entry.version = 2
-            _LOGGER.warning("Migration to version %s complete: NEW_UID: %s", entry.version, entry.unique_id)
-    return True
+#     # 1-> 2: Migration format
+#     if version == 1:
+#         hub_name = entry.data[CONF_NAME]
+#         hub = hass.data[DOMAIN][hub_name]["hub"]
+#         # hub.read_sunspec_modbus_init()
+#         # hub.read_sunspec_modbus_data()
+#         _LOGGER.warning("Migrating from version %s", version)
+#         old_uid = entry.unique_id
+#         new_uid = hub.data["comm_sernum"]
+#         if old_uid != new_uid:
+#             hass.config_entries.async_update_entry(
+#                 entry, unique_id=new_uid
+#             )
+#             _LOGGER.warning("Migration to version %s complete: OLD_UID: %s - NEW_UID: %s", entry.version, old_uid, new_uid)
+#         if entry.unique_id == new_uid:
+#             entry.version = 2
+#             _LOGGER.warning("Migration to version %s complete: NEW_UID: %s", entry.version, entry.unique_id)
+#     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -249,7 +249,7 @@ class ABBPowerOnePVISunSpecHub:
                 and self.read_sunspec_modbus_model_160()
             )
         except ConnectionException as ex:
-            _LOGGER.error("(read_data) Error: check Slave ID: %s & Base Address: %s", self._slave_id, self._base_addr)
+            _LOGGER.debug("(read_data) Error: check Slave ID: %s & Base Address: %s", self._slave_id, self._base_addr)
             return False
 
 
@@ -266,8 +266,8 @@ class ABBPowerOnePVISunSpecHub:
         _LOGGER.debug("(read_inv) Slave ID: %s", self._slave_id)
         _LOGGER.debug("(read_inv) Base Address: %s", self._base_addr)
         if read_model_1_data.isError():
-            _LOGGER.error("(read_inv) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.error("(read_inv) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+            _LOGGER.debug("(read_inv) Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.debug("(read_inv) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers
@@ -327,8 +327,8 @@ class ABBPowerOnePVISunSpecHub:
         _LOGGER.debug("(read_rt_1) Slave ID: %s", self._slave_id)
         _LOGGER.debug("(read_rt_1) Base Address: %s", self._base_addr)
         if read_model_101_103_data.isError():
-            _LOGGER.error("(read_rt_1) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.error("(read_rt_1) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+            _LOGGER.debug("(read_rt_1) Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.debug("(read_rt_1) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers
@@ -343,8 +343,8 @@ class ABBPowerOnePVISunSpecHub:
         # make sure the value is in the known status list
         if invtype not in INVERTER_TYPE:
             invtype = 999
-            _LOGGER.error("(read_rt_1) Inverter Type Unknown (int): %s", invtype)
-            _LOGGER.error("(read_rt_1) Inverter Type Unknown (str): %s", INVERTER_TYPE[invtype])
+            _LOGGER.debug("(read_rt_1) Inverter Type Unknown (int): %s", invtype)
+            _LOGGER.debug("(read_rt_1) Inverter Type Unknown (str): %s", INVERTER_TYPE[invtype])
         self.data["invtype"] = INVERTER_TYPE[invtype]
 
         # skip register 71
@@ -430,7 +430,7 @@ class ABBPowerOnePVISunSpecHub:
         if totalenergy >= self.data["totalenergy"]:
             self.data["totalenergy"] = totalenergy
         else:
-            _LOGGER.error("(read_rt_1) Total Energy less than previous value! Value Read: %s - Previous Value: %s", totalenergy, self.data["totalenergy"])
+            _LOGGER.debug("(read_rt_1) Total Energy less than previous value! Value Read: %s - Previous Value: %s", totalenergy, self.data["totalenergy"])
 
         # registers 97 to 100 (for monophase inverters)
         if invtype == 101:
@@ -471,7 +471,7 @@ class ABBPowerOnePVISunSpecHub:
         status = decoder.decode_16bit_int()
         # make sure the value is in the known status list
         if status not in DEVICE_STATUS:
-            _LOGGER.error("Unknown Operating State: %s", status)
+            _LOGGER.debug("Unknown Operating State: %s", status)
             status = 999
         self.data["status"] = DEVICE_STATUS[status]
 
@@ -479,7 +479,7 @@ class ABBPowerOnePVISunSpecHub:
         statusvendor = decoder.decode_16bit_int()
         # make sure the value is in the known status list
         if statusvendor not in DEVICE_GLOBAL_STATUS:
-            _LOGGER.error("(init) Unknown Vendor Operating State: %s", statusvendor)
+            _LOGGER.debug("(init) Unknown Vendor Operating State: %s", statusvendor)
             statusvendor = 999
         self.data["statusvendor"] = DEVICE_GLOBAL_STATUS[statusvendor]
 
@@ -499,8 +499,8 @@ class ABBPowerOnePVISunSpecHub:
         _LOGGER.debug("(read_rt_2) Slave ID: %s", self._slave_id)
         _LOGGER.debug("(read_rt_2) Base Address: %s", self._base_addr)
         if read_model_160_data.isError():
-            _LOGGER.error("(read_rt_2) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.error("(read_rt_2) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+            _LOGGER.debug("(read_rt_2) Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.debug("(read_rt_2) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers

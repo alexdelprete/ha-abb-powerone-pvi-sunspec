@@ -8,6 +8,7 @@ from typing import Optional
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
                                  CONF_SCAN_INTERVAL)
 from homeassistant.core import HomeAssistant, callback
@@ -44,7 +45,8 @@ PLATFORMS = ["sensor"]
 
 async def async_setup(hass: HomeAssistant, entry: ConfigEntry):
     """Set up ABB Power-One PVI SunSpec component"""
-    hass.data[DOMAIN] = {}
+    if DOMAIN not in hass.data:
+        hass.data[DOMAIN] = {}
     return True
 
 
@@ -149,7 +151,11 @@ class ABBPowerOnePVISunSpecHub:
         """Listen for data updates"""
         # This is the first sensor, set up interval.
         if not self._sensors:
-            self.connect()
+            try:
+                self.connect()
+            except ConnectionException as ex:
+                raise ConfigEntryNotReady from ex
+
             self._unsub_interval_method = async_track_time_interval(
                 self._hass, self.async_refresh_sunspec_modbus_data, self._scan_interval
             )

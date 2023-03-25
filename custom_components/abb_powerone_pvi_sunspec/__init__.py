@@ -71,6 +71,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
                 hass.config_entries.async_forward_entry_setup(entry, component)
             )
         entry.add_update_listener(async_reload_entry)
+        hub.read_sunspec_modbus_init()
+        hub.read_sunspec_modbus_data()
     except ConnectionException as ex:
         raise ConfigEntryNotReady(f"ERROR: connection exception in pymodbus {ex}") from ex
     return True

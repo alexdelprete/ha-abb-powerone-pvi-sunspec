@@ -15,7 +15,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_time_interval
 from pymodbus.client import ModbusTcpClient
 from pymodbus.constants import Endian
-from pymodbus.exceptions import ConnectionException
+from pymodbus.exceptions import ConnectionException, ModbusException
 from pymodbus.payload import BinaryPayloadDecoder
 
 from .const import (CONF_BASE_ADDR, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
@@ -203,8 +203,11 @@ class ABBPowerOnePVISunSpecHub:
     def read_holding_registers(self, slave, address, count):
         """Read holding registers"""
         with self._lock:
-            kwargs = {"slave": slave} if slave else {}
-            return self._client.read_holding_registers(address, count, **kwargs)
+            try:
+                kwargs = {"slave": slave} if slave else {}
+                return self._client.read_holding_registers(address, count, **kwargs)
+            except (ConnectionException, ModbusException) as ex:
+                raise ConfigEntryNotReady(f"ERROR: connection exception in pymodbus {ex}") from ex
 
     def calculate_value(self, value, sf):
         """Apply Scale Factor"""

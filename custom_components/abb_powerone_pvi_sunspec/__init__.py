@@ -60,7 +60,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     scan_interval = entry.data[CONF_SCAN_INTERVAL]
 
     try:
-        _LOGGER.debug("Setup %s.%s", DOMAIN, name)
+        _LOGGER.warning("Setup Component %s.%s", DOMAIN, name)
         hub = ABBPowerOnePVISunSpecHub(
             hass, name, host, port, slave_id, base_addr, scan_interval
         )

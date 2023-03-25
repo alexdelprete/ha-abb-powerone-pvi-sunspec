@@ -72,6 +72,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             hass.config_entries.async_forward_entry_setup(entry, component)
         )
     entry.add_update_listener(async_reload_entry)
+
+    try:
+        hub.read_sunspec_modbus_init()
+        hub.read_sunspec_modbus_data()
+    except ConnectionException as ex:
+        raise ConfigEntryNotReady from ex
+
     return True
 
 
@@ -151,15 +158,10 @@ class ABBPowerOnePVISunSpecHub:
         """Listen for data updates"""
         # This is the first sensor, set up interval.
         if not self._sensors:
-            try:
-                self.connect()
-            except ConnectionException as ex:
-                raise ConfigEntryNotReady from ex
-
+            self.connect()
             self._unsub_interval_method = async_track_time_interval(
                 self._hass, self.async_refresh_sunspec_modbus_data, self._scan_interval
             )
-
         self._sensors.append(update_callback)
 
     @callback

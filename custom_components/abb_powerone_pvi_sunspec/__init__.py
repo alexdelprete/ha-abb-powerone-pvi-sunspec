@@ -195,7 +195,10 @@ class ABBPowerOnePVISunSpecHub:
     def connect(self):
         """Connect client"""
         with self._lock:
-            self._client.connect()
+            try:
+                self._client.connect()
+            except ConnectionException as ex:
+                raise ConfigEntryNotReady(f"ERROR: connection exception in pymodbus {ex}") from ex
 
     def read_holding_registers(self, slave, address, count):
         """Read holding registers"""

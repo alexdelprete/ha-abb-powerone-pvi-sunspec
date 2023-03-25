@@ -16,8 +16,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     """Setup sensor platform"""
     hub_name = entry.data[CONF_NAME]
     hub = hass.data[DOMAIN][hub_name]["hub"]
-    # hub.read_sunspec_modbus_init()
-    # hub.read_sunspec_modbus_data()
+    hub.read_sunspec_modbus_init()
+    hub.read_sunspec_modbus_data()
     device_info = {
         "identifiers": {(DOMAIN, hub_name)},
         "name": hub_name,

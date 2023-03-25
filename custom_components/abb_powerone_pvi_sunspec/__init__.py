@@ -47,11 +47,7 @@ async def async_setup(hass: HomeAssistant, entry: ConfigEntry):
     """Set up ABB Power-One PVI SunSpec component"""
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
-    return True
 
-
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    """Set up ABB Power-One PVI SunSpec"""
     name = entry.data[CONF_NAME]
     host = entry.data[CONF_HOST]
     port = entry.data[CONF_PORT]
@@ -72,12 +68,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             hass.config_entries.async_forward_entry_setup(entry, component)
         )
     entry.add_update_listener(async_reload_entry)
+    return True
 
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Set up ABB Power-One PVI SunSpec"""
     try:
-        hub.read_sunspec_modbus_init()
-        hub.read_sunspec_modbus_data()
+        await async_setup(hass, entry)
     except ConnectionException as ex:
-        raise ConfigEntryNotReady from ex
+        raise ConfigEntryNotReady(f"ERROR: connection exception in pymodbus {ex}") from ex
 
     return True
 

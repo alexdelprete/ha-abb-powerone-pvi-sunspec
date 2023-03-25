@@ -47,7 +47,11 @@ async def async_setup(hass: HomeAssistant, entry: ConfigEntry):
     """Set up ABB Power-One PVI SunSpec component"""
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
+    return True
 
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Set up ABB Power-One PVI SunSpec"""
     name = entry.data[CONF_NAME]
     host = entry.data[CONF_HOST]
     port = entry.data[CONF_PORT]
@@ -55,29 +59,20 @@ async def async_setup(hass: HomeAssistant, entry: ConfigEntry):
     base_addr = entry.data[CONF_BASE_ADDR]
     scan_interval = entry.data[CONF_SCAN_INTERVAL]
 
-    _LOGGER.debug("Setup %s.%s", DOMAIN, name)
-
-    hub = ABBPowerOnePVISunSpecHub(
-        hass, name, host, port, slave_id, base_addr, scan_interval
-    )
-    # Register the hub
-    hass.data[DOMAIN][name] = {"hub": hub}
-
-    for component in PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(entry, component)
-        )
-    entry.add_update_listener(async_reload_entry)
-    return True
-
-
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    """Set up ABB Power-One PVI SunSpec"""
     try:
-        await async_setup(hass, entry)
+        _LOGGER.debug("Setup %s.%s", DOMAIN, name)
+        hub = ABBPowerOnePVISunSpecHub(
+            hass, name, host, port, slave_id, base_addr, scan_interval
+        )
+        # Register the hub
+        hass.data[DOMAIN][name] = {"hub": hub}
+        for component in PLATFORMS:
+            hass.async_create_task(
+                hass.config_entries.async_forward_entry_setup(entry, component)
+            )
+        entry.add_update_listener(async_reload_entry)
     except ConnectionException as ex:
         raise ConfigEntryNotReady(f"ERROR: connection exception in pymodbus {ex}") from ex
-
     return True
 
 

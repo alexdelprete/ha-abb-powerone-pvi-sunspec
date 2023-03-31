@@ -1,18 +1,22 @@
 """The ABB Power-One PVI SunSpec Integration"""
+
 import asyncio
 import logging
 from datetime import timedelta
-import voluptuous as vol
 
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import Config, HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.core import HomeAssistant, Config
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.update_coordinator import (DataUpdateCoordinator, UpdateFailed)
+from homeassistant.helpers.update_coordinator import (DataUpdateCoordinator,
+                                                      UpdateFailed)
+from pymodbus.exceptions import ConnectionException
 
 from .api import ABBPowerOnePVISunSpecHub
-from .const import (CONF_NAME, CONF_HOST, CONF_PORT, CONF_BASE_ADDR, PLATFORMS,
-                    CONF_SLAVE_ID, CONF_SCAN_INTERVAL, DOMAIN, STARTUP_MESSAGE)
+from .const import (CONF_BASE_ADDR, CONF_HOST, CONF_NAME, CONF_PORT,
+                    CONF_SCAN_INTERVAL, CONF_SLAVE_ID, DOMAIN, PLATFORMS,
+                    STARTUP_MESSAGE)
 
 SCAN_INTERVAL = timedelta(seconds=30)
 
@@ -20,7 +24,7 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
 async def async_setup(hass: HomeAssistant, entry: Config):
-    """Set up this integration using YAML is not supported."""
+    """Setup of this integration via YAML is not supported"""
     return True
 
 
@@ -30,22 +34,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         hass.data.setdefault(DOMAIN, {})
         _LOGGER.info(STARTUP_MESSAGE)
 
-    name = entry.data[CONF_NAME]
-    host = entry.data[CONF_HOST]
-    port = entry.data[CONF_PORT]
-    slave_id = entry.data[CONF_SLAVE_ID]
-    base_addr = entry.data[CONF_BASE_ADDR]
-    scan_interval = entry.data[CONF_SCAN_INTERVAL]
+    name = entry.data.get(CONF_NAME)
+    host = entry.data.get(CONF_HOST)
+    port = entry.data.get(CONF_PORT)
+    slave_id = entry.data.get(CONF_SLAVE_ID)
+    base_addr = entry.data.get(CONF_BASE_ADDR)
+    scan_interval = entry.data.get(CONF_SCAN_INTERVAL)
 
-    hub = ABBPowerOnePVISunSpecHub(
-        hass, name, host, port, slave_id, base_addr, scan_interval
-    )
+    try:
+        hub = ABBPowerOnePVISunSpecHub(
+            hass, name, host, port, slave_id, base_addr, scan_interval
+        )
+        coordinator = HubDataUpdateCoordinator(hass, hub=hub, entry=entry)
+        await coordinator.async_config_entry_first_refresh()
+    except ConnectionException as connerr:
+        raise ConfigEntryNotReady(f"Problem connecting to device {host}:{port}")
 
-    coordinator = HubDataUpdateCoordinator(hass, hub=hub, entry=entry)
-    await coordinator.async_config_entry_first_refresh()
+    # except ModbusException as modbuserr:
 
-    if not coordinator.last_update_success:
-        raise ConfigEntryNotReady
+    # if not coordinator.last_update_success:
+    #     raise ConfigEntryNotReady(f"Problem connecting to device {host}:{port}")
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
@@ -75,7 +83,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator = hass.data[DOMAIN].pop(entry.entry_id)
         coordinator.unsub()
 
-    return True  # unloaded
+    return True
 
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -83,7 +91,7 @@ async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     await async_unload_entry(hass, entry)
     await async_setup_entry(hass, entry)
 
-    return True  # unloaded
+    return True
 
 class HubDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
@@ -99,7 +107,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         self.hass = hass
         self.entry = entry
         self.platforms = []
-        # scan_interval = entry.data[CONF_SCAN_INTERVAL]
+        # scan_interval = entry.data.get(CONF_SCAN_INTERVAL)
         scan_interval = timedelta(
             seconds=entry.data.get(
                 CONF_SCAN_INTERVAL,
@@ -132,7 +140,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
 
 #     # 1-> 2: Migration format
 #     if version == 1:
-#         hub_name = entry.data[CONF_NAME]
+#         hub_name = entry.data.get(CONF_NAME)
 #         hub = hass.data[DOMAIN][hub_name]["hub"]
 #         # hub.read_sunspec_modbus_init()
 #         # hub.read_sunspec_modbus_data()

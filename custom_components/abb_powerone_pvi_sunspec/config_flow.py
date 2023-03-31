@@ -6,15 +6,15 @@ import re
 
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
-from homeassistant.config_entries import ConfigEntry
 
 from .api import ABBPowerOnePVISunSpecHub
-from .const import (CONF_NAME, CONF_HOST, CONF_PORT, CONF_BASE_ADDR, CONF_SLAVE_ID,
-                    CONF_SCAN_INTERVAL, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
-                    DEFAULT_NAME, DEFAULT_BASE_ADDR, DEFAULT_SLAVE_ID, DOMAIN)
-
+from .const import (CONF_BASE_ADDR, CONF_HOST, CONF_NAME, CONF_PORT,
+                    CONF_SCAN_INTERVAL, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
+                    DEFAULT_NAME, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
+                    DEFAULT_SLAVE_ID, DOMAIN)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -32,7 +32,7 @@ def host_valid(host):
 def abb_powerone_pvi_sunspec_entries(hass: HomeAssistant):
     """Return the hosts already configured"""
     return set(
-        entry.data[CONF_HOST] for entry in hass.config_entries.async_entries(DOMAIN)
+        entry.data.get(CONF_HOST) for entry in hass.config_entries.async_entries(DOMAIN)
     )
 
 
@@ -143,19 +143,19 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
             {
                 vol.Required(
                     CONF_PORT,
-                    default=self.config_entry.data[CONF_PORT],
+                    default=self.config_entry.data.get(CONF_PORT),
                 ): vol.Coerce(int),
                 vol.Required(
                     CONF_SLAVE_ID,
-                    default=self.config_entry.data[CONF_SLAVE_ID],
+                    default=self.config_entry.data.get(CONF_SLAVE_ID),
                 ): vol.Coerce(int),
                 vol.Required(
                     CONF_BASE_ADDR,
-                    default=self.config_entry.data[CONF_BASE_ADDR],
+                    default=self.config_entry.data.get(CONF_BASE_ADDR),
                 ): vol.Coerce(int),
                 vol.Required(
                     CONF_SCAN_INTERVAL,
-                    default=self.config_entry.data[CONF_SCAN_INTERVAL],
+                    default=self.config_entry.data.get(CONF_SCAN_INTERVAL),
                 ): vol.All(vol.Coerce(int), vol.Range(min=5, max=600)),
             }
         )
@@ -165,9 +165,9 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             # complete non-edited entries before update (ht @PeteRage)
             if CONF_NAME in self.config_entry.data:
-                user_input[CONF_NAME] = self.config_entry.data[CONF_NAME]
+                user_input[CONF_NAME] = self.config_entry.data.get(CONF_NAME)
             if CONF_HOST in self.config_entry.data:
-                user_input[CONF_HOST] = self.config_entry.data[CONF_HOST]
+                user_input[CONF_HOST] = self.config_entry.data.get(CONF_HOST)
 
             # write updated config entries (ht @PeteRage / @fuatakgun)
             self.hass.config_entries.async_update_entry(

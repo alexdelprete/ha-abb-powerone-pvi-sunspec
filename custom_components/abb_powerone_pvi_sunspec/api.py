@@ -1,20 +1,18 @@
-"""Sample API Client."""
+"""Hub Implementation"""
+
 import logging
-#import threading
 from datetime import timedelta
 from typing import Optional
 
 from homeassistant.core import callback
-#from homeassistant.helpers.event import async_track_time_interval
 from pymodbus.client import ModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException, ModbusException
 from pymodbus.payload import BinaryPayloadDecoder
-#from pymodbus.pdu import ExceptionResponse
+from pymodbus.pdu import ExceptionResponse
 
-from .const import (DEVICE_GLOBAL_STATUS, DEVICE_MODEL,
-                    DEVICE_STATUS, INVERTER_TYPE)
-
+from .const import (DEVICE_GLOBAL_STATUS, DEVICE_MODEL, DEVICE_STATUS,
+                    INVERTER_TYPE)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -42,7 +40,7 @@ class ABBPowerOnePVISunSpecHub:
         self._unsub_interval_method = None
         self._sensors = []
         self.data = {}
-        # Initialize Modbus Data before first read
+        # Initialize ModBus data structure before first read
         self.init_modbus_data()
 
 
@@ -50,6 +48,7 @@ class ABBPowerOnePVISunSpecHub:
     def name(self):
         """Return the name of this hub"""
         return self._name
+
 
     def close(self):
         """Disconnect client"""
@@ -59,9 +58,7 @@ class ABBPowerOnePVISunSpecHub:
         except ConnectionException as connerr:
             _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
             return False
-        except ModbusException as modbuserr:
-            _LOGGER.debug("Modbus ERROR: exception in pymodbus {modbuserr}")
-            return False
+
 
     def connect(self):
         """Connect client"""
@@ -71,9 +68,7 @@ class ABBPowerOnePVISunSpecHub:
         except ConnectionException as connerr:
             _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
             return False
-        except ModbusException as modbuserr:
-            _LOGGER.debug("Modbus ERROR: exception in pymodbus {modbuserr}")
-            return False
+
 
     def read_holding_registers(self, slave, address, count):
         """Read holding registers"""
@@ -87,10 +82,15 @@ class ABBPowerOnePVISunSpecHub:
         except ModbusException as modbuserr:
             _LOGGER.debug("Modbus ERROR: exception in pymodbus {modbuserr}")
             return False
+        except ExceptionResponse as pduerr:
+            _LOGGER.debug("PDU ERROR: exception in pymodbus {pduerr}")
+            return False
+
 
     def calculate_value(self, value, scalefactor):
         """Apply Scale Factor"""
         return value * 10 ** scalefactor
+
 
     def init_modbus_data(self):
         """Initialize Dataset"""
@@ -140,8 +140,14 @@ class ABBPowerOnePVISunSpecHub:
             self.close()
             _LOGGER.debug("End Get data")
             return True
-        except ConnectionException:
-            _LOGGER.debug("ERROR: Connection (Slave ID: %s - Base Address: %s)", self._slave_id, self._base_addr)
+        except ConnectionException as connerr:
+            _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
+            return False
+        except ModbusException as modbuserr:
+            _LOGGER.debug("Modbus ERROR: exception in pymodbus {modbuserr}")
+            return False
+        except ExceptionResponse as pduerr:
+            _LOGGER.debug("PDU ERROR: exception in pymodbus {pduerr}")
             return False
 
 
@@ -205,6 +211,7 @@ class ABBPowerOnePVISunSpecHub:
         self.data["comm_sernum"] = comm_sernum.rstrip(' \t\r\n\0\u0000')
 
         return True
+
 
     def read_sunspec_modbus_model_101_103(self):
         """Read SunSpec Model 101/103 Data"""

@@ -1,4 +1,5 @@
 """Constants for ABB Power-One PVI SunSpec"""
+
 from homeassistant.components.sensor import (STATE_CLASS_MEASUREMENT,
                                              STATE_CLASS_TOTAL_INCREASING,
                                              SensorDeviceClass)

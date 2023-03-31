@@ -1,11 +1,12 @@
-"""Sensors of ABB Power-One PVI SunSpec"""
+"""Sensor Class of ABB Power-One PVI SunSpec"""
+
 import logging
 from typing import Any, Dict, Optional
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 
 from .const import (DOMAIN, INVERTER_TYPE, SENSOR_TYPES_SINGLE_PHASE,
                     SENSOR_TYPES_THREE_PHASE)
@@ -19,7 +20,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     hub = coordinator.api
     sensors = []
     await coordinator.api.async_get_data()
-    _LOGGER.debug("(sensor) Name: %s", entry.data[CONF_NAME])
+    _LOGGER.debug("(sensor) Name: %s", entry.data.get(CONF_NAME))
     _LOGGER.debug("(sensor) Manufacturer: %s", hub.data["comm_manufact"])
     _LOGGER.debug("(sensor) Model: %s", hub.data["comm_model"])
     _LOGGER.debug("(sensor) SW Version: %s", hub.data["comm_version"])
@@ -59,7 +60,7 @@ class ABBPowerOnePVISunSpecSensor(ABBPowerOnePVISunSpecEntity, SensorEntity):
             coordinator, config_entry, sensor_data
         )
         self._hub = coordinator.api
-        self._device_name = config_entry.data[CONF_NAME]
+        self._device_name = config_entry.data.get(CONF_NAME)
         self._name = sensor_data["name"]
         self._key = sensor_data["key"]
         self._unit_of_measurement = sensor_data["unit"]

@@ -1,16 +1,16 @@
 """Sample API Client."""
 import logging
-import threading
+#import threading
 from datetime import timedelta
 from typing import Optional
 
 from homeassistant.core import callback
-from homeassistant.helpers.event import async_track_time_interval
-from pymodbus.client import AsyncModbusTcpClient
+#from homeassistant.helpers.event import async_track_time_interval
+from pymodbus.client import ModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException, ModbusException
 from pymodbus.payload import BinaryPayloadDecoder
-from pymodbus.pdu import ExceptionResponse
+#from pymodbus.pdu import ExceptionResponse
 
 from .const import (DEVICE_GLOBAL_STATUS, DEVICE_MODEL,
                     DEVICE_STATUS, INVERTER_TYPE)
@@ -32,7 +32,7 @@ class ABBPowerOnePVISunSpecHub:
     ):
         """Initialize the Modbus hub"""
         self._hass = hass
-        self._client = AsyncModbusTcpClient(host=host, port=port)
+        self._client = ModbusTcpClient(host=host, port=port)
         self._name = name
         self._slave_id = slave_id
         self._base_addr = base_addr
@@ -47,19 +47,19 @@ class ABBPowerOnePVISunSpecHub:
         """Return the name of this hub"""
         return self._name
 
-    async def close(self):
+    def close(self):
         """Disconnect client"""
-        await self._client.close()
+        self._client.close()
 
-    async def connect(self):
+    def connect(self):
         """Connect client"""
-        await self._client.connect()
+        self._client.connect()
 
-    async def read_holding_registers(self, slave, address, count):
+    def read_holding_registers(self, slave, address, count):
         """Read holding registers"""
         kwargs = {"slave": slave} if slave else {}
         try:
-            res = await self._client.read_holding_registers(address, count, **kwargs)
+            res = self._client.read_holding_registers(address, count, **kwargs)
         except ModbusException as exc:
             _LOGGER.warning("ERROR: exception in pymodbus {exc}")
             raise exc
@@ -110,18 +110,19 @@ class ABBPowerOnePVISunSpecHub:
         """Main Read Function"""
         try:
             _LOGGER.warning("Start Get data (Slave ID: %s - Base Address: %s)", self._slave_id, self._base_addr)
-            await self.connect()
-            await self.read_sunspec_modbus_model_1()
-            await self.read_sunspec_modbus_model_101_103()
-            await self.read_sunspec_modbus_model_160()
-            await self.close()
+            self.connect()
+            self.read_sunspec_modbus_model_1()
+            self.read_sunspec_modbus_model_101_103()
+            self.read_sunspec_modbus_model_160()
+            self.close()
             _LOGGER.warning("End Get data")
+            return True
         except ConnectionException:
             _LOGGER.warning("ERROR: Connection (Slave ID: %s - Base Address: %s)", self._slave_id, self._base_addr)
             return False
-        return True
 
-    async def read_sunspec_modbus_model_1(self):
+
+    def read_sunspec_modbus_model_1(self):
         """Read SunSpec Model 1 Data"""
         # A single register is 2 bytes. Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
@@ -182,7 +183,7 @@ class ABBPowerOnePVISunSpecHub:
 
         return True
 
-    async def read_sunspec_modbus_model_101_103(self):
+    def read_sunspec_modbus_model_101_103(self):
         """Read SunSpec Model 101/103 Data"""
         # Max number of registers in one read for Modbus/TCP is 123
         # (ref.: https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251)
@@ -356,7 +357,7 @@ class ABBPowerOnePVISunSpecHub:
         return True
 
 
-    async def read_sunspec_modbus_model_160(self):
+    def read_sunspec_modbus_model_160(self):
         """Read SunSpec Model 160 Data"""
         # Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251

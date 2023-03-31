@@ -15,9 +15,10 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_devices):
     """Setup sensor platform"""
-    hub = hass.data[DOMAIN][entry.entry_id]
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    hub = coordinator.api
     sensors = []
-    await hub.api.async_get_data()
+    await coordinator.api.async_get_data()
     _LOGGER.debug("(sensor) Name: %s", entry.data[CONF_NAME])
     _LOGGER.debug("(sensor) Manufacturer: %s", hub.data["comm_manufact"])
     _LOGGER.debug("(sensor) Model: %s", hub.data["comm_model"])

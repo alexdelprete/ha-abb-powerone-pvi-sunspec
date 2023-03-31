@@ -130,10 +130,11 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read (M101 or M103)+M160 (Realtime Power/Energy Data) in 1-pass
-        read_model_1_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 4), count=64)
-        _LOGGER.warning("(read_inv) Slave ID: %s", self._slave_id)
-        _LOGGER.warning("(read_inv) Base Address: %s", self._base_addr)
-        if read_model_1_data.isError():
+        try: 
+            read_model_1_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 4), count=64)
+            _LOGGER.warning("(read_inv) Slave ID: %s", self._slave_id)
+            _LOGGER.warning("(read_inv) Base Address: %s", self._base_addr)
+        except ModbusException:
             _LOGGER.warning("(read_inv) Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.warning("(read_inv) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
@@ -191,10 +192,11 @@ class ABBPowerOnePVISunSpecHub:
         #   - Sweep 1 (M1): Start address 4 read 64 registers to read M1 (Common Inverter Info)
         #   - Sweep 2 (M103): Start address 70 read 40 registers to read M103+M160 (Realtime Power/Energy Data)
         #   - Sweep 3 (M160): Start address 124 read 40 registers to read M1 (Common Inverter Info)
-        read_model_101_103_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 70), count=40)
-        _LOGGER.warning("(read_rt_1) Slave ID: %s", self._slave_id)
-        _LOGGER.warning("(read_rt_1) Base Address: %s", self._base_addr)
-        if read_model_101_103_data.isError():
+        try:
+            read_model_101_103_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 70), count=40)
+            _LOGGER.warning("(read_rt_1) Slave ID: %s", self._slave_id)
+            _LOGGER.warning("(read_rt_1) Base Address: %s", self._base_addr)
+        except ModbusException:
             _LOGGER.warning("(read_rt_1) Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.warning("(read_rt_1) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
@@ -363,10 +365,11 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
-        read_model_160_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 122), count=42)
-        _LOGGER.warning("(read_rt_2) Slave ID: %s", self._slave_id)
-        _LOGGER.warning("(read_rt_2) Base Address: %s", self._base_addr)
-        if read_model_160_data.isError():
+        try:
+            read_model_160_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 122), count=42)
+            _LOGGER.warning("(read_rt_2) Slave ID: %s", self._slave_id)
+            _LOGGER.warning("(read_rt_2) Base Address: %s", self._base_addr)
+        except ModbusException:
             _LOGGER.warning("(read_rt_2) Reading data failed! Please check Slave ID: %s", self._slave_id)
             _LOGGER.warning("(read_rt_2) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False

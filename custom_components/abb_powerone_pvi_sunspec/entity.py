@@ -6,9 +6,9 @@ from .const import DOMAIN
 
 class ABBPowerOnePVISunSpecEntity(CoordinatorEntity):
     """Representation of an ABB SunSpec Modbus Entity"""
-    def __init__(self, hub, config_entry, sensor_data):
-        super().__init__(hub)
-        self._hub = hub
+    def __init__(self, coordinator, config_entry, sensor_data):
+        super().__init__(coordinator)
+        self._hub = coordinator.api
         self._config_entry = config_entry
         self._sensor_data = sensor_data
         self._device_name = self._config_entry.data[CONF_NAME]

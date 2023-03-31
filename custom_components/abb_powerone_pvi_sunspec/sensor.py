@@ -35,7 +35,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
                 "device_class": sensor_info[4],
                 "state_class": sensor_info[5],
             }
-            sensors.append(ABBPowerOnePVISunSpecSensor(hub, entry, sensor_data))
+            sensors.append(ABBPowerOnePVISunSpecSensor(coordinator, entry, sensor_data))
     elif hub.data["invtype"] == INVERTER_TYPE[103]:
         for sensor_info in SENSOR_TYPES_THREE_PHASE.values():
             sensor_data = {
@@ -46,7 +46,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
                 "device_class": sensor_info[4],
                 "state_class": sensor_info[5],
             }
-            sensors.append(ABBPowerOnePVISunSpecSensor(hub, entry, sensor_data))
+            sensors.append(ABBPowerOnePVISunSpecSensor(coordinator, entry, sensor_data))
     async_add_devices(sensors)
     return True
 
@@ -54,11 +54,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
 class ABBPowerOnePVISunSpecSensor(ABBPowerOnePVISunSpecEntity, SensorEntity):
     """Representation of an ABB SunSpec Modbus sensor"""
 
-    def __init__(self, hub, config_entry, sensor_data):
+    def __init__(self, coordinator, config_entry, sensor_data):
         super().__init__(
-            hub, config_entry, sensor_data
+            coordinator, config_entry, sensor_data
         )
-        self._hub = hub
+        self._hub = coordinator.api
         self._device_name = config_entry.data[CONF_NAME]
         self._name = sensor_data["name"]
         self._key = sensor_data["key"]

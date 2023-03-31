@@ -15,7 +15,9 @@ from pymodbus.payload import BinaryPayloadDecoder
 from .const import (DEVICE_GLOBAL_STATUS, DEVICE_MODEL,
                     DEVICE_STATUS, INVERTER_TYPE)
 
+
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+
 
 class ABBPowerOnePVISunSpecHub:
     """Thread safe wrapper class for pymodbus"""
@@ -51,11 +53,27 @@ class ABBPowerOnePVISunSpecHub:
 
     def close(self):
         """Disconnect client"""
-        self._client.close()
+        try:
+            self._client.close()
+            return True
+        except ConnectionException as connerr:
+            _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
+            return False
+        except ModbusException as modbuserr:
+            _LOGGER.debug("Modbus ERROR: exception in pymodbus {modbuserr}")
+            return False
 
     def connect(self):
         """Connect client"""
-        self._client.connect()
+        try:
+            self._client.connect()
+            return True
+        except ConnectionException as connerr:
+            _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
+            return False
+        except ModbusException as modbuserr:
+            _LOGGER.debug("Modbus ERROR: exception in pymodbus {modbuserr}")
+            return False
 
     def read_holding_registers(self, slave, address, count):
         """Read holding registers"""
@@ -63,9 +81,12 @@ class ABBPowerOnePVISunSpecHub:
         try:
             res = self._client.read_holding_registers(address, count, **kwargs)
             return res
-        except ModbusException as exc:
-            _LOGGER.debug("ERROR: exception in pymodbus {exc}")
-            raise exc
+        except ConnectionException as connerr:
+            _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
+            return False
+        except ModbusException as modbuserr:
+            _LOGGER.debug("Modbus ERROR: exception in pymodbus {modbuserr}")
+            return False
 
     def calculate_value(self, value, scalefactor):
         """Apply Scale Factor"""
@@ -133,7 +154,7 @@ class ABBPowerOnePVISunSpecHub:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read (M101 or M103)+M160 (Realtime Power/Energy Data) in 1-pass
-        try: 
+        try:
             read_model_1_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 4), count=64)
             _LOGGER.debug("(read_rt_1) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_1) Base Address: %s", self._base_addr)

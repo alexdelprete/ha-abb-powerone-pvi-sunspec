@@ -83,6 +83,7 @@ async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     await async_unload_entry(hass, entry)
     await async_setup_entry(hass, entry)
 
+    return True  # unloaded
 
 class HubDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
@@ -98,17 +99,15 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         self.hass = hass
         self.entry = entry
         self.platforms = []
-        # Initialize Modbus Data before first read
-        # self.api.init_modbus_data()
-        _LOGGER.debug("Data: %s", entry.data)
-        _LOGGER.debug("Options: %s", entry.options)
-
+        # scan_interval = entry.data[CONF_SCAN_INTERVAL]
         scan_interval = timedelta(
-            seconds=entry.options.get(
+            seconds=entry.data.get(
                 CONF_SCAN_INTERVAL,
-                entry.data.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL.total_seconds()),
+                SCAN_INTERVAL.total_seconds(),
             )
         )
+        _LOGGER.debug("Data: %s", entry.data)
+        _LOGGER.debug("Options: %s", entry.options)
         self.unsub = entry.add_update_listener(async_reload_entry)
         _LOGGER.debug(
             "Setup entry with scan interval %s. Host: %s Port: %s ID: %s",

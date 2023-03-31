@@ -8,11 +8,11 @@ from homeassistant.const import (UnitOfElectricCurrent,
                                  UnitOfTemperature)
 
 # Base component constants
-NAME = "ABB/Power-One/FIMER PVI SunSpec"
+NAME = "ABB/Power-One/FIMER PVI SunSpec ModBus TCP"
 DOMAIN = "abb_powerone_pvi_sunspec"
 DOMAIN_DATA = f"{DOMAIN}_data"
-VERSION = "2.6.4"
-ATTRIBUTION = "Data provided by SunSpec alliance - https://sunspec.org"
+VERSION = "3.0.0"
+ATTRIBUTION = "by @alexdelprete"
 ISSUE_URL = "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues"
 
 # Icons
@@ -34,13 +34,14 @@ CONF_BASE_ADDR = "base_addr"
 CONF_SCAN_INTERVAL = "scan_interval"
 DEFAULT_NAME = "ABB Inverter"
 DEFAULT_PORT = 502
-DEFAULT_SLAVE_ID = 247
+DEFAULT_SLAVE_ID = 2
 DEFAULT_BASE_ADDR = 0
-DEFAULT_SCAN_INTERVAL = 30
+DEFAULT_SCAN_INTERVAL = 60
 STARTUP_MESSAGE = f"""
 -------------------------------------------------------------------
 {NAME}
 Version: {VERSION}
+{ATTRIBUTION}
 This is a custom integration!
 If you have any issues with this you need to open an issue here:
 {ISSUE_URL}

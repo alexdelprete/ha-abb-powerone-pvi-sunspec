@@ -8,6 +8,7 @@ class ABBPowerOnePVISunSpecEntity(CoordinatorEntity):
     """Representation of an ABB SunSpec Modbus Entity"""
     def __init__(self, coordinator, config_entry, sensor_data):
         super().__init__(coordinator)
+        self._coordinator = coordinator
         self._hub = coordinator.api
         self._config_entry = config_entry
         self._sensor_data = sensor_data
@@ -32,5 +33,5 @@ class ABBPowerOnePVISunSpecEntity(CoordinatorEntity):
             "model": self._device_model,
             "manufacturer": self._device_manufact,
             "sw_version": self._device_swver,
-            "via_device": self.coordinator
+            "via_device_id": self._hub
         }

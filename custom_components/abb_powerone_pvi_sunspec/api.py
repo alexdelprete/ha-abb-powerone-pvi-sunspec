@@ -133,11 +133,11 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 72 read 92 registers to read (M101 or M103)+M160 (Realtime Power/Energy Data) in 1-pass
         try: 
             read_model_1_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 4), count=64)
-            _LOGGER.warning("(read_inv) Slave ID: %s", self._slave_id)
-            _LOGGER.warning("(read_inv) Base Address: %s", self._base_addr)
+            _LOGGER.warning("(read_rt_1) Slave ID: %s", self._slave_id)
+            _LOGGER.warning("(read_rt_1) Base Address: %s", self._base_addr)
         except ModbusException:
-            _LOGGER.warning("(read_inv) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.warning("(read_inv) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+            _LOGGER.warning("(read_rt_1) Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.warning("(read_rt_1) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers
@@ -149,9 +149,9 @@ class ABBPowerOnePVISunSpecHub:
         comm_manufact = str.strip(decoder.decode_string(size=32).decode("ascii"))
         comm_model = str.strip(decoder.decode_string(size=32).decode("ascii"))
         comm_options = str.strip(decoder.decode_string(size=16).decode("ascii"))
-        _LOGGER.warning("(read_inv) Manufacturer: %s", comm_manufact)
-        _LOGGER.warning("(read_inv) Model: %s", comm_model)
-        _LOGGER.warning("(read_inv) Options: %s", comm_options)
+        _LOGGER.warning("(read_rt_1) Manufacturer: %s", comm_manufact)
+        _LOGGER.warning("(read_rt_1) Model: %s", comm_model)
+        _LOGGER.warning("(read_rt_1) Options: %s", comm_options)
         self.data["comm_manufact"] = comm_manufact.rstrip(' \t\r\n\0\u0000')
         self.data["comm_model"] = comm_model.rstrip(' \t\r\n\0\u0000')
         self.data["comm_options"] = comm_options.rstrip(' \t\r\n\0\u0000')
@@ -176,8 +176,8 @@ class ABBPowerOnePVISunSpecHub:
         # registers 44 to 67
         comm_version = str.strip(decoder.decode_string(size=16).decode("ascii"))
         comm_sernum = str.strip(decoder.decode_string(size=32).decode("ascii"))
-        _LOGGER.warning("(read_inv) Version: %s", comm_version)
-        _LOGGER.warning("(read_inv) Sernum: %s", comm_sernum)
+        _LOGGER.warning("(read_rt_1) Version: %s", comm_version)
+        _LOGGER.warning("(read_rt_1) Sernum: %s", comm_sernum)
         self.data["comm_version"] = comm_version.rstrip(' \t\r\n\0\u0000')
         self.data["comm_sernum"] = comm_sernum.rstrip(' \t\r\n\0\u0000')
 
@@ -195,11 +195,11 @@ class ABBPowerOnePVISunSpecHub:
         #   - Sweep 3 (M160): Start address 124 read 40 registers to read M1 (Common Inverter Info)
         try:
             read_model_101_103_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 70), count=40)
-            _LOGGER.warning("(read_rt_1) Slave ID: %s", self._slave_id)
-            _LOGGER.warning("(read_rt_1) Base Address: %s", self._base_addr)
+            _LOGGER.warning("(read_rt_101_103) Slave ID: %s", self._slave_id)
+            _LOGGER.warning("(read_rt_101_103) Base Address: %s", self._base_addr)
         except ModbusException:
-            _LOGGER.warning("(read_rt_1) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.warning("(read_rt_1) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+            _LOGGER.warning("(read_rt_101_103) Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.warning("(read_rt_101_103) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers
@@ -209,13 +209,13 @@ class ABBPowerOnePVISunSpecHub:
 
         # register 70
         invtype = decoder.decode_16bit_uint()
-        _LOGGER.warning("(read_rt_1) Inverter Type (int): %s", invtype)
-        _LOGGER.warning("(read_rt_1) Inverter Type (str): %s", INVERTER_TYPE[invtype])
+        _LOGGER.warning("(read_rt_101_103) Inverter Type (int): %s", invtype)
+        _LOGGER.warning("(read_rt_101_103) Inverter Type (str): %s", INVERTER_TYPE[invtype])
         # make sure the value is in the known status list
         if invtype not in INVERTER_TYPE:
             invtype = 999
-            _LOGGER.warning("(read_rt_1) Inverter Type Unknown (int): %s", invtype)
-            _LOGGER.warning("(read_rt_1) Inverter Type Unknown (str): %s", INVERTER_TYPE[invtype])
+            _LOGGER.warning("(read_rt_101_103) Inverter Type Unknown (int): %s", invtype)
+            _LOGGER.warning("(read_rt_101_103) Inverter Type Unknown (str): %s", INVERTER_TYPE[invtype])
         self.data["invtype"] = INVERTER_TYPE[invtype]
 
         # skip register 71
@@ -296,12 +296,12 @@ class ABBPowerOnePVISunSpecHub:
         totalenergysf = decoder.decode_16bit_uint()
         totalenergy = self.calculate_value(totalenergy, totalenergysf)
         # ensure that totalenergy is always an increasing value (total_increasing)
-        _LOGGER.warning("(read_rt_1) Total Energy Value Read: %s", totalenergy)
-        _LOGGER.warning("(read_rt_1) Total Energy Previous Value: %s", self.data["totalenergy"])
+        _LOGGER.warning("(read_rt_101_103) Total Energy Value Read: %s", totalenergy)
+        _LOGGER.warning("(read_rt_101_103) Total Energy Previous Value: %s", self.data["totalenergy"])
         if totalenergy >= self.data["totalenergy"]:
             self.data["totalenergy"] = totalenergy
         else:
-            _LOGGER.warning("(read_rt_1) Total Energy less than previous value! Value Read: %s - Previous Value: %s", totalenergy, self.data["totalenergy"])
+            _LOGGER.warning("(read_rt_101_103) Total Energy less than previous value! Value Read: %s - Previous Value: %s", totalenergy, self.data["totalenergy"])
 
         # registers 97 to 100 (for monophase inverters)
         if invtype == 101:
@@ -353,7 +353,7 @@ class ABBPowerOnePVISunSpecHub:
             _LOGGER.warning("(init) Unknown Vendor Operating State: %s", statusvendor)
             statusvendor = 999
         self.data["statusvendor"] = DEVICE_GLOBAL_STATUS[statusvendor]
-
+        _LOGGER.warning("(read_rt_101_103) Completed")
         return True
 
 
@@ -368,11 +368,11 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
         try:
             read_model_160_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 122), count=42)
-            _LOGGER.warning("(read_rt_2) Slave ID: %s", self._slave_id)
-            _LOGGER.warning("(read_rt_2) Base Address: %s", self._base_addr)
+            _LOGGER.warning("(read_rt_160) Slave ID: %s", self._slave_id)
+            _LOGGER.warning("(read_rt_160) Base Address: %s", self._base_addr)
         except ModbusException:
-            _LOGGER.warning("(read_rt_2) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.warning("(read_rt_2) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+            _LOGGER.warning("(read_rt_160) Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.warning("(read_rt_160) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers
@@ -433,4 +433,5 @@ class ABBPowerOnePVISunSpecHub:
                 dc2power = self.calculate_value(dc2power, dcwsf)
                 self.data["dc2power"] = round(dc2power, abs(dcwsf))
 
+        _LOGGER.warning("(read_rt_160) Completed")
         return True

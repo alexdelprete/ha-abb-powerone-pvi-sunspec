@@ -99,7 +99,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         self.entry = entry
         self.platforms = []
         # Initialize Modbus Data before first read
-        self.api.init_modbus_data()
+        # self.api.init_modbus_data()
         _LOGGER.debug("Data: %s", entry.data)
         _LOGGER.debug("Options: %s", entry.options)
 

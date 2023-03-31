@@ -40,6 +40,8 @@ class ABBPowerOnePVISunSpecHub:
         self._unsub_interval_method = None
         self._sensors = []
         self.data = {}
+        # Initialize Modbus Data before first read
+        self.api.init_modbus_data()
 
 
     @property
@@ -296,12 +298,12 @@ class ABBPowerOnePVISunSpecHub:
         totalenergysf = decoder.decode_16bit_uint()
         totalenergy = self.calculate_value(totalenergy, totalenergysf)
         # ensure that totalenergy is always an increasing value (total_increasing)
-        if totalenergy >= self.data["totalenergy"]:
-            self.data["totalenergy"] = totalenergy
-        else:
-            _LOGGER.warning("(read_rt_101_103) Total Energy less than previous value! Value Read: %s - Previous Value: %s", totalenergy, self.data["totalenergy"])
         _LOGGER.warning("(read_rt_101_103) Total Energy Value Read: %s", totalenergy)
         _LOGGER.warning("(read_rt_101_103) Total Energy Previous Value: %s", self.data["totalenergy"])
+        if totalenergy < self.data["totalenergy"]:
+            _LOGGER.warning("(read_rt_101_103) Total Energy less than previous value! Value Read: %s - Previous Value: %s", totalenergy, self.data["totalenergy"])
+        else:
+            self.data["totalenergy"] = totalenergy
 
         # registers 97 to 100 (for monophase inverters)
         if invtype == 101:

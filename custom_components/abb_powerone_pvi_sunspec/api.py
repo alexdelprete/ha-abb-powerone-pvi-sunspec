@@ -296,12 +296,12 @@ class ABBPowerOnePVISunSpecHub:
         totalenergysf = decoder.decode_16bit_uint()
         totalenergy = self.calculate_value(totalenergy, totalenergysf)
         # ensure that totalenergy is always an increasing value (total_increasing)
-        _LOGGER.warning("(read_rt_101_103) Total Energy Value Read: %s", totalenergy)
-        _LOGGER.warning("(read_rt_101_103) Total Energy Previous Value: %s", self.data["totalenergy"])
         if totalenergy >= self.data["totalenergy"]:
             self.data["totalenergy"] = totalenergy
         else:
             _LOGGER.warning("(read_rt_101_103) Total Energy less than previous value! Value Read: %s - Previous Value: %s", totalenergy, self.data["totalenergy"])
+        _LOGGER.warning("(read_rt_101_103) Total Energy Value Read: %s", totalenergy)
+        _LOGGER.warning("(read_rt_101_103) Total Energy Previous Value: %s", self.data["totalenergy"])
 
         # registers 97 to 100 (for monophase inverters)
         if invtype == 101:
@@ -321,7 +321,7 @@ class ABBPowerOnePVISunSpecHub:
         dcpowersf = decoder.decode_16bit_int()
         dcpower = self.calculate_value(dcpower, dcpowersf)
         self.data["dcpower"] = round(dcpower, abs(dcpowersf))
-
+        _LOGGER.warning("(read_rt_101_103) DC Power Value read: %s", self.data["dcpower"])
         # register 103
         tempcab = decoder.decode_16bit_int()
         # skip registers 104-105
@@ -337,7 +337,7 @@ class ABBPowerOnePVISunSpecHub:
         tempoth = self.calculate_value(tempoth, tempsf)
         self.data["tempoth"] = round(tempoth, abs(tempsf))
         self.data["tempcab"] = round(tempcab, abs(tempsf))
-
+        _LOGGER.warning("(read_rt_101_103) Temp Cab Value read: %s", self.data["tempcab"])
         # register 108
         status = decoder.decode_16bit_int()
         # make sure the value is in the known status list
@@ -345,6 +345,7 @@ class ABBPowerOnePVISunSpecHub:
             _LOGGER.warning("Unknown Operating State: %s", status)
             status = 999
         self.data["status"] = DEVICE_STATUS[status]
+        _LOGGER.warning("(read_rt_101_103) Device Status Value read: %s", self.data["status"])
 
         # register 109
         statusvendor = decoder.decode_16bit_int()
@@ -353,6 +354,7 @@ class ABBPowerOnePVISunSpecHub:
             _LOGGER.warning("(init) Unknown Vendor Operating State: %s", statusvendor)
             statusvendor = 999
         self.data["statusvendor"] = DEVICE_GLOBAL_STATUS[statusvendor]
+        _LOGGER.warning("(read_rt_101_103) Status Vendor Value read: %s", self.data["statusvendor"])
         _LOGGER.warning("(read_rt_101_103) Completed")
         return True
 

@@ -56,16 +56,16 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def test_connection(self, name, host, port, slave_id, base_addr, scan_interval):
         """Return true if credentials is valid."""
-        _LOGGER.warning(f"Test connection to {host}:{port} slave id {slave_id}")
+        _LOGGER.debug(f"Test connection to {host}:{port} slave id {slave_id}")
         try:
-            _LOGGER.warning(f"Creating Hub")
+            _LOGGER.debug(f"Creating Hub")
             self.hub = ABBPowerOnePVISunSpecHub(
                 self.hass, name, host, port, slave_id, base_addr, scan_interval
             )
-            _LOGGER.warning(f"Hub created: calling get data")
+            _LOGGER.debug(f"Hub created: calling get data")
             self.hub_data = await self.hub.async_get_data()
-            _LOGGER.warning(f"After Hub, get data")
-            _LOGGER.warning(f"Hub Data: {self.hub_data}")
+            _LOGGER.debug(f"After Hub, get data")
+            _LOGGER.debug(f"Hub Data: {self.hub_data}")
             return self.hub.data["comm_sernum"]
         except Exception as exc:
             _LOGGER.error(f"Failed to connect to host: {host}:{port} - slave id: {slave_id} - Exception: {exc}")
@@ -90,14 +90,14 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 uid = await self.test_connection(name, host, port, slave_id, base_addr, scan_interval)
                 if uid is not False:
-                    _LOGGER.warning(f"Device unique id: {uid}")
+                    _LOGGER.debug(f"Device unique id: {uid}")
                     await self.async_set_unique_id(uid)
                     self._abort_if_unique_id_configured()
                     return self.async_create_entry(
                         title=user_input[CONF_NAME], data=user_input
                     )
                 else:
-                    errors[CONF_HOST] = "Device S/N Not Available"
+                    errors[CONF_HOST] = "Connection to device failed (S/N not retreived)"
 
         return self.async_show_form(
             step_id="user",

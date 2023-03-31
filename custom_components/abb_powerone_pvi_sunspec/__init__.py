@@ -137,15 +137,15 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
 #         hub = hass.data[DOMAIN][hub_name]["hub"]
 #         # hub.read_sunspec_modbus_init()
 #         # hub.read_sunspec_modbus_data()
-#         _LOGGER.warning("Migrating from version %s", version)
+#         _LOGGER.debug("Migrating from version %s", version)
 #         old_uid = entry.unique_id
 #         new_uid = hub.data["comm_sernum"]
 #         if old_uid != new_uid:
 #             hass.config_entries.async_update_entry(
 #                 entry, unique_id=new_uid
 #             )
-#             _LOGGER.warning("Migration to version %s complete: OLD_UID: %s - NEW_UID: %s", entry.version, old_uid, new_uid)
+#             _LOGGER.debug("Migration to version %s complete: OLD_UID: %s - NEW_UID: %s", entry.version, old_uid, new_uid)
 #         if entry.unique_id == new_uid:
 #             entry.version = 2
-#             _LOGGER.warning("Migration to version %s complete: NEW_UID: %s", entry.version, entry.unique_id)
+#             _LOGGER.debug("Migration to version %s complete: NEW_UID: %s", entry.version, entry.unique_id)
 #     return True

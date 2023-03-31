@@ -6,15 +6,15 @@ import re
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import (CONF_HOST, CONF_NAME, CONF_PORT,
-                                 CONF_SCAN_INTERVAL)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
 from homeassistant.config_entries import ConfigEntry
 
-from .const import (CONF_BASE_ADDR, CONF_SLAVE_ID, DEFAULT_BASE_ADDR,
-                    DEFAULT_NAME, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
-                    DEFAULT_SLAVE_ID, DOMAIN)
+from .api import ABBPowerOnePVISunSpecHub
+from .const import (CONF_NAME, CONF_HOST, CONF_PORT, CONF_BASE_ADDR, CONF_SLAVE_ID,
+                    CONF_SCAN_INTERVAL, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL,
+                    DEFAULT_NAME, DEFAULT_BASE_ADDR, DEFAULT_SLAVE_ID, DOMAIN)
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -28,6 +28,19 @@ def host_valid(host):
         disallowed = re.compile(r"[^a-zA-Z\d\-]")
         return all(x and not disallowed.search(x) for x in host.split("."))
 
+async def test_connection(self, name, host, port, slave_id, base_addr, scan_interval):
+    """Return true if credentials is valid."""
+    _LOGGER.debug(f"Test connection to {host}:{port} slave id {slave_id}")
+    try:
+        self.hub = ABBPowerOnePVISunSpecHub(
+            self.hass, name, host, port, slave_id, base_addr, scan_interval
+        )
+        self.hub_data = await self.hub.async_get_data()
+        _LOGGER.debug(self.hub_data)
+        return self.hub.data["comm_sernum"]
+    except Exception as exc:
+        _LOGGER.error(f"Failed to connect to host: {host}:{port} - slave id: {slave_id} - Exception: {exc}")
+        return False
 
 @callback
 def abb_powerone_pvi_sunspec_entries(hass: HomeAssistant):
@@ -60,18 +73,28 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
+            name = user_input[CONF_NAME]
             host = user_input[CONF_HOST]
+            port = user_input[CONF_PORT]
+            slave_id = user_input[CONF_SLAVE_ID]
+            base_addr = user_input[CONF_BASE_ADDR]
+            scan_interval = user_input[CONF_SCAN_INTERVAL]
 
             if self._host_in_configuration_exists(host):
-                errors[CONF_HOST] = "already_configured"
+                errors[CONF_HOST] = "Device Already Configured"
             elif not host_valid(user_input[CONF_HOST]):
-                errors[CONF_HOST] = "invalid host IP"
+                errors[CONF_HOST] = "invalid Host IP"
             else:
-                await self.async_set_unique_id(user_input[CONF_HOST])
-                self._abort_if_unique_id_configured()
-                return self.async_create_entry(
-                    title=user_input[CONF_NAME], data=user_input
-                )
+                uid = await self.test_connection(name, host, port, slave_id, base_addr, scan_interval)
+                if uid is not False:
+                    _LOGGER.debug(f"Device unique id: {uid}")
+                    await self.async_set_unique_id(uid)
+                    self._abort_if_unique_id_configured()
+                    return self.async_create_entry(
+                        title=user_input[CONF_NAME], data=user_input
+                    )
+                else:
+                    errors[CONF_HOST] = "Device S/N Not Available"
 
         return self.async_show_form(
             step_id="user",
@@ -133,7 +156,7 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
                 ): vol.All(vol.Coerce(int), vol.Range(min=5, max=600)),
             }
         )
-    async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
+    async def async_step_init(self, user_input=None):
         """Manage the options"""
 
         if user_input is not None:

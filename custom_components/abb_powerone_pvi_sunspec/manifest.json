@@ -1,6 +1,6 @@
 {
   "domain": "abb_powerone_pvi_sunspec",
-  "name": "ABB Power-One PVI SunSpec",
+  "name": "ABB/Power-One/FIMER PVI SunSpec",
   "codeowners": ["@alexdelprete"],
   "config_flow": true,
   "documentation": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",

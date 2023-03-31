@@ -9,107 +9,75 @@ from homeassistant.core import HomeAssistant, callback
 
 from .const import (DOMAIN, INVERTER_TYPE, SENSOR_TYPES_SINGLE_PHASE,
                     SENSOR_TYPES_THREE_PHASE)
+from .entity import ABBPowerOnePVISunSpecEntity
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER: logging.Logger = logging.getLogger(__package__)
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_devices):
     """Setup sensor platform"""
-    hub_name = entry.data[CONF_NAME]
-    hub = hass.data[DOMAIN][hub_name]["hub"]
-    hub.read_sunspec_modbus_init()
-    hub.read_sunspec_modbus_data()
-    device_info = {
-        "identifiers": {(DOMAIN, hub_name)},
-        "name": hub_name,
-        "model": hub.data["comm_model"],
-        "manufacturer": hub.data["comm_manufact"],
-        "sw_version": hub.data["comm_version"]
-    }
+    hub = hass.data[DOMAIN][entry.entry_id]
+    sensors = []
+    await hub.api.async_get_data()
     _LOGGER.debug("(sensor) Name: %s", entry.data[CONF_NAME])
     _LOGGER.debug("(sensor) Manufacturer: %s", hub.data["comm_manufact"])
     _LOGGER.debug("(sensor) Model: %s", hub.data["comm_model"])
     _LOGGER.debug("(sensor) SW Version: %s", hub.data["comm_version"])
     _LOGGER.debug("(sensor) Inverter Type (str): %s", hub.data["invtype"])
     _LOGGER.debug("(sensor) Serial#: %s", hub.data["comm_sernum"])
-    entities = []
     if hub.data["invtype"] == INVERTER_TYPE[101]:
         for sensor_info in SENSOR_TYPES_SINGLE_PHASE.values():
-            sensor = ABBPowerOnePVISunSpecSensor(
-                hub_name,
-                hub,
-                device_info,
-                sensor_info[0],
-                sensor_info[1],
-                sensor_info[2],
-                sensor_info[3],
-                sensor_info[4],
-                sensor_info[5],
-            )
-            entities.append(sensor)
+            sensor_data = {
+                "name": sensor_info[0],
+                "key": sensor_info[1],
+                "unit": sensor_info[2],
+                "icon": sensor_info[3],
+                "device_class": sensor_info[4],
+                "state_class": sensor_info[5],
+            }
+            sensors.append(ABBPowerOnePVISunSpecSensor(hub, entry, sensor_data))
     elif hub.data["invtype"] == INVERTER_TYPE[103]:
         for sensor_info in SENSOR_TYPES_THREE_PHASE.values():
-            sensor = ABBPowerOnePVISunSpecSensor(
-                hub_name,
-                hub,
-                device_info,
-                sensor_info[0],
-                sensor_info[1],
-                sensor_info[2],
-                sensor_info[3],
-                sensor_info[4],
-                sensor_info[5],
-            )
-            entities.append(sensor)
-    async_add_entities(entities)
+            sensor_data = {
+                "name": sensor_info[0],
+                "key": sensor_info[1],
+                "unit": sensor_info[2],
+                "icon": sensor_info[3],
+                "device_class": sensor_info[4],
+                "state_class": sensor_info[5],
+            }
+            sensors.append(ABBPowerOnePVISunSpecSensor(hub, entry, sensor_data))
+    async_add_devices(sensors)
     return True
 
 
-class ABBPowerOnePVISunSpecSensor(SensorEntity):
+class ABBPowerOnePVISunSpecSensor(ABBPowerOnePVISunSpecEntity, SensorEntity):
     """Representation of an ABB SunSpec Modbus sensor"""
 
-    def __init__(
-        self, platform_name, hub, device_info, name, key, unit, icon, device_class, state_class
-    ):
-        """Initialize the sensor"""
-        self._platform_name = platform_name
+    def __init__(self, hub, config_entry, sensor_data):
+        super().__init__(
+            hub, config_entry, sensor_data
+        )
         self._hub = hub
-        self._device_info = device_info
-        self._name = name
-        self._key = key
-        self._unit_of_measurement = unit
-        self._icon = icon
-        self._device_class = device_class
-        self._state_class = state_class
+        self._device_name = config_entry.data[CONF_NAME]
+        self._name = sensor_data["name"]
+        self._key = sensor_data["key"]
+        self._unit_of_measurement = sensor_data["unit"]
+        self._icon = sensor_data["icon"]
+        self._device_class = sensor_data["device_class"]
+        self._state_class = sensor_data["state_class"]
 
-    async def async_added_to_hass(self):
-        """Register callbacks"""
-        self._hub.async_add_sunspec_modbus_sensor(self._sunspec_modbus_data_updated)
-
-    async def async_will_remove_from_hass(self) -> None:
-        """Unregister callbacks"""
-        self._hub.async_remove_sunspec_modbus_sensor(self._sunspec_modbus_data_updated)
-
-    @callback
-    def _sunspec_modbus_data_updated(self):
-        self.async_write_ha_state()
-
-    @callback
-    def _update_state(self):
-        if self._key in self._hub.data:
-            self._state = self._hub.data[self._key]
+    @property
+    def has_entity_name(self):
+        """Return the name"""
+        return True
 
     @property
     def name(self):
         """Return the name"""
-        return f"{self._platform_name} ({self._name})"
+        return f"{self._name}"
 
     @property
-    def unique_id(self) -> Optional[str]:
-        """Return the ID"""
-        return f"{self._platform_name}_{self._key}"
-
-    @property
-    def unit_of_measurement(self):
+    def native_unit_of_measurement(self):
         """Return the unit of measurement"""
         return self._unit_of_measurement
 
@@ -129,7 +97,7 @@ class ABBPowerOnePVISunSpecSensor(SensorEntity):
         return self._state_class
 
     @property
-    def state(self):
+    def native_value(self):
         """Return the state of the sensor."""
         if self._key in self._hub.data:
             return self._hub.data[self._key]
@@ -143,8 +111,3 @@ class ABBPowerOnePVISunSpecSensor(SensorEntity):
     def should_poll(self) -> bool:
         """Data is delivered by the hub"""
         return False
-
-    @property
-    def device_info(self) -> Optional[Dict[str, Any]]:
-        """Return device information"""
-        return self._device_info

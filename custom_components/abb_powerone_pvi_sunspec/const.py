@@ -7,7 +7,25 @@ from homeassistant.const import (UnitOfElectricCurrent,
                                  UnitOfFrequency, UnitOfPower,
                                  UnitOfTemperature)
 
+# Base component constants
+NAME = "ABB/Power-One/FIMER PVI SunSpec"
 DOMAIN = "abb_powerone_pvi_sunspec"
+DOMAIN_DATA = f"{DOMAIN}_data"
+VERSION = "2.6.4"
+ATTRIBUTION = "Data provided by SunSpec alliance - https://sunspec.org"
+ISSUE_URL = "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues"
+
+# Icons
+ICON = "mdi:format-quote-close"
+
+# Device classes
+BINARY_SENSOR_DEVICE_CLASS = "connectivity"
+
+# Platforms
+SENSOR = "sensor"
+PLATFORMS = [SENSOR]
+
+# Configuration and options
 CONF_NAME = "name"
 CONF_HOST = "host"
 CONF_PORT = "port"
@@ -19,6 +37,15 @@ DEFAULT_PORT = 502
 DEFAULT_SLAVE_ID = 247
 DEFAULT_BASE_ADDR = 0
 DEFAULT_SCAN_INTERVAL = 30
+STARTUP_MESSAGE = f"""
+-------------------------------------------------------------------
+{NAME}
+Version: {VERSION}
+This is a custom integration!
+If you have any issues with this you need to open an issue here:
+{ISSUE_URL}
+-------------------------------------------------------------------
+"""
 
 SENSOR_TYPES_SINGLE_PHASE = {
     "Manufacturer": ["Manufacturer", "comm_manufact", None, "mdi:information-outline", None, None],

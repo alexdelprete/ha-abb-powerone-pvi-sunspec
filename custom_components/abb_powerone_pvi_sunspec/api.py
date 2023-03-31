@@ -61,7 +61,7 @@ class ABBPowerOnePVISunSpecHub:
         try:
             res = await self._client.read_holding_registers(address, count, **kwargs)
         except ModbusException as exc:
-            _LOGGER.debug("ERROR: exception in pymodbus {exc}")
+            _LOGGER.warning("ERROR: exception in pymodbus {exc}")
             raise exc
         return res
 
@@ -109,15 +109,15 @@ class ABBPowerOnePVISunSpecHub:
     async def async_get_data(self):
         """Main Read Function"""
         try:
-            _LOGGER.debug("Start Get data (Slave ID: %s - Base Address: %s)", self._slave_id, self._base_addr)
-            await self._client.connect()
+            _LOGGER.warning("Start Get data (Slave ID: %s - Base Address: %s)", self._slave_id, self._base_addr)
+            await self.connect()
             await self.read_sunspec_modbus_model_1()
             await self.read_sunspec_modbus_model_101_103()
             await self.read_sunspec_modbus_model_160()
-            await self._client.close()
-            _LOGGER.debug("End Get data")
+            await self.close()
+            _LOGGER.warning("End Get data")
         except ConnectionException:
-            _LOGGER.debug("ERROR: Connection (Slave ID: %s - Base Address: %s)", self._slave_id, self._base_addr)
+            _LOGGER.warning("ERROR: Connection (Slave ID: %s - Base Address: %s)", self._slave_id, self._base_addr)
             return False
         return True
 
@@ -131,11 +131,11 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read (M101 or M103)+M160 (Realtime Power/Energy Data) in 1-pass
         read_model_1_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 4), count=64)
-        _LOGGER.debug("(read_inv) Slave ID: %s", self._slave_id)
-        _LOGGER.debug("(read_inv) Base Address: %s", self._base_addr)
+        _LOGGER.warning("(read_inv) Slave ID: %s", self._slave_id)
+        _LOGGER.warning("(read_inv) Base Address: %s", self._base_addr)
         if read_model_1_data.isError():
-            _LOGGER.debug("(read_inv) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.debug("(read_inv) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+            _LOGGER.warning("(read_inv) Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.warning("(read_inv) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers
@@ -147,9 +147,9 @@ class ABBPowerOnePVISunSpecHub:
         comm_manufact = str.strip(decoder.decode_string(size=32).decode("ascii"))
         comm_model = str.strip(decoder.decode_string(size=32).decode("ascii"))
         comm_options = str.strip(decoder.decode_string(size=16).decode("ascii"))
-        _LOGGER.debug("(read_inv) Manufacturer: %s", comm_manufact)
-        _LOGGER.debug("(read_inv) Model: %s", comm_model)
-        _LOGGER.debug("(read_inv) Options: %s", comm_options)
+        _LOGGER.warning("(read_inv) Manufacturer: %s", comm_manufact)
+        _LOGGER.warning("(read_inv) Model: %s", comm_model)
+        _LOGGER.warning("(read_inv) Options: %s", comm_options)
         self.data["comm_manufact"] = comm_manufact.rstrip(' \t\r\n\0\u0000')
         self.data["comm_model"] = comm_model.rstrip(' \t\r\n\0\u0000')
         self.data["comm_options"] = comm_options.rstrip(' \t\r\n\0\u0000')
@@ -161,27 +161,27 @@ class ABBPowerOnePVISunSpecHub:
         opt_model = self.data["comm_options"]
         if opt_model.startswith('0x'):
             opt_model_int = int(opt_model[0:4], 16)
-            _LOGGER.debug("(opt_notprintable) opt_model: %s - opt_model_int: %s", opt_model, opt_model_int)
+            _LOGGER.warning("(opt_notprintable) opt_model: %s - opt_model_int: %s", opt_model, opt_model_int)
         else:
             opt_model_int = ord(opt_model[0])
-            _LOGGER.debug("(opt_printable) opt_model: %s - opt_model_int: %s", opt_model, opt_model_int)
+            _LOGGER.warning("(opt_printable) opt_model: %s - opt_model_int: %s", opt_model, opt_model_int)
         if opt_model_int in DEVICE_MODEL:
             self.data["comm_model"] = DEVICE_MODEL[opt_model_int]
-            _LOGGER.debug("(opt_comm_model) comm_model: %s", self.data["comm_model"])
+            _LOGGER.warning("(opt_comm_model) comm_model: %s", self.data["comm_model"])
         else:
             _LOGGER.error("(opt_comm_model) Model unknown, report to @alexdelprete on the forum the following data: Manuf.: %s - Model: %s - Options: %s - OptModel: %s - OptModelInt: %s", self.data["comm_manufact"], self.data["comm_model"], self.data["comm_options"], opt_model, opt_model_int)
 
         # registers 44 to 67
         comm_version = str.strip(decoder.decode_string(size=16).decode("ascii"))
         comm_sernum = str.strip(decoder.decode_string(size=32).decode("ascii"))
-        _LOGGER.debug("(read_inv) Version: %s", comm_version)
-        _LOGGER.debug("(read_inv) Sernum: %s", comm_sernum)
+        _LOGGER.warning("(read_inv) Version: %s", comm_version)
+        _LOGGER.warning("(read_inv) Sernum: %s", comm_sernum)
         self.data["comm_version"] = comm_version.rstrip(' \t\r\n\0\u0000')
         self.data["comm_sernum"] = comm_sernum.rstrip(' \t\r\n\0\u0000')
 
         return True
 
-    def read_sunspec_modbus_model_101_103(self):
+    async def read_sunspec_modbus_model_101_103(self):
         """Read SunSpec Model 101/103 Data"""
         # Max number of registers in one read for Modbus/TCP is 123
         # (ref.: https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251)
@@ -192,11 +192,11 @@ class ABBPowerOnePVISunSpecHub:
         #   - Sweep 2 (M103): Start address 70 read 40 registers to read M103+M160 (Realtime Power/Energy Data)
         #   - Sweep 3 (M160): Start address 124 read 40 registers to read M1 (Common Inverter Info)
         read_model_101_103_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 70), count=40)
-        _LOGGER.debug("(read_rt_1) Slave ID: %s", self._slave_id)
-        _LOGGER.debug("(read_rt_1) Base Address: %s", self._base_addr)
+        _LOGGER.warning("(read_rt_1) Slave ID: %s", self._slave_id)
+        _LOGGER.warning("(read_rt_1) Base Address: %s", self._base_addr)
         if read_model_101_103_data.isError():
-            _LOGGER.debug("(read_rt_1) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.debug("(read_rt_1) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+            _LOGGER.warning("(read_rt_1) Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.warning("(read_rt_1) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers
@@ -206,13 +206,13 @@ class ABBPowerOnePVISunSpecHub:
 
         # register 70
         invtype = decoder.decode_16bit_uint()
-        _LOGGER.debug("(read_rt_1) Inverter Type (int): %s", invtype)
-        _LOGGER.debug("(read_rt_1) Inverter Type (str): %s", INVERTER_TYPE[invtype])
+        _LOGGER.warning("(read_rt_1) Inverter Type (int): %s", invtype)
+        _LOGGER.warning("(read_rt_1) Inverter Type (str): %s", INVERTER_TYPE[invtype])
         # make sure the value is in the known status list
         if invtype not in INVERTER_TYPE:
             invtype = 999
-            _LOGGER.debug("(read_rt_1) Inverter Type Unknown (int): %s", invtype)
-            _LOGGER.debug("(read_rt_1) Inverter Type Unknown (str): %s", INVERTER_TYPE[invtype])
+            _LOGGER.warning("(read_rt_1) Inverter Type Unknown (int): %s", invtype)
+            _LOGGER.warning("(read_rt_1) Inverter Type Unknown (str): %s", INVERTER_TYPE[invtype])
         self.data["invtype"] = INVERTER_TYPE[invtype]
 
         # skip register 71
@@ -293,12 +293,12 @@ class ABBPowerOnePVISunSpecHub:
         totalenergysf = decoder.decode_16bit_uint()
         totalenergy = self.calculate_value(totalenergy, totalenergysf)
         # ensure that totalenergy is always an increasing value (total_increasing)
-        _LOGGER.debug("(read_rt_1) Total Energy Value Read: %s", totalenergy)
-        _LOGGER.debug("(read_rt_1) Total Energy Previous Value: %s", self.data["totalenergy"])
+        _LOGGER.warning("(read_rt_1) Total Energy Value Read: %s", totalenergy)
+        _LOGGER.warning("(read_rt_1) Total Energy Previous Value: %s", self.data["totalenergy"])
         if totalenergy >= self.data["totalenergy"]:
             self.data["totalenergy"] = totalenergy
         else:
-            _LOGGER.debug("(read_rt_1) Total Energy less than previous value! Value Read: %s - Previous Value: %s", totalenergy, self.data["totalenergy"])
+            _LOGGER.warning("(read_rt_1) Total Energy less than previous value! Value Read: %s - Previous Value: %s", totalenergy, self.data["totalenergy"])
 
         # registers 97 to 100 (for monophase inverters)
         if invtype == 101:
@@ -339,7 +339,7 @@ class ABBPowerOnePVISunSpecHub:
         status = decoder.decode_16bit_int()
         # make sure the value is in the known status list
         if status not in DEVICE_STATUS:
-            _LOGGER.debug("Unknown Operating State: %s", status)
+            _LOGGER.warning("Unknown Operating State: %s", status)
             status = 999
         self.data["status"] = DEVICE_STATUS[status]
 
@@ -347,14 +347,14 @@ class ABBPowerOnePVISunSpecHub:
         statusvendor = decoder.decode_16bit_int()
         # make sure the value is in the known status list
         if statusvendor not in DEVICE_GLOBAL_STATUS:
-            _LOGGER.debug("(init) Unknown Vendor Operating State: %s", statusvendor)
+            _LOGGER.warning("(init) Unknown Vendor Operating State: %s", statusvendor)
             statusvendor = 999
         self.data["statusvendor"] = DEVICE_GLOBAL_STATUS[statusvendor]
 
         return True
 
 
-    def read_sunspec_modbus_model_160(self):
+    async def read_sunspec_modbus_model_160(self):
         """Read SunSpec Model 160 Data"""
         # Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
@@ -364,11 +364,11 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
         read_model_160_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 122), count=42)
-        _LOGGER.debug("(read_rt_2) Slave ID: %s", self._slave_id)
-        _LOGGER.debug("(read_rt_2) Base Address: %s", self._base_addr)
+        _LOGGER.warning("(read_rt_2) Slave ID: %s", self._slave_id)
+        _LOGGER.warning("(read_rt_2) Base Address: %s", self._base_addr)
         if read_model_160_data.isError():
-            _LOGGER.debug("(read_rt_2) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.debug("(read_rt_2) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+            _LOGGER.warning("(read_rt_2) Reading data failed! Please check Slave ID: %s", self._slave_id)
+            _LOGGER.warning("(read_rt_2) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
             return False
 
         # No connection errors, we can start scraping registers

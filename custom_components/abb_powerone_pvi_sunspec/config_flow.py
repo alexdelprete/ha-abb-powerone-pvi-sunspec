@@ -56,13 +56,13 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def test_connection(self, name, host, port, slave_id, base_addr, scan_interval):
         """Return true if credentials is valid."""
-        _LOGGER.debug(f"Test connection to {host}:{port} slave id {slave_id}")
+        _LOGGER.warning(f"Test connection to {host}:{port} slave id {slave_id}")
         try:
-            self.hub = ABBPowerOnePVISunSpecHub(
-                self.hass, name, host, port, slave_id, base_addr, scan_interval
-            )
+            # self.hub = ABBPowerOnePVISunSpecHub(
+            #     self.hass, name, host, port, slave_id, base_addr, scan_interval
+            # )
             self.hub_data = await self.hub.async_get_data()
-            _LOGGER.debug(self.hub_data)
+            _LOGGER.error(self.hub_data)
             return self.hub.data["comm_sernum"]
         except Exception as exc:
             _LOGGER.error(f"Failed to connect to host: {host}:{port} - slave id: {slave_id} - Exception: {exc}")
@@ -87,7 +87,7 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 uid = await self.test_connection(name, host, port, slave_id, base_addr, scan_interval)
                 if uid is not False:
-                    _LOGGER.debug(f"Device unique id: {uid}")
+                    _LOGGER.warning(f"Device unique id: {uid}")
                     await self.async_set_unique_id(uid)
                     self._abort_if_unique_id_configured()
                     return self.async_create_entry(

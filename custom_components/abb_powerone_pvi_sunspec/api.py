@@ -63,13 +63,6 @@ class ABBPowerOnePVISunSpecHub:
         except ModbusException as exc:
             _LOGGER.debug("ERROR: exception in pymodbus {exc}")
             raise exc
-        if res.isError():
-            _LOGGER.debug("ERROR: pymodbus returned an error!")
-            raise ModbusException("ERROR: pymodbus returned an error!")
-        if isinstance(res, ExceptionResponse):
-            _LOGGER.debug("ERROR: received exception from device {res}!")
-            # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
-            raise ModbusException("ERROR: received exception from device {res}!")
         return res
 
     def calculate_value(self, value, scalefactor):

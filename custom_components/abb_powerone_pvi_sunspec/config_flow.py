@@ -85,7 +85,7 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             elif not host_valid(user_input[CONF_HOST]):
                 errors[CONF_HOST] = "invalid Host IP"
             else:
-                uid = await self.test_connection(name, host, port, slave_id, base_addr, scan_interval)
+                uid = await test_connection(name, host, port, slave_id, base_addr, scan_interval)
                 if uid is not False:
                     _LOGGER.debug(f"Device unique id: {uid}")
                     await self.async_set_unique_id(uid)

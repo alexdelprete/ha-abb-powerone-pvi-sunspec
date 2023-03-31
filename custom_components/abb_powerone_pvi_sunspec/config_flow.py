@@ -58,11 +58,14 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Return true if credentials is valid."""
         _LOGGER.warning(f"Test connection to {host}:{port} slave id {slave_id}")
         try:
-            # self.hub = ABBPowerOnePVISunSpecHub(
-            #     self.hass, name, host, port, slave_id, base_addr, scan_interval
-            # )
+            _LOGGER.warning(f"Creating Hub")
+            self.hub = ABBPowerOnePVISunSpecHub(
+                self.hass, name, host, port, slave_id, base_addr, scan_interval
+            )
+            _LOGGER.warning(f"Hub created: calling get data")
             self.hub_data = await self.hub.async_get_data()
-            _LOGGER.error(self.hub_data)
+            _LOGGER.warning(f"After Hub, get data")
+            _LOGGER.warning(f"Hub Data: {self.hub_data}")
             return self.hub.data["comm_sernum"]
         except Exception as exc:
             _LOGGER.error(f"Failed to connect to host: {host}:{port} - slave id: {slave_id} - Exception: {exc}")

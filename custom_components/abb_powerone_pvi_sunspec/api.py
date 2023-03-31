@@ -41,7 +41,7 @@ class ABBPowerOnePVISunSpecHub:
         self._sensors = []
         self.data = {}
         # Initialize Modbus Data before first read
-        self.api.init_modbus_data()
+        self.init_modbus_data()
 
 
     @property

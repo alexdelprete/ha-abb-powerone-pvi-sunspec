@@ -18,7 +18,6 @@ from .const import (CONF_BASE_ADDR, CONF_HOST, CONF_NAME, CONF_PORT,
                     CONF_SCAN_INTERVAL, CONF_SLAVE_ID, DOMAIN, PLATFORMS,
                     STARTUP_MESSAGE)
 
-SCAN_INTERVAL = timedelta(seconds=30)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -39,12 +38,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     port = entry.data.get(CONF_PORT)
     slave_id = entry.data.get(CONF_SLAVE_ID)
     base_addr = entry.data.get(CONF_BASE_ADDR)
-    scan_interval = entry.data.get(CONF_SCAN_INTERVAL)
 
     try:
-        hub = ABBPowerOnePVISunSpecHub(
-            hass, name, host, port, slave_id, base_addr, scan_interval
-        )
+        hub = ABBPowerOnePVISunSpecHub(hass, name, host, port, slave_id, base_addr)
         coordinator = HubDataUpdateCoordinator(hass, hub=hub, entry=entry)
         await coordinator.async_config_entry_first_refresh()
     except ConnectionException as connerr:
@@ -107,13 +103,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         self.hass = hass
         self.entry = entry
         self.platforms = []
-        # scan_interval = entry.data.get(CONF_SCAN_INTERVAL)
-        scan_interval = timedelta(
-            seconds=entry.data.get(
-                CONF_SCAN_INTERVAL,
-                SCAN_INTERVAL.total_seconds(),
-            )
-        )
+        scan_interval = timedelta(seconds=entry.data.get(CONF_SCAN_INTERVAL))
         _LOGGER.debug("Data: %s", entry.data)
         _LOGGER.debug("Options: %s", entry.options)
         self.unsub = entry.add_update_listener(async_reload_entry)

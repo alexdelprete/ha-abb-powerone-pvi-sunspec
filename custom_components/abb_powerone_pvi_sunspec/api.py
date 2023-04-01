@@ -1,11 +1,9 @@
 """Hub Implementation"""
 
 import logging
-from datetime import timedelta
-from typing import Optional
 
 from homeassistant.core import callback
-from pymodbus.client import ModbusTcpClient
+from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException, ModbusException
 from pymodbus.payload import BinaryPayloadDecoder
@@ -31,7 +29,7 @@ class ABBPowerOnePVISunSpecHub:
     ):
         """Initialize the Modbus hub"""
         self._hass = hass
-        self._client = ModbusTcpClient(host=host, port=port)
+        self._client = AsyncModbusTcpClient(host=host, port=port)
         self._name = name
         self._slave_id = slave_id
         self._base_addr = base_addr
@@ -47,31 +45,31 @@ class ABBPowerOnePVISunSpecHub:
         return self._name
 
 
-    def close(self):
+    async def close(self):
         """Disconnect client"""
         try:
-            self._client.close()
+            await self._client.close()
             return True
         except ConnectionException as connerr:
             _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
             return False
 
 
-    def connect(self):
+    async def connect(self):
         """Connect client"""
         try:
-            self._client.connect()
+            await self._client.connect()
             return True
         except ConnectionException as connerr:
             _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
             return False
 
 
-    def read_holding_registers(self, slave, address, count):
+    async def read_holding_registers(self, slave, address, count):
         """Read holding registers"""
         kwargs = {"slave": slave} if slave else {}
         try:
-            res = self._client.read_holding_registers(address, count, **kwargs)
+            res = await self._client.read_holding_registers(address, count, **kwargs)
             return res
         except ConnectionException as connerr:
             _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
@@ -130,11 +128,11 @@ class ABBPowerOnePVISunSpecHub:
         """Main Read Function"""
         try:
             _LOGGER.debug("Start Get data (Slave ID: %s - Base Address: %s)", self._slave_id, self._base_addr)
-            self.connect()
-            self.read_sunspec_modbus_model_1()
-            self.read_sunspec_modbus_model_101_103()
-            self.read_sunspec_modbus_model_160()
-            self.close()
+            await self.connect()
+            await self.read_sunspec_modbus_model_1()
+            await self.read_sunspec_modbus_model_101_103()
+            await self.read_sunspec_modbus_model_160()
+            await self.close()
             _LOGGER.debug("End Get data")
             return True
         except ConnectionException as connerr:
@@ -148,7 +146,7 @@ class ABBPowerOnePVISunSpecHub:
             return False
 
 
-    def read_sunspec_modbus_model_1(self):
+    async def read_sunspec_modbus_model_1(self):
         """Read SunSpec Model 1 Data"""
         # A single register is 2 bytes. Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
@@ -158,7 +156,7 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read (M101 or M103)+M160 (Realtime Power/Energy Data) in 1-pass
         try:
-            read_model_1_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 4), count=64)
+            read_model_1_data = await self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 4), count=64)
             _LOGGER.debug("(read_rt_1) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_1) Base Address: %s", self._base_addr)
         except ModbusException:
@@ -210,7 +208,7 @@ class ABBPowerOnePVISunSpecHub:
         return True
 
 
-    def read_sunspec_modbus_model_101_103(self):
+    async def read_sunspec_modbus_model_101_103(self):
         """Read SunSpec Model 101/103 Data"""
         # Max number of registers in one read for Modbus/TCP is 123
         # (ref.: https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251)
@@ -221,7 +219,7 @@ class ABBPowerOnePVISunSpecHub:
         #   - Sweep 2 (M103): Start address 70 read 40 registers to read M103+M160 (Realtime Power/Energy Data)
         #   - Sweep 3 (M160): Start address 124 read 40 registers to read M1 (Common Inverter Info)
         try:
-            read_model_101_103_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 70), count=40)
+            read_model_101_103_data = await self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 70), count=40)
             _LOGGER.debug("(read_rt_101_103) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_101_103) Base Address: %s", self._base_addr)
         except ModbusException:
@@ -386,7 +384,7 @@ class ABBPowerOnePVISunSpecHub:
         return True
 
 
-    def read_sunspec_modbus_model_160(self):
+    async def read_sunspec_modbus_model_160(self):
         """Read SunSpec Model 160 Data"""
         # Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
@@ -396,7 +394,7 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
         try:
-            read_model_160_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 122), count=42)
+            read_model_160_data = await self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 122), count=42)
             _LOGGER.debug("(read_rt_160) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_160) Base Address: %s", self._base_addr)
         except ModbusException:

@@ -259,4 +259,5 @@ DEVICE_MODEL = {
     121: "TRIO-20-TL-OUTD",
     122: "PVI-10.0-OUTD-I",
     224: "UNO-2.0-TL-OUTD",
+    242: "UNO-3.0-TL-OUTD",
 }

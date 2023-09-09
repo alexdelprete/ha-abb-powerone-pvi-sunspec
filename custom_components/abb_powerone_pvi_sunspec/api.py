@@ -175,7 +175,7 @@ class ABBPowerOnePVISunSpecHub:
 
         # No connection errors, we can start scraping registers
         decoder = BinaryPayloadDecoder.fromRegisters(
-            read_model_1_data.registers, byteorder=Endian.Big
+            read_model_1_data.registers, byteorder=Endian.BIG
         )
 
         # registers 4 to 43
@@ -238,7 +238,7 @@ class ABBPowerOnePVISunSpecHub:
 
         # No connection errors, we can start scraping registers
         decoder = BinaryPayloadDecoder.fromRegisters(
-            read_model_101_103_data.registers, byteorder=Endian.Big
+            read_model_101_103_data.registers, byteorder=Endian.BIG
         )
 
         # register 70
@@ -413,7 +413,7 @@ class ABBPowerOnePVISunSpecHub:
 
         # No connection errors, we can start scraping registers
         decoder = BinaryPayloadDecoder.fromRegisters(
-            read_model_160_data.registers, byteorder=Endian.Big
+            read_model_160_data.registers, byteorder=Endian.BIG
         )
 
         # register 122

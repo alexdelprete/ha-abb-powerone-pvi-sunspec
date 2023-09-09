@@ -173,8 +173,10 @@ DEVICE_STATUS = {
 }
 
 DEVICE_MODEL = {
+      0: "UNO-DM-3.3-TL-PLUS",
       1: "UNO-DM-4.0-TL-PLUS",
       3: "UNO-DM-4.6-TL-PLUS",
+      5: "UNO-DM-6.0-TL-PLUS",
      11: "UNO-DM-2.0-TL-PLUS",
      12: "UNO-DM-3.0-TL-PLUS",
      13: "REACT2-UNO-5.0-TL",
@@ -230,4 +232,6 @@ DEVICE_MODEL = {
     121: "TRIO-20-TL-OUTD",
     122: "PVI-10.0-OUTD-I",
     224: "UNO-2.0-TL-OUTD",
+    242: "UNO-3.0-TL-OUTD",
 }
+

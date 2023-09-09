@@ -144,7 +144,8 @@ class ABBPowerOnePVISunSpecHub:
             return True
         except Exception as exc:
             _LOGGER.error(f"Failed to connect to host: {self._host}:{self._port} - slave id: {self._slave_id} - Exception: {exc}")
-            return False        # except ConnectionException as connerr:
+            return False
+        # except ConnectionException as connerr:
         #     _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
         #     return False
         # except ModbusException as modbuserr:

@@ -10,7 +10,7 @@
           "port": "TCP port",
           "slave_id": "Modbus Slave address of the inverter",
           "base_addr": "Modbus Register Map Base Address",
-          "scan_interval": "Polling Period (min: 5s max: 600s)"
+          "scan_interval": "Polling Period (min: 30s max: 600s)"
         }
       }
     },
@@ -30,7 +30,7 @@
           "port": "TCP port",
           "slave_id": "Modbus Slave address of the inverter",
           "base_addr": "Modbus Register Map Base Address",
-          "scan_interval": "Polling Period (min: 5s max: 600s)"
+          "scan_interval": "Polling Period (min: 30s max: 600s)"
         }
       }
     }

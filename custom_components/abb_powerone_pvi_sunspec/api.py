@@ -31,10 +31,12 @@ class ABBPowerOnePVISunSpecHub:
     ):
         """Initialize the Modbus hub"""
         self._hass = hass
-        self._client = ModbusTcpClient(host=host, port=port)
         self._name = name
+        self._host = host
+        self._port = port
         self._slave_id = slave_id
         self._base_addr = base_addr
+        self._client = ModbusTcpClient(host=self._host, port=self._port)
         self._sensors = []
         self.data = {}
         # Initialize ModBus data structure before first read
@@ -73,15 +75,18 @@ class ABBPowerOnePVISunSpecHub:
         try:
             res = self._client.read_holding_registers(address, count, **kwargs)
             return res
-        except ConnectionException as connerr:
-            _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
-            return False
-        except ModbusException as modbuserr:
-            _LOGGER.debug("Modbus ERROR: exception in pymodbus {modbuserr}")
-            return False
-        except ExceptionResponse as pduerr:
-            _LOGGER.debug("PDU ERROR: exception in pymodbus {pduerr}")
-            return False
+        except Exception as exc:
+            _LOGGER.error(f"Failed to connect to host: {self._host}:{self._port} - slave id: {self._slave_id} - Exception: {exc}")
+            return False        # except ConnectionException as connerr:
+        # except ConnectionException as connerr:
+        #     _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
+        #     return False
+        # except ModbusException as modbuserr:
+        #     _LOGGER.debug("Modbus ERROR: exception in pymodbus {modbuserr}")
+        #     return False
+        # except ExceptionResponse as pduerr:
+        #     _LOGGER.debug("PDU ERROR: exception in pymodbus {pduerr}")
+        #     return False
 
 
     def calculate_value(self, value, scalefactor):
@@ -137,15 +142,17 @@ class ABBPowerOnePVISunSpecHub:
             self.close()
             _LOGGER.debug("End Get data")
             return True
-        except ConnectionException as connerr:
-            _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
-            return False
-        except ModbusException as modbuserr:
-            _LOGGER.debug("Modbus ERROR: exception in pymodbus {modbuserr}")
-            return False
-        except ExceptionResponse as pduerr:
-            _LOGGER.debug("PDU ERROR: exception in pymodbus {pduerr}")
-            return False
+        except Exception as exc:
+            _LOGGER.error(f"Failed to connect to host: {self._host}:{self._port} - slave id: {self._slave_id} - Exception: {exc}")
+            return False        # except ConnectionException as connerr:
+        #     _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
+        #     return False
+        # except ModbusException as modbuserr:
+        #     _LOGGER.debug("Modbus ERROR: exception in pymodbus {modbuserr}")
+        #     return False
+        # except ExceptionResponse as pduerr:
+        #     _LOGGER.debug("PDU ERROR: exception in pymodbus {pduerr}")
+        #     return False
 
 
     def read_sunspec_modbus_model_1(self):

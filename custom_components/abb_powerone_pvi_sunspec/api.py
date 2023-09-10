@@ -55,7 +55,7 @@ class ABBPowerOnePVISunSpecHub:
             self._client.close()
             return True
         except ConnectionException as connerr:
-            _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
+            _LOGGER.error(f"Connection ERROR: exception in pymodbus {connerr}")
             return False
 
 
@@ -65,7 +65,7 @@ class ABBPowerOnePVISunSpecHub:
             self._client.connect()
             return True
         except ConnectionException as connerr:
-            _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
+            _LOGGER.error(f"Connection ERROR: exception in pymodbus {connerr}")
             return False
 
 
@@ -75,18 +75,12 @@ class ABBPowerOnePVISunSpecHub:
         try:
             res = self._client.read_holding_registers(address, count, **kwargs)
             return res
-        except Exception as exc:
-            _LOGGER.error(f"Failed to connect to host: {self._host}:{self._port} - slave id: {self._slave_id} - Exception: {exc}")
-            return False        # except ConnectionException as connerr:
-        # except ConnectionException as connerr:
-        #     _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
-        #     return False
-        # except ModbusException as modbuserr:
-        #     _LOGGER.debug("Modbus ERROR: exception in pymodbus {modbuserr}")
-        #     return False
-        # except ExceptionResponse as pduerr:
-        #     _LOGGER.debug("PDU ERROR: exception in pymodbus {pduerr}")
-        #     return False
+        except ConnectionException as connerr:
+            _LOGGER.error(f"Connection ERROR: exception in pymodbus {connerr}")
+            return False
+        except ModbusException as modbuserr:
+            _LOGGER.error(f"Modbus ERROR: exception in pymodbus {modbuserr}")
+            return False
 
 
     def calculate_value(self, value, scalefactor):
@@ -142,18 +136,13 @@ class ABBPowerOnePVISunSpecHub:
             self.close()
             _LOGGER.debug("End Get data")
             return True
-        except Exception as exc:
-            _LOGGER.error(f"Failed to connect to host: {self._host}:{self._port} - slave id: {self._slave_id} - Exception: {exc}")
+        except ConnectionException as connerr:
+            _LOGGER.error(f"Connection ERROR: exception in pymodbus {connerr}")
             return False
-        # except ConnectionException as connerr:
-        #     _LOGGER.debug("Connection ERROR: exception in pymodbus {connerr}")
-        #     return False
-        # except ModbusException as modbuserr:
-        #     _LOGGER.debug("Modbus ERROR: exception in pymodbus {modbuserr}")
-        #     return False
-        # except ExceptionResponse as pduerr:
-        #     _LOGGER.debug("PDU ERROR: exception in pymodbus {pduerr}")
-        #     return False
+        except ModbusException as modbuserr:
+            _LOGGER.error(f"Modbus ERROR: exception in pymodbus {modbuserr}")
+            return False
+
 
 
     def read_sunspec_modbus_model_1(self):
@@ -169,9 +158,8 @@ class ABBPowerOnePVISunSpecHub:
             read_model_1_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 4), count=64)
             _LOGGER.debug("(read_rt_1) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_1) Base Address: %s", self._base_addr)
-        except ModbusException:
-            _LOGGER.debug("(read_rt_1) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.debug("(read_rt_1) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+        except ModbusException as modbuserr:
+            _LOGGER.error(f"Modbus ERROR: exception in pymodbus {modbuserr}")
             return False
 
         # No connection errors, we can start scraping registers
@@ -232,9 +220,8 @@ class ABBPowerOnePVISunSpecHub:
             read_model_101_103_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 70), count=40)
             _LOGGER.debug("(read_rt_101_103) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_101_103) Base Address: %s", self._base_addr)
-        except ModbusException:
-            _LOGGER.debug("(read_rt_101_103) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.debug("(read_rt_101_103) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+        except ModbusException as modbuserr:
+            _LOGGER.error(f"Modbus ERROR: exception in pymodbus {modbuserr}")
             return False
 
         # No connection errors, we can start scraping registers
@@ -407,9 +394,8 @@ class ABBPowerOnePVISunSpecHub:
             read_model_160_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 122), count=42)
             _LOGGER.debug("(read_rt_160) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_160) Base Address: %s", self._base_addr)
-        except ModbusException:
-            _LOGGER.debug("(read_rt_160) Reading data failed! Please check Slave ID: %s", self._slave_id)
-            _LOGGER.debug("(read_rt_160) Reading data failed! Please check Reg. Base Address: %s", self._base_addr)
+        except ModbusException as modbuserr:
+            _LOGGER.error(f"Modbus ERROR: exception in pymodbus {modbuserr}")
             return False
 
         # No connection errors, we can start scraping registers

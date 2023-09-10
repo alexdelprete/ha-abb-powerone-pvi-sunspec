@@ -44,12 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         coordinator = HubDataUpdateCoordinator(hass, hub=hub, entry=entry)
         await coordinator.async_config_entry_first_refresh()
     except ConnectionException as connerr:
-        raise ConfigEntryNotReady(f"Problem connecting to device {host}:{port}")
-
-    # except ModbusException as modbuserr:
-
-    # if not coordinator.last_update_success:
-    #     raise ConfigEntryNotReady(f"Problem connecting to device {host}:{port}")
+        raise ConfigEntryNotReady(f"Problem connecting to device {host}:{port} - Exception: {connerr}")
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
 

@@ -39,21 +39,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     slave_id = entry.data.get(CONF_SLAVE_ID)
     base_addr = entry.data.get(CONF_BASE_ADDR)
 
-    try:
-        hub = ABBPowerOnePVISunSpecHub(hass, name, host, port, slave_id, base_addr)
-        coordinator = HubDataUpdateCoordinator(hass, hub=hub, entry=entry)
-        await coordinator.async_config_entry_first_refresh()
-    except ConnectionException as connerr:
-        raise ConfigEntryNotReady(f"Problem connecting to device {host}:{port} - Exception: {connerr}") from connerr
+    hub = ABBPowerOnePVISunSpecHub(hass, name, host, port, slave_id, base_addr)
 
+    _LOGGER.debug("Setup config entry for ABB")
+    coordinator = HubDataUpdateCoordinator(hass, hub=hub, entry=entry)
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    for platform in PLATFORMS:
-        if entry.options.get(platform, True):
-            coordinator.platforms.append(platform)
-            hass.async_add_job(
-                hass.config_entries.async_forward_entry_setup(entry, platform)
-            )
+    await coordinator.async_config_entry_first_refresh()
+
+    # for platform in PLATFORMS:
+    #     if entry.options.get(platform, True):
+    #         coordinator.platforms.append(platform)
+    #         hass.async_add_job(
+    #             hass.config_entries.async_forward_entry_setup(entry, platform)
+    #         )
 
     return True
 

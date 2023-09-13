@@ -55,7 +55,7 @@ class ABBPowerOnePVISunSpecHub:
             self._client.close()
             return True
         except ConnectionException as connerr:
-            _LOGGER.error(f"Connection ERROR: exception in pymodbus {connerr}")
+            _LOGGER.debug(f"Connection ERROR: exception in pymodbus {connerr}")
             return False
 
 
@@ -65,7 +65,7 @@ class ABBPowerOnePVISunSpecHub:
             self._client.connect()
             return True
         except ConnectionException as connerr:
-            _LOGGER.error(f"Connection ERROR: exception in pymodbus {connerr}")
+            _LOGGER.debug(f"Connection ERROR: exception in pymodbus {connerr}")
             return False
 
 
@@ -76,10 +76,10 @@ class ABBPowerOnePVISunSpecHub:
             res = self._client.read_holding_registers(address, count, **kwargs)
             return res
         except ConnectionException as connerr:
-            _LOGGER.error(f"Connection ERROR: exception in pymodbus {connerr}")
+            _LOGGER.debug(f"Connection ERROR: exception in pymodbus {connerr}")
             return False
         except ModbusException as modbuserr:
-            _LOGGER.error(f"Modbus ERROR: exception in pymodbus {modbuserr}")
+            _LOGGER.debug(f"Modbus ERROR: exception in pymodbus {modbuserr}")
             return False
 
 
@@ -137,10 +137,10 @@ class ABBPowerOnePVISunSpecHub:
             _LOGGER.debug("End Get data")
             return True
         except ConnectionException as connerr:
-            _LOGGER.error(f"Connection ERROR: exception in pymodbus {connerr}")
+            _LOGGER.debug(f"Connection ERROR: exception in pymodbus {connerr}")
             return False
         except ModbusException as modbuserr:
-            _LOGGER.error(f"Modbus ERROR: exception in pymodbus {modbuserr}")
+            _LOGGER.debug(f"Modbus ERROR: exception in pymodbus {modbuserr}")
             return False
 
 

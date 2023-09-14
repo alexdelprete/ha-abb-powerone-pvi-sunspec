@@ -59,6 +59,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             *[
                 hass.config_entries.async_forward_entry_unload(entry, platform)
                 for platform in PLATFORMS
+                if platform in coordinator.platforms
             ]
         )
     )
@@ -66,7 +67,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator = hass.data[DOMAIN].pop(entry.entry_id)
         coordinator.unsub()
 
-    return True  # unloaded
+    return unloaded
 
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -81,10 +82,10 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(self, hass: HomeAssistant, hub: ABBPowerOnePVISunSpecHub, entry: ConfigEntry) -> None:
         """Initialize."""
         self.api = hub
-        self.entities_added = False
+        # self.entities_added = False
         self.hass = hass
         self.entry = entry
-
+        self.platforms = []
         _LOGGER.debug("Data: %s", entry.data)
         _LOGGER.debug("Options: %s", entry.options)
 
@@ -112,15 +113,19 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         data = False
         try:
             data = await self.api.async_get_data()
-            self.api.close()
-            if not self.entities_added:
-                for platform in PLATFORMS:
+            # self.api.close()
+            # if not self.entities_added:
+            #     for platform in PLATFORMS:
+            #         self.hass.async_add_job(
+            #             self.hass.config_entries.async_forward_entry_setup(self.entry, platform)
+            #         )
+            #     self.entities_added = True
+            for platform in PLATFORMS:
+                if self.entry.options.get(platform, True):
+                    self.platforms.append(platform)
                     self.hass.async_add_job(
-                        self.hass.config_entries.async_forward_entry_setup(
-                            self.entry, platform
-                        )
+                        self.hass.config_entries.async_forward_entry_setup(self.entry, platform)
                     )
-                self.entities_added = True
             return data
         except Exception as exception:
             _LOGGER.warning(exception)

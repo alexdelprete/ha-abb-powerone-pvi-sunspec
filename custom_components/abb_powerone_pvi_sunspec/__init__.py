@@ -97,7 +97,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
             )
         )
 
-        self.unsub = entry.add_update_listener(async_reload_entry)
+        self.unsub = entry.add_update_listener(async_unload_entry)
         _LOGGER.debug(
             "Setup entry with scan interval %s. Host: %s Port: %s ID: %s",
             scan_interval,
@@ -120,12 +120,6 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
             #             self.hass.config_entries.async_forward_entry_setup(self.entry, platform)
             #         )
             #     self.entities_added = True
-            for platform in PLATFORMS:
-                if self.entry.options.get(platform, True):
-                    self.platforms.append(platform)
-                    self.hass.async_add_job(
-                        self.hass.config_entries.async_forward_entry_setup(self.entry, platform)
-                    )
             return data
         except Exception as exception:
             _LOGGER.warning(exception)

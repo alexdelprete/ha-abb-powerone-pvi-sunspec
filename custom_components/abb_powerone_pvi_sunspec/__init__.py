@@ -18,6 +18,7 @@ from .const import (CONF_BASE_ADDR, CONF_HOST, CONF_NAME, CONF_PORT,
                     CONF_SCAN_INTERVAL, CONF_SLAVE_ID, DOMAIN, PLATFORMS,
                     STARTUP_MESSAGE)
 
+SCAN_INTERVAL = timedelta(seconds=30)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -47,13 +48,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     await coordinator.async_config_entry_first_refresh()
 
-    # for platform in PLATFORMS:
-    #     if entry.options.get(platform, True):
-    #         coordinator.platforms.append(platform)
-    #         hass.async_add_job(
-    #             hass.config_entries.async_forward_entry_setup(entry, platform)
-    #         )
-
     return True
 
 
@@ -65,7 +59,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             *[
                 hass.config_entries.async_forward_entry_unload(entry, platform)
                 for platform in PLATFORMS
-                if platform in coordinator.platforms
             ]
         )
     )
@@ -73,7 +66,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator = hass.data[DOMAIN].pop(entry.entry_id)
         coordinator.unsub()
 
-    return unloaded
+    return True  # unloaded
 
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -85,20 +78,23 @@ async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
 class HubDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
 
-    def __init__(
-        self,
-        hass: HomeAssistant,
-        hub: ABBPowerOnePVISunSpecHub,
-        entry: ConfigEntry
-    ) -> None:
+    def __init__(self, hass: HomeAssistant, hub: ABBPowerOnePVISunSpecHub, entry: ConfigEntry) -> None:
         """Initialize."""
         self.api = hub
+        self.entities_added = False
         self.hass = hass
         self.entry = entry
-        self.platforms = []
-        scan_interval = timedelta(seconds=entry.data.get(CONF_SCAN_INTERVAL))
+
         _LOGGER.debug("Data: %s", entry.data)
         _LOGGER.debug("Options: %s", entry.options)
+
+        scan_interval = timedelta(
+            seconds=entry.options.get(
+                CONF_SCAN_INTERVAL,
+                entry.data.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL.total_seconds()),
+            )
+        )
+
         self.unsub = entry.add_update_listener(async_reload_entry)
         _LOGGER.debug(
             "Setup entry with scan interval %s. Host: %s Port: %s ID: %s",
@@ -111,9 +107,23 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         """Update data via library."""
+        _LOGGER.debug("ABB SunSpec Update data coordinator update")
+        data = False
         try:
-            return await self.api.async_get_data()
+            data = await self.api.async_get_data()
+            self.api.close()
+            if not self.entities_added:
+                for platform in PLATFORMS:
+                    self.hass.async_add_job(
+                        self.hass.config_entries.async_forward_entry_setup(
+                            self.entry, platform
+                        )
+                    )
+                self.entities_added = True
+            return data
         except Exception as exception:
+            _LOGGER.warning(exception)
+            self.api.connect()
             raise UpdateFailed() from exception
 
 

@@ -154,7 +154,6 @@ class ABBPowerOnePVISunSpecHub:
             raise ModbusError() from modbus_error
 
 
-
     def read_sunspec_modbus_model_1(self):
         """Read SunSpec Model 1 Data"""
         # A single register is 2 bytes. Max number of registers in one read for Modbus/TCP is 123

@@ -9,8 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import Config, HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.update_coordinator import (DataUpdateCoordinator,
-                                                      UpdateFailed)
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from pymodbus.exceptions import ConnectionException
 
 from .api import ABBPowerOnePVISunSpecHub
@@ -89,7 +88,6 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         _LOGGER.debug("Data: %s", entry.data)
         _LOGGER.debug("Options: %s", entry.options)
 
-        # scan_interval = timedelta(seconds=entry.data.get(CONF_SCAN_INTERVAL))
         scan_interval = timedelta(
             seconds=entry.options.get(
                 CONF_SCAN_INTERVAL,

@@ -53,7 +53,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Handle removal of an entry"""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+
+    _LOGGER.debug("Unload entry")
     unloaded = all(
         await asyncio.gather(
             *[
@@ -112,7 +113,6 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         data = False
         try:
             data = await self.api.async_get_data()
-            # self.api.close()
             if not self.entities_added:
                 for platform in PLATFORMS:
                     self.hass.async_add_job(

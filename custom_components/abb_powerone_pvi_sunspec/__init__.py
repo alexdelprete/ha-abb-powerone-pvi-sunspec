@@ -97,7 +97,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
             )
         )
 
-        self.unsub = entry.add_update_listener(async_unload_entry)
+        self.unsub = entry.add_update_listener(async_reload_entry)
         _LOGGER.debug(
             "Setup entry with scan interval %s. Host: %s Port: %s ID: %s",
             scan_interval,

@@ -18,7 +18,6 @@ from .const import (CONF_BASE_ADDR, CONF_HOST, CONF_NAME, CONF_PORT,
                     CONF_SCAN_INTERVAL, CONF_SLAVE_ID, DOMAIN, PLATFORMS,
                     STARTUP_MESSAGE)
 
-SCAN_INTERVAL = timedelta(seconds=30)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -88,18 +87,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         _LOGGER.debug("Data: %s", entry.data)
         _LOGGER.debug("Options: %s", entry.options)
 
-        # scan_interval = timedelta(
-        #     seconds=entry.options.get(
-        #         CONF_SCAN_INTERVAL,
-        #         entry.data.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL.total_seconds()),
-        #     )
-        # )
-        scan_interval = timedelta(
-            seconds=entry.data.get(
-                CONF_SCAN_INTERVAL,
-                SCAN_INTERVAL.total_seconds()
-            )
-        )
+        scan_interval = timedelta(seconds=entry.data.get(CONF_SCAN_INTERVAL))
 
         self.unsub = entry.add_update_listener(async_reload_entry)
         _LOGGER.debug(

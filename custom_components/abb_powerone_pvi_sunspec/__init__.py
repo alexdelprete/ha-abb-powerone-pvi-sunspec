@@ -95,7 +95,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         #     )
         # )
         scan_interval = timedelta(
-            seconds=entry.options.get(
+            seconds=entry.data.get(
                 CONF_SCAN_INTERVAL,
                 SCAN_INTERVAL.total_seconds()
             )

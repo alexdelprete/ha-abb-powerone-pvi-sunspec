@@ -112,7 +112,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         data = False
         try:
             data = await self.api.async_get_data()
-            self.api.close()
+            # self.api.close()
             if not self.entities_added:
                 for platform in PLATFORMS:
                     self.hass.async_add_job(

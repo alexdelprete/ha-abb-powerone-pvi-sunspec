@@ -67,7 +67,7 @@ class ABBPowerOnePVISunSpecHub:
     def connect(self):
         """Connect client"""
         _LOGGER.debug(
-            f"Hub connect to IP {self._host} port {self._port} slave id {self._slave_id} using timeout {TIMEOUT}"
+            f"Hub connect to IP {self._host} port {self._port} slave id {self._slave_id}"
         )
         try:
             self._client.connect()

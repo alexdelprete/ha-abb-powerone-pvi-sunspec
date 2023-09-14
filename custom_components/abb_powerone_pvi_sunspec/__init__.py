@@ -87,7 +87,13 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         _LOGGER.debug("Data: %s", entry.data)
         _LOGGER.debug("Options: %s", entry.options)
 
-        scan_interval = timedelta(seconds=entry.data.get(CONF_SCAN_INTERVAL))
+        # scan_interval = timedelta(seconds=entry.data.get(CONF_SCAN_INTERVAL))
+        scan_interval = timedelta(
+            seconds=entry.options.get(
+                CONF_SCAN_INTERVAL,
+                entry.data.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL.total_seconds()),
+            )
+        )
 
         self.unsub = entry.add_update_listener(async_reload_entry)
         _LOGGER.debug(

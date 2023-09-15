@@ -1,6 +1,6 @@
 """Hub Implementation"""
 
-import logging
+import logging, socket
 from datetime import timedelta
 from typing import Optional
 
@@ -56,6 +56,16 @@ class ABBPowerOnePVISunSpecHub:
         """Return the name of this hub"""
         return self._name
 
+    def is_vsn_alive(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result = sock.connect_ex((self._host,int(self._port)))
+        sock.close()
+        if result == 0:
+            return True
+        else:
+            return False
+
 
     def close(self):
         """Disconnect client"""
@@ -76,20 +86,27 @@ class ABBPowerOnePVISunSpecHub:
         _LOGGER.debug(
             f"Hub connect to IP {self._host} port {self._port} slave id {self._slave_id}"
         )
-        try:
-            self._client.connect()
-            if not self._client.connected:
+        if self.is_vsn_alive():
+            _LOGGER.debug("Inverter is active")
+            try:
+                self._client.connect()
+                if not self._client.connected:
+                    raise ConnectionError(
+                        f"Failed to connect to {self._host}:{self._port} slave id {self._slave_id}"
+                    )
+                else:
+                    _LOGGER.debug("Modbus Client connected")
+                    return True
+            except ModbusException:
                 raise ConnectionError(
                     f"Failed to connect to {self._host}:{self._port} slave id {self._slave_id}"
                 )
-            else:
-                _LOGGER.debug("Modbus Client connected")
-                return True
-        except ModbusException:
+        else:
+            _LOGGER.debug("Inverter is not active")
             raise ConnectionError(
-                f"Failed to connect to {self._host}:{self._port} slave id {self._slave_id}"
+                f"Inverter not active {self._host}:{self._port}"
             )
-
+            
 
     def read_holding_registers(self, slave, address, count):
         """Read holding registers"""

@@ -28,6 +28,7 @@ def check_port(host_or_ip: str, port: int) -> bool:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.settimeout(1)
             if sock.connect_ex((host_or_ip, port)) == 0:
+                sock.close()
                 return True
         return False
     except (OSError, ValueError):

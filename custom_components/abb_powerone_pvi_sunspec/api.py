@@ -26,7 +26,7 @@ class ModbusError(Exception):
 def check_port(host_or_ip: str, port: int) -> bool:
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.settimeout(1)
+            sock.settimeout(3)
             if sock.connect_ex((host_or_ip, port)) == 0:
                 sock.close()
                 return True
@@ -71,11 +71,11 @@ class ABBPowerOnePVISunSpecHub:
         """Disconnect client"""
         try:
             if self._client.is_socket_open():
-                _LOGGER.debug("Closing socket")
+                _LOGGER.debug("Closing Modbus TCP connection")
                 self._client.close()
                 return True
             else:
-                _LOGGER.debug("Socket already closed")
+                _LOGGER.debug("Modbus TCP connection already closed")
         except ConnectionException as connect_error:
             _LOGGER.debug(f"Close Connection connect_error: {connect_error}")
             raise ConnectionError() from connect_error

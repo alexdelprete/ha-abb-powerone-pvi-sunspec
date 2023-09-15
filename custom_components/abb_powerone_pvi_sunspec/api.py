@@ -60,7 +60,7 @@ class ABBPowerOnePVISunSpecHub:
             self._client.close()
             return True
         except ConnectionException as connect_error:
-            _LOGGER.warning(f"Close Connection connect_error: {connect_error}")
+            _LOGGER.debug(f"Close Connection connect_error: {connect_error}")
             raise ConnectionError() from connect_error
 
 
@@ -85,11 +85,11 @@ class ABBPowerOnePVISunSpecHub:
         try:
             res = self._client.read_holding_registers(address, count, **kwargs)
             return res
-        # except ConnectionException as connect_error:
-        #     _LOGGER.warning(f"Read Holding Registers connect_error: {connect_error}")
-        #     raise ConnectionError() from connect_error
+        except ConnectionException as connect_error:
+            _LOGGER.debug(f"Read Holding Registers connect_error: {connect_error}")
+            raise ConnectionError() from connect_error
         except ModbusException as modbus_error:
-            _LOGGER.warning(f"Read Holding Registers modbus_error: {modbus_error}")
+            _LOGGER.debug(f"Read Holding Registers modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
 
 
@@ -146,11 +146,11 @@ class ABBPowerOnePVISunSpecHub:
             self.close()
             _LOGGER.debug("End Get data")
             return True
-        # except ConnectionException as connect_error:
-        #     _LOGGER.warning(f"Async Get Data connect_error: {connect_error}")
-        #     raise ConnectionError() from connect_error
+        except ConnectionException as connect_error:
+            _LOGGER.debug(f"Async Get Data connect_error: {connect_error}")
+            raise ConnectionError() from connect_error
         except ModbusException as modbus_error:
-            _LOGGER.warning(f"Async Get Data modbus_error: {modbus_error}")
+            _LOGGER.debug(f"Async Get Data modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
 
 
@@ -168,7 +168,7 @@ class ABBPowerOnePVISunSpecHub:
             _LOGGER.debug("(read_rt_1) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_1) Base Address: %s", self._base_addr)
         except ModbusException as modbus_error:
-            _LOGGER.warning(f"Read M1 modbus_error: {modbus_error}")
+            _LOGGER.debug(f"Read M1 modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
 
         # No connection errors, we can start scraping registers
@@ -230,7 +230,7 @@ class ABBPowerOnePVISunSpecHub:
             _LOGGER.debug("(read_rt_101_103) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_101_103) Base Address: %s", self._base_addr)
         except ModbusException as modbus_error:
-            _LOGGER.warning(f"Read M101/M103 modbus_error: {modbus_error}")
+            _LOGGER.debug(f"Read M101/M103 modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
 
         # No connection errors, we can start scraping registers
@@ -404,7 +404,7 @@ class ABBPowerOnePVISunSpecHub:
             _LOGGER.debug("(read_rt_160) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_160) Base Address: %s", self._base_addr)
         except ModbusException as modbus_error:
-            _LOGGER.warning(f"Read M160 modbus_error: {modbus_error}")
+            _LOGGER.debug(f"Read M160 modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
 
         # No connection errors, we can start scraping registers

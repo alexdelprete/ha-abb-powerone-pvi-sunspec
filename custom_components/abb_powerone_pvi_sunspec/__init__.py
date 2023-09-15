@@ -121,7 +121,6 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
                 self.entities_added = True
             return data
         except Exception as exception:
-            _LOGGER.warning(exception)
             self.api.connect()
             raise UpdateFailed() from exception
 

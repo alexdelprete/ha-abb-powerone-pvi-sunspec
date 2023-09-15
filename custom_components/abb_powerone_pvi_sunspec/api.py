@@ -9,15 +9,12 @@ from pymodbus.client import ModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException, ModbusException
 from pymodbus.payload import BinaryPayloadDecoder
-from pymodbus import pymodbus_apply_logging_config
 
 from .const import (DEVICE_GLOBAL_STATUS, DEVICE_MODEL, DEVICE_STATUS,
                     INVERTER_TYPE)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
-# set pymodbus loglevel
-pymodbus_apply_logging_config(0)
 
 class ConnectionError(Exception):
     pass
@@ -29,6 +26,7 @@ class ModbusError(Exception):
 def check_port(host_or_ip: str, port: int) -> bool:
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.settimeout(1)
             if sock.connect_ex((host_or_ip, port)) == 0:
                 return True
         return False

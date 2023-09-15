@@ -4,17 +4,20 @@ import logging
 from datetime import timedelta
 from typing import Optional
 
-from homeassistant.core import callback
+#from homeassistant.core import callback
 from pymodbus.client import ModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException, ModbusException
 from pymodbus.payload import BinaryPayloadDecoder
-from pymodbus.pdu import ExceptionResponse
+from pymodbus import pymodbus_apply_logging_config
 
 from .const import (DEVICE_GLOBAL_STATUS, DEVICE_MODEL, DEVICE_STATUS,
                     INVERTER_TYPE)
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+
+# set pymodbus loglevel
+pymodbus_apply_logging_config("INFO")
 
 class ConnectionError(Exception):
     pass
@@ -57,8 +60,12 @@ class ABBPowerOnePVISunSpecHub:
     def close(self):
         """Disconnect client"""
         try:
-            self._client.close()
-            return True
+            if self._client.is_socket_open():
+                _LOGGER.debug("Closing socket")
+                self._client.close()
+                return True
+            else:
+                _LOGGER.debug("Socket already closed")
         except ConnectionException as connect_error:
             _LOGGER.debug(f"Close Connection connect_error: {connect_error}")
             raise ConnectionError() from connect_error
@@ -71,9 +78,14 @@ class ABBPowerOnePVISunSpecHub:
         )
         try:
             self._client.connect()
-            _LOGGER.debug("Client connected, perform initial scan")
-            return True
-        except ConnectionException:
+            if not self._client.connected:
+                raise ConnectionError(
+                    f"Failed to connect to {self._host}:{self._port} slave id {self._slave_id}"
+                )
+            else:
+                _LOGGER.debug("Modbus Client connected")
+                return True
+        except ModbusException:
             raise ConnectionError(
                 f"Failed to connect to {self._host}:{self._port} slave id {self._slave_id}"
             )
@@ -138,14 +150,17 @@ class ABBPowerOnePVISunSpecHub:
     async def async_get_data(self):
         """Main Read Function"""
         try:
-            _LOGGER.debug("Start Get data (Slave ID: %s - Base Address: %s)", self._slave_id, self._base_addr)
-            self.connect()
-            self.read_sunspec_modbus_model_1()
-            self.read_sunspec_modbus_model_101_103()
-            self.read_sunspec_modbus_model_160()
-            self.close()
-            _LOGGER.debug("End Get data")
-            return True
+            if self.connect():
+                _LOGGER.debug("Start Get data (Slave ID: %s - Base Address: %s)", self._slave_id, self._base_addr)
+                self.read_sunspec_modbus_model_1()
+                self.read_sunspec_modbus_model_101_103()
+                self.read_sunspec_modbus_model_160()
+                self.close()
+                _LOGGER.debug("End Get data")
+                return True
+            else:
+                _LOGGER.debug("Get Data failed: client not connected")
+                return False
         except ConnectionException as connect_error:
             _LOGGER.debug(f"Async Get Data connect_error: {connect_error}")
             raise ConnectionError() from connect_error

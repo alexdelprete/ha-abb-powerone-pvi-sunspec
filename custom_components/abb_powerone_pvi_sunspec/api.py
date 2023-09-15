@@ -17,7 +17,7 @@ from .const import (DEVICE_GLOBAL_STATUS, DEVICE_MODEL, DEVICE_STATUS,
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 # set pymodbus loglevel
-pymodbus_apply_logging_config("INFO")
+pymodbus_apply_logging_config(0)
 
 class ConnectionError(Exception):
     pass

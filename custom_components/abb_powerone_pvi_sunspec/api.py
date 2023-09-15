@@ -85,9 +85,9 @@ class ABBPowerOnePVISunSpecHub:
         try:
             res = self._client.read_holding_registers(address, count, **kwargs)
             return res
-        except ConnectionException as connect_error:
-            _LOGGER.warning(f"Read Holding Registers connect_error: {connect_error}")
-            raise ConnectionError() from connect_error
+        # except ConnectionException as connect_error:
+        #     _LOGGER.warning(f"Read Holding Registers connect_error: {connect_error}")
+        #     raise ConnectionError() from connect_error
         except ModbusException as modbus_error:
             _LOGGER.warning(f"Read Holding Registers modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
@@ -146,9 +146,9 @@ class ABBPowerOnePVISunSpecHub:
             self.close()
             _LOGGER.debug("End Get data")
             return True
-        except ConnectionException as connect_error:
-            _LOGGER.warning(f"Async Get Data connect_error: {connect_error}")
-            raise ConnectionError() from connect_error
+        # except ConnectionException as connect_error:
+        #     _LOGGER.warning(f"Async Get Data connect_error: {connect_error}")
+        #     raise ConnectionError() from connect_error
         except ModbusException as modbus_error:
             _LOGGER.warning(f"Async Get Data modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error

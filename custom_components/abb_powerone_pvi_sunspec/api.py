@@ -25,6 +25,17 @@ class ConnectionError(Exception):
 class ModbusError(Exception):
     pass
 
+
+def check_port(host_or_ip: str, port: int) -> bool:
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            if sock.connect_ex((host_or_ip, port)) == 0:
+                return True
+        return False
+    except (OSError, ValueError):
+        return False
+
+
 class ABBPowerOnePVISunSpecHub:
     """Thread safe wrapper class for pymodbus"""
 
@@ -56,16 +67,6 @@ class ABBPowerOnePVISunSpecHub:
         """Return the name of this hub"""
         return self._name
 
-    def is_vsn_alive(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1)
-        result = sock.connect_ex((self._host,int(self._port)))
-        sock.close()
-        if result == 0:
-            return True
-        else:
-            return False
-
 
     def close(self):
         """Disconnect client"""
@@ -86,8 +87,8 @@ class ABBPowerOnePVISunSpecHub:
         _LOGGER.debug(
             f"Hub connect to IP {self._host} port {self._port} slave id {self._slave_id}"
         )
-        if self.is_vsn_alive():
-            _LOGGER.debug("Inverter is active")
+        if check_port(self._host, self._port):
+            _LOGGER.debug("Inverter ready for Modbus TCP connection")
             try:
                 self._client.connect()
                 if not self._client.connected:
@@ -95,18 +96,18 @@ class ABBPowerOnePVISunSpecHub:
                         f"Failed to connect to {self._host}:{self._port} slave id {self._slave_id}"
                     )
                 else:
-                    _LOGGER.debug("Modbus Client connected")
+                    _LOGGER.debug("Modbus TCP Client connected")
                     return True
             except ModbusException:
                 raise ConnectionError(
                     f"Failed to connect to {self._host}:{self._port} slave id {self._slave_id}"
                 )
         else:
-            _LOGGER.debug("Inverter is not active")
+            _LOGGER.debug("Inverter not ready for Modbus TCP connection")
             raise ConnectionError(
                 f"Inverter not active {self._host}:{self._port}"
             )
-            
+
 
     def read_holding_registers(self, slave, address, count):
         """Read holding registers"""

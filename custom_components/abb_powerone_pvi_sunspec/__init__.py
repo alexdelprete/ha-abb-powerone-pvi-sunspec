@@ -7,10 +7,8 @@ from datetime import timedelta
 import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import Config, HomeAssistant
-#from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-#from pymodbus.exceptions import ConnectionException
 
 from .api import ABBPowerOnePVISunSpecHub
 from .const import (CONF_BASE_ADDR, CONF_HOST, CONF_NAME, CONF_PORT,
@@ -45,6 +43,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     coordinator = HubDataUpdateCoordinator(hass, hub=hub, entry=entry)
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
+    # If the refresh fails, async_config_entry_first_refresh() will
+    # raise ConfigEntryNotReady and setup will try again later
     await coordinator.async_config_entry_first_refresh()
 
     return True

@@ -46,6 +46,7 @@ class ABBPowerOnePVISunSpecHub:
         port,
         slave_id,
         base_addr,
+        scan_interval,
     ):
         """Initialize the Modbus hub"""
         self._hass = hass
@@ -54,7 +55,8 @@ class ABBPowerOnePVISunSpecHub:
         self._port = port
         self._slave_id = slave_id
         self._base_addr = base_addr
-        self._client = ModbusTcpClient(host=self._host, port=self._port)
+        self._scan_interval = scan_interval
+        self._client = ModbusTcpClient(host=self._host, port=self._port, timeout=(self._scan_interval - 1))
         self._sensors = []
         self.data = {}
         # Initialize ModBus data structure before first read

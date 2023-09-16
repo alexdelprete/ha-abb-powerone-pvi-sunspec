@@ -36,8 +36,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     port = entry.data.get(CONF_PORT)
     slave_id = entry.data.get(CONF_SLAVE_ID)
     base_addr = entry.data.get(CONF_BASE_ADDR)
-
-    hub = ABBPowerOnePVISunSpecHub(hass, name, host, port, slave_id, base_addr)
+    scan_interval = entry.data.get(CONF_SCAN_INTERVAL)
+    
+    hub = ABBPowerOnePVISunSpecHub(hass, name, host, port, slave_id, base_addr, scan_interval)
 
     _LOGGER.debug("Setup config entry for ABB")
     coordinator = HubDataUpdateCoordinator(hass, hub=hub, entry=entry)

@@ -60,7 +60,7 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         _LOGGER.debug(f"Test connection to {host}:{port} slave id {slave_id}")
         try:
             _LOGGER.debug(f"Creating Hub")
-            self.hub = ABBPowerOnePVISunSpecHub(self.hass, name, host, port, slave_id, base_addr)
+            self.hub = ABBPowerOnePVISunSpecHub(self.hass, name, host, port, slave_id, base_addr, scan_interval)
             _LOGGER.debug(f"Hub created: calling get data")
             self.hub_data = await self.hub.async_get_data()
             _LOGGER.debug(f"After Hub, get data")

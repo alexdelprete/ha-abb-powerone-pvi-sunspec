@@ -37,7 +37,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     slave_id = entry.data.get(CONF_SLAVE_ID)
     base_addr = entry.data.get(CONF_BASE_ADDR)
     scan_interval = entry.data.get(CONF_SCAN_INTERVAL)
-    
+
     hub = ABBPowerOnePVISunSpecHub(hass, name, host, port, slave_id, base_addr, scan_interval)
 
     _LOGGER.debug("Setup config entry for ABB")
@@ -63,11 +63,14 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             ]
         )
     )
-    if unloaded:
+    if not unloaded:
+        _LOGGER.debug("Unload entry failed")
+        return False  # unload failed
+    else:
+        _LOGGER.debug("Unload entry ok")
         coordinator = hass.data[DOMAIN].pop(entry.entry_id)
         coordinator.unsub()
-
-    return True  # unloaded
+        return True   # unloaded
 
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -122,7 +125,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
                 self.entities_added = True
             return data
         except Exception as exception:
-            # self.api.connect()
+            _LOGGER.debug(f"Async Update Data error: {exception}")
             raise UpdateFailed() from exception
 
 

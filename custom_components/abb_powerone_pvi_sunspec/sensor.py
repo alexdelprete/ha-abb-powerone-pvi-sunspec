@@ -19,7 +19,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     coordinator = hass.data[DOMAIN][entry.entry_id]
     hub = coordinator.api
     sensors = []
-    await coordinator.api.async_get_data()
     _LOGGER.debug("(sensor) Name: %s", entry.data.get(CONF_NAME))
     _LOGGER.debug("(sensor) Manufacturer: %s", hub.data["comm_manufact"])
     _LOGGER.debug("(sensor) Model: %s", hub.data["comm_model"])

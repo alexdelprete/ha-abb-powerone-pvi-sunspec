@@ -9,5 +9,5 @@
   "issue_tracker": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues",
   "loggers": ["custom_components.abb_powerone_pvi_sunspec"],
   "requirements": ["pymodbus>=3.5.2"],
-  "version": "3.1.0"
+  "version": "3.1.3"
 }

@@ -1,6 +1,6 @@
 """Hub Implementation"""
 
-import logging, socket
+import threading, logging, socket
 from datetime import timedelta
 from typing import Optional
 
@@ -21,18 +21,6 @@ class ConnectionError(Exception):
 
 class ModbusError(Exception):
     pass
-
-
-def check_port(host_or_ip: str, port: int) -> bool:
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.settimeout(3)
-            if sock.connect_ex((host_or_ip, port)) == 0:
-                sock.close()
-                return True
-        return False
-    except (OSError, ValueError):
-        return False
 
 
 class ABBPowerOnePVISunSpecHub:
@@ -56,7 +44,10 @@ class ABBPowerOnePVISunSpecHub:
         self._slave_id = slave_id
         self._base_addr = base_addr
         self._scan_interval = scan_interval
-        self._client = ModbusTcpClient(host=self._host, port=self._port, timeout=(self._scan_interval - 1))
+        # Min. scan_interval is 30s, ensure min. timeout is 29s
+        self._timeout = max(29, (scan_interval - 1))
+        self._client = ModbusTcpClient(host=self._host, port=self._port, timeout=self._timeout)
+        self._lock = threading.Lock()
         self._sensors = []
         self.data = {}
         # Initialize ModBus data structure before first read
@@ -69,13 +60,33 @@ class ABBPowerOnePVISunSpecHub:
         return self._name
 
 
+    def check_port(self) -> bool:
+        timeout = 5
+        try:
+            with self._lock:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                    sock.settimeout(timeout)
+                    res = sock.connect_ex((self._host, self._port))
+            if res == 0:
+                sock.close()
+                _LOGGER.debug(f"Check_Port (SUCCESS): opened socket on ip:port {self._host}:{self._port} within a {timeout} seconds timeout.")
+                return True
+            else:
+                _LOGGER.debug(f"Check_Port (ERROR): couldn't open a socket on ip:port {self._host}:{self._port} for {timeout} seconds.")
+                return False
+        except (OSError, ValueError):
+            _LOGGER.debug(f"Check_Port (ERROR): Could not open a socket on ip:port {self._host}:{self._port} for {timeout} seconds.")
+            return False
+
+
     def close(self):
         """Disconnect client"""
         try:
             if self._client.is_socket_open():
                 _LOGGER.debug("Closing Modbus TCP connection")
-                self._client.close()
-                return True
+                with self._lock:
+                    self._client.close()
+                    return True
             else:
                 _LOGGER.debug("Modbus TCP connection already closed")
         except ConnectionException as connect_error:
@@ -86,27 +97,28 @@ class ABBPowerOnePVISunSpecHub:
     def connect(self):
         """Connect client"""
         _LOGGER.debug(
-            f"Hub connect to IP {self._host} port {self._port} slave id {self._slave_id}"
+            f"Hub connect to IP: {self._host} port: {self._port} slave id: {self._slave_id} timeout: {self._timeout}"
         )
-        if check_port(self._host, self._port):
+        if self.check_port():
             _LOGGER.debug("Inverter ready for Modbus TCP connection")
             try:
-                self._client.connect()
+                with self._lock:
+                    self._client.connect()
                 if not self._client.connected:
                     raise ConnectionError(
-                        f"Failed to connect to {self._host}:{self._port} slave id {self._slave_id}"
+                        f"Failed to connect to {self._host}:{self._port} slave id {self._slave_id} timeout: {self._timeout}"
                     )
                 else:
                     _LOGGER.debug("Modbus TCP Client connected")
                     return True
             except ModbusException:
                 raise ConnectionError(
-                    f"Failed to connect to {self._host}:{self._port} slave id {self._slave_id}"
+                    f"Failed to connect to {self._host}:{self._port} slave id {self._slave_id} timeout: {self._timeout}"
                 )
         else:
             _LOGGER.debug("Inverter not ready for Modbus TCP connection")
             raise ConnectionError(
-                f"Inverter not active {self._host}:{self._port}"
+                f"Inverter not active on {self._host}:{self._port}"
             )
 
 
@@ -114,8 +126,8 @@ class ABBPowerOnePVISunSpecHub:
         """Read holding registers"""
         kwargs = {"slave": slave} if slave else {}
         try:
-            res = self._client.read_holding_registers(address, count, **kwargs)
-            return res
+            with self._lock:
+                return self._client.read_holding_registers(address, count, **kwargs)
         except ConnectionException as connect_error:
             _LOGGER.debug(f"Read Holding Registers connect_error: {connect_error}")
             raise ConnectionError() from connect_error

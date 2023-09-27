@@ -61,22 +61,23 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def check_port(self) -> bool:
-        timeout = 5
-        try:
-            with self._lock:
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                    sock.settimeout(timeout)
-                    res = sock.connect_ex((self._host, self._port))
-            if res == 0:
-                sock.close()
-                _LOGGER.debug(f"Check_Port (SUCCESS): opened socket on ip:port {self._host}:{self._port} within a {timeout} seconds timeout.")
-                return True
+        """Check if port is available"""
+        sock_timeout = 5.0
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(sock_timeout)
+        with self._lock:
+            try:
+                _LOGGER.debug(f"Check_Port: opening socket on {self._host}:{self._port} with a {sock_timeout}s timeout.")
+                is_open = sock.connect_ex((self._host, self._port)) == 0  # True if open, False if not
+            except Exception:
+                is_open = False
+            if is_open:
+                sock.shutdown(socket.SHUT_RDWR)
+                _LOGGER.debug(f"Check_Port (SUCCESS): opened socket on {self._host}:{self._port} within {sock_timeout}s")
             else:
-                _LOGGER.debug(f"Check_Port (ERROR): couldn't open a socket on ip:port {self._host}:{self._port} for {timeout} seconds.")
-                return False
-        except (OSError, ValueError):
-            _LOGGER.debug(f"Check_Port (ERROR): Could not open a socket on ip:port {self._host}:{self._port} for {timeout} seconds.")
-            return False
+                _LOGGER.debug(f"Check_Port (ERROR): couldn't open a socket on {self._host}:{self._port} within {sock_timeout}s")
+            sock.close()
+        return is_open
 
 
     def close(self):

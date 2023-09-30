@@ -62,7 +62,7 @@ class ABBPowerOnePVISunSpecHub:
     def check_port(self) -> bool:
         """Check if port is available"""
         with self._lock:
-            sock_timeout = float(5)
+            sock_timeout = float(3)
             _LOGGER.debug(f"Check_Port: opening socket on {self._host}:{self._port} with a {sock_timeout}s timeout.")
             socket.setdefaulttimeout(sock_timeout)
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -72,7 +72,7 @@ class ABBPowerOnePVISunSpecHub:
                 sock.shutdown(socket.SHUT_RDWR)
                 _LOGGER.debug(f"Check_Port (SUCCESS): port open on {self._host}:{self._port}")
             else:
-                _LOGGER.debug(f"Check_Port (ERROR): port not available on {self._host}:{self._port} - timeout: {sock_timeout}s - error: {sock_res}")
+                _LOGGER.debug(f"Check_Port (ERROR): port not available on {self._host}:{self._port} - error: {sock_res}")
             sock.close()
         return is_open
 

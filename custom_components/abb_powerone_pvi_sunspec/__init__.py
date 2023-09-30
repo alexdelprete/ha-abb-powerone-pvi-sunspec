@@ -4,11 +4,11 @@ import asyncio
 import logging
 from datetime import timedelta
 
-import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import Config, HomeAssistant
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import (DataUpdateCoordinator,
+                                                      UpdateFailed)
 
 from .api import ABBPowerOnePVISunSpecHub
 from .const import (CONF_BASE_ADDR, CONF_HOST, CONF_NAME, CONF_PORT,

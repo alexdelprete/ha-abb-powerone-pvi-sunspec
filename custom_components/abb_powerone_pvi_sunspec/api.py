@@ -1,10 +1,9 @@
 """Hub Implementation"""
 
-import threading, logging, socket
-from datetime import timedelta
-from typing import Optional
+import logging
+import socket
+import threading
 
-#from homeassistant.core import callback
 from pymodbus.client import ModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException, ModbusException

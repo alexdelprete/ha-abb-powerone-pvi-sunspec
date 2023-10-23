@@ -61,9 +61,6 @@ SENSOR_TYPES_SINGLE_PHASE = {
     "AC_Power": ["AC Power", "acpower", UnitOfPower.WATT, "mdi:solar-power", SensorDeviceClass.POWER, STATE_CLASS_MEASUREMENT],
     "AC_Frequency": ["AC Frequency", "acfreq", UnitOfFrequency.HERTZ, "mdi:sine-wave", None, STATE_CLASS_MEASUREMENT],
     "Total_Energy": ["Total Energy", "totalenergy", UnitOfEnergy.WATT_HOUR, "mdi:solar-power", SensorDeviceClass.ENERGY, STATE_CLASS_TOTAL_INCREASING],
-    "DC_Curr": ["DC Current", "dccurr", UnitOfElectricCurrent.AMPERE, "mdi:current-ac", SensorDeviceClass.CURRENT, STATE_CLASS_MEASUREMENT],
-    "DC_Volt": ["DC Voltage", "dcvolt", UnitOfElectricPotential.VOLT, "mdi:lightning-bolt", SensorDeviceClass.VOLTAGE, STATE_CLASS_MEASUREMENT],
-    "DC_Power": ["DC Power", "dcpower", UnitOfPower.WATT, "mdi:solar-power", SensorDeviceClass.POWER, STATE_CLASS_MEASUREMENT],
     "Status": ["Operating State", "status", None, "mdi:information-outline", None, None],
     "Status_Vendor": ["Vendor Operating State", "statusvendor", None, "mdi:information-outline", None, None],
     "Temp_Cab": ["Ambient Temperature", "tempcab", UnitOfTemperature.CELSIUS, "mdi:temperature-celsius", SensorDeviceClass.TEMPERATURE, STATE_CLASS_MEASUREMENT],
@@ -90,6 +87,20 @@ SENSOR_TYPES_THREE_PHASE = {
     "AC_Power": ["AC Power", "acpower", UnitOfPower.WATT, "mdi:solar-power", SensorDeviceClass.POWER, STATE_CLASS_MEASUREMENT],
     "AC_Frequency": ["AC Frequency", "acfreq", UnitOfFrequency.HERTZ, "mdi:sine-wave", None, STATE_CLASS_MEASUREMENT],
     "Total_Energy": ["Total Energy", "totalenergy", UnitOfEnergy.WATT_HOUR, "mdi:solar-power", SensorDeviceClass.ENERGY, STATE_CLASS_TOTAL_INCREASING],
+    "Status": ["Operating State", "status", None, "mdi:information-outline", None, None],
+    "Status_Vendor": ["Vendor Operating State", "statusvendor", None, "mdi:information-outline", None, None],
+    "Temp_Cab": ["Ambient Temperature", "tempcab", UnitOfTemperature.CELSIUS, "mdi:temperature-celsius", SensorDeviceClass.TEMPERATURE, STATE_CLASS_MEASUREMENT],
+    "Temp_Oth": ["Inverter Temperature", "tempoth", UnitOfTemperature.CELSIUS, "mdi:temperature-celsius", SensorDeviceClass.TEMPERATURE, STATE_CLASS_MEASUREMENT],
+}
+
+
+SENSOR_TYPES_SINGLE_MPPT = {
+    "DC_Curr": ["DC Current", "dccurr", UnitOfElectricCurrent.AMPERE, "mdi:current-ac", SensorDeviceClass.CURRENT, STATE_CLASS_MEASUREMENT],
+    "DC_Volt": ["DC Voltage", "dcvolt", UnitOfElectricPotential.VOLT, "mdi:lightning-bolt", SensorDeviceClass.VOLTAGE, STATE_CLASS_MEASUREMENT],
+    "DC_Power": ["DC Power", "dcpower", UnitOfPower.WATT, "mdi:solar-power", SensorDeviceClass.POWER, STATE_CLASS_MEASUREMENT],
+}
+
+SENSOR_TYPES_MULTIPLE_MPPT = {
     "DC_Power": ["DC Power", "dcpower", UnitOfPower.WATT, "mdi:solar-power", SensorDeviceClass.POWER, STATE_CLASS_MEASUREMENT],
     "DC1_Curr": ["DC1 Current", "dc1curr", UnitOfElectricCurrent.AMPERE, "mdi:current-ac", SensorDeviceClass.CURRENT, STATE_CLASS_MEASUREMENT],
     "DC1_Volt": ["DC1 Voltage", "dc1volt", UnitOfElectricPotential.VOLT, "mdi:lightning-bolt", SensorDeviceClass.VOLTAGE, STATE_CLASS_MEASUREMENT],
@@ -97,10 +108,6 @@ SENSOR_TYPES_THREE_PHASE = {
     "DC2_Curr": ["DC2 Current", "dc2curr", UnitOfElectricCurrent.AMPERE, "mdi:current-ac", SensorDeviceClass.CURRENT, STATE_CLASS_MEASUREMENT],
     "DC2_Volt": ["DC2 Voltage", "dc2volt", UnitOfElectricPotential.VOLT, "mdi:lightning-bolt", SensorDeviceClass.VOLTAGE, STATE_CLASS_MEASUREMENT],
     "DC2_Power": ["DC2 Power", "dc2power", UnitOfPower.WATT, "mdi:solar-power", SensorDeviceClass.POWER, STATE_CLASS_MEASUREMENT],
-    "Status": ["Operating State", "status", None, "mdi:information-outline", None, None],
-    "Status_Vendor": ["Vendor Operating State", "statusvendor", None, "mdi:information-outline", None, None],
-    "Temp_Cab": ["Ambient Temperature", "tempcab", UnitOfTemperature.CELSIUS, "mdi:temperature-celsius", SensorDeviceClass.TEMPERATURE, STATE_CLASS_MEASUREMENT],
-    "Temp_Oth": ["Inverter Temperature", "tempoth", UnitOfTemperature.CELSIUS, "mdi:temperature-celsius", SensorDeviceClass.TEMPERATURE, STATE_CLASS_MEASUREMENT],
 }
 
 INVERTER_TYPE = {

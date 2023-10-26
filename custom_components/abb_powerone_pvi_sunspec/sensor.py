@@ -8,9 +8,12 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
 
-from .const import (DOMAIN, INVERTER_TYPE, SENSOR_TYPES_SINGLE_PHASE,
+from .const import (DOMAIN, INVERTER_TYPE, 
+                    SENSOR_TYPES_COMMON,
+                    SENSOR_TYPES_SINGLE_PHASE,
                     SENSOR_TYPES_THREE_PHASE,
-                    SENSOR_TYPES_SINGLE_MPPT,SENSOR_TYPES_MULTIPLE_MPPT)
+                    SENSOR_TYPES_SINGLE_MPPT,
+                    SENSOR_TYPES_DUAL_MPPT)
 from .entity import ABBPowerOnePVISunSpecEntity
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -38,19 +41,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     _LOGGER.debug("(sensor) SW Version: %s", hub.data["comm_version"])
     _LOGGER.debug("(sensor) Inverter Type (str): %s", hub.data["invtype"])
     _LOGGER.debug("(sensor) Serial#: %s", hub.data["comm_sernum"])
+
+    add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_COMMON);
+
     if hub.data["invtype"] == INVERTER_TYPE[101]:
         add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_SINGLE_PHASE);
     elif hub.data["invtype"] == INVERTER_TYPE[103]:
         add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_THREE_PHASE)
-    async_add_devices(sensors)
+
     # TODO: check if this check is good for all devices
     # I dont know if all multi mppt will return 0 but on mine this worked fine
     _LOGGER.debug("(sensor) DC Voltages : mppt_nr=%d single=%d dc1=%d dc2=%d", hub.data["mppt_nr"], hub.data["dcvolt"], hub.data["dc1volt"], hub.data["dc2volt"])
     if hub.data["mppt_nr"] == 1:
         add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_SINGLE_MPPT)
     else:
-        add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_MULTIPLE_MPPT)
+        add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_DUAL_MPPT)
         
+    async_add_devices(sensors)
+
     return True
 
 

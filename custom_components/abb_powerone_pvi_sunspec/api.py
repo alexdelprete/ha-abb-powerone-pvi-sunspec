@@ -158,6 +158,7 @@ class ABBPowerOnePVISunSpecHub:
         self.data["comm_model"] = ""
         self.data["comm_version"] = ""
         self.data["comm_sernum"] = ""
+        self.data["mppt_nr"] = 1
         self.data["dccurr"] = 1
         self.data["dcvolt"] = 1
         self.data["dcpower"] = 1
@@ -472,6 +473,8 @@ class ABBPowerOnePVISunSpecHub:
 
         # register 130 (# of DC modules)
         multi_mppt_nr = decoder.decode_16bit_int()
+        self.data["mppt_nr"] = multi_mppt_nr
+        _LOGGER.debug("(read_rt_160) mppt_nr %d", multi_mppt_nr)
 
         if multi_mppt_id == 160:
 

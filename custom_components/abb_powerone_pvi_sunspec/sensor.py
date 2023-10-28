@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
 
-from .const import (DOMAIN, INVERTER_TYPE, 
+from .const import (DOMAIN, INVERTER_TYPE,
                     SENSOR_TYPES_COMMON,
                     SENSOR_TYPES_SINGLE_PHASE,
                     SENSOR_TYPES_THREE_PHASE,
@@ -27,7 +27,7 @@ def add_sensor_defs(coordinator, entry, sensors, definitions):
                 "icon": sensor_info[3],
                 "device_class": sensor_info[4],
                 "state_class": sensor_info[5],
-            }        
+            }
         sensors.append(ABBPowerOnePVISunSpecSensor(coordinator, entry, sensor_data))
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_devices):
@@ -40,6 +40,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     _LOGGER.debug("(sensor) Model: %s", hub.data["comm_model"])
     _LOGGER.debug("(sensor) SW Version: %s", hub.data["comm_version"])
     _LOGGER.debug("(sensor) Inverter Type (str): %s", hub.data["invtype"])
+    _LOGGER.debug("(sensor) MPPT #: %s", hub.data["mppt_nr"])
     _LOGGER.debug("(sensor) Serial#: %s", hub.data["comm_sernum"])
 
     add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_COMMON);
@@ -51,12 +52,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
 
     # TODO: check if this check is good for all devices
     # I dont know if all multi mppt will return 0 but on mine this worked fine
-    _LOGGER.debug("(sensor) DC Voltages : mppt_nr=%d single=%d dc1=%d dc2=%d", hub.data["mppt_nr"], hub.data["dcvolt"], hub.data["dc1volt"], hub.data["dc2volt"])
+    _LOGGER.debug("(sensor) DC Voltages : single=%d dc1=%d dc2=%d", hub.data["dcvolt"], hub.data["dc1volt"], hub.data["dc2volt"])
     if hub.data["mppt_nr"] == 1:
         add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_SINGLE_MPPT)
     else:
         add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_DUAL_MPPT)
-        
+
     async_add_devices(sensors)
 
     return True

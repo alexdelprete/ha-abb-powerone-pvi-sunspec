@@ -461,10 +461,11 @@ class ABBPowerOnePVISunSpecHub:
         multi_mppt_id = decoder.decode_16bit_int()
 
         # Model 160 has different offset for UNO-DM-PLUS and REACT2 inverters
+        # need to check and try the specific offset address (start address is 41104)
         if multi_mppt_id != 160:
             _LOGGER.debug("(read_rt_160) Model not 160 try another offset - multi_mppt_id: %d", multi_mppt_id)
             try:
-                # Model 160 start address is 41104 for UNO-DM-PLUS and REACT2
+                # try address 41104 for UNO-DM-PLUS and REACT2
                 read_model_160_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 1104), count=42)
                 _LOGGER.debug("(read_rt_160) Slave ID: %s", self._slave_id)
                 _LOGGER.debug("(read_rt_160) Base Address: %s", self._base_addr)
@@ -485,7 +486,7 @@ class ABBPowerOnePVISunSpecHub:
             else:
                 _LOGGER.debug("(read_rt_160) Model is 160 (UNO-DM/REACT2) - multi_mppt_id: %d", multi_mppt_id)
         else:
-            _LOGGER.debug("(read_rt_160) Model is 160 (UNO-DM/REACT2) - multi_mppt_id: %d", multi_mppt_id)
+            _LOGGER.debug("(read_rt_160) Model is 160 - multi_mppt_id: %d", multi_mppt_id)
 
         # skip register 123
         decoder.skip_bytes(2)

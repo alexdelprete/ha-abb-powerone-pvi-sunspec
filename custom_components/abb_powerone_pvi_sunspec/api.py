@@ -522,7 +522,9 @@ class ABBPowerOnePVISunSpecHub:
                 self.data["dc1volt"] = round(dc1volt, abs(dcvsf))
                 dc1power = self.calculate_value(dc1power, dcwsf)
                 self.data["dc1power"] = round(dc1power, abs(dcwsf))
-
+                _LOGGER.debug("(read_rt_160) dc1curr %d", self.data["dc1curr"])
+                _LOGGER.debug("(read_rt_160) dc1volt %d", self.data["dc1volt"])
+                _LOGGER.debug("(read_rt_160) dc1power %d", self.data["dc1power"])
             # if we have more than one DC module
             if multi_mppt_nr > 1:
 
@@ -539,6 +541,9 @@ class ABBPowerOnePVISunSpecHub:
                 self.data["dc2volt"] = round(dc2volt, abs(dcvsf))
                 dc2power = self.calculate_value(dc2power, dcwsf)
                 self.data["dc2power"] = round(dc2power, abs(dcwsf))
+                _LOGGER.debug("(read_rt_160) dc2curr %d", self.data["dc2curr"])
+                _LOGGER.debug("(read_rt_160) dc2volt %d", self.data["dc2volt"])
+                _LOGGER.debug("(read_rt_160) dc2power %d", self.data["dc2power"])
 
         _LOGGER.debug("(read_rt_160) Completed")
         return True

@@ -225,12 +225,13 @@ class ABBPowerOnePVISunSpecHub:
         comm_manufact = str.strip(decoder.decode_string(size=32).decode("ascii"))
         comm_model = str.strip(decoder.decode_string(size=32).decode("ascii"))
         comm_options = str.strip(decoder.decode_string(size=16).decode("ascii"))
-        _LOGGER.debug("(read_rt_1) Manufacturer: %s", comm_manufact)
-        _LOGGER.debug("(read_rt_1) Model: %s", comm_model)
-        _LOGGER.debug("(read_rt_1) Options: %s", comm_options)
         self.data["comm_manufact"] = comm_manufact.rstrip(' \t\r\n\0\u0000')
         self.data["comm_model"] = comm_model.rstrip(' \t\r\n\0\u0000')
         self.data["comm_options"] = comm_options.rstrip(' \t\r\n\0\u0000')
+        _LOGGER.debug("(read_rt_1) Manufacturer: %s", self.data["comm_manufact"])
+        _LOGGER.debug("(read_rt_1) Model: %s", self.data["comm_model"])
+        _LOGGER.debug("(read_rt_1) Options: %s", self.data["comm_options"])
+
         # Model based on options register, if unknown, raise an error to report it
         # First char is the model: if non-printable char, hex string of the char is provided
         # So we need to check if it's a char or an hex value string and convert both to a number
@@ -252,10 +253,10 @@ class ABBPowerOnePVISunSpecHub:
         # registers 44 to 67
         comm_version = str.strip(decoder.decode_string(size=16).decode("ascii"))
         comm_sernum = str.strip(decoder.decode_string(size=32).decode("ascii"))
-        _LOGGER.debug("(read_rt_1) Version: %s", comm_version)
-        _LOGGER.debug("(read_rt_1) Sernum: %s", comm_sernum)
         self.data["comm_version"] = comm_version.rstrip(' \t\r\n\0\u0000')
         self.data["comm_sernum"] = comm_sernum.rstrip(' \t\r\n\0\u0000')
+        _LOGGER.debug("(read_rt_1) Version: %s", self.data["comm_version"])
+        _LOGGER.debug("(read_rt_1) Sernum: %s", self.data["comm_sernum"])
 
         return True
 
@@ -300,7 +301,7 @@ class ABBPowerOnePVISunSpecHub:
         # registers 72 to 76
         accurrent = decoder.decode_16bit_uint()
 
-        if self.data["invtype"] == "Three Phase":
+        if invtype == 103:
             accurrenta = decoder.decode_16bit_uint()
             accurrentb = decoder.decode_16bit_uint()
             accurrentc = decoder.decode_16bit_uint()
@@ -311,7 +312,7 @@ class ABBPowerOnePVISunSpecHub:
         accurrent = self.calculate_value(accurrent, accurrentsf)
         self.data["accurrent"] = round(accurrent, abs(accurrentsf))
 
-        if self.data["invtype"] == "Three Phase":
+        if invtype == 103:
             accurrenta = self.calculate_value(accurrenta, accurrentsf)
             accurrentb = self.calculate_value(accurrentb, accurrentsf)
             accurrentc = self.calculate_value(accurrentc, accurrentsf)
@@ -320,7 +321,7 @@ class ABBPowerOnePVISunSpecHub:
             self.data["accurrentc"] = round(accurrentc, abs(accurrentsf))
 
         # registers 77 to 83
-        if self.data["invtype"] == "Three Phase":
+        if invtype == 103:
             acvoltageab = decoder.decode_16bit_uint()
             acvoltagebc = decoder.decode_16bit_uint()
             acvoltageca = decoder.decode_16bit_uint()
@@ -329,7 +330,7 @@ class ABBPowerOnePVISunSpecHub:
 
         acvoltagean = decoder.decode_16bit_uint()
 
-        if self.data["invtype"] == "Three Phase":
+        if invtype == 103:
             acvoltagebn = decoder.decode_16bit_uint()
             acvoltagecn = decoder.decode_16bit_uint()
         else:
@@ -340,7 +341,7 @@ class ABBPowerOnePVISunSpecHub:
         acvoltagean = self.calculate_value(acvoltagean, acvoltagesf)
         self.data["acvoltagean"] = round(acvoltagean, abs(acvoltagesf))
 
-        if self.data["invtype"] == "Three Phase":
+        if invtype == 103:
             acvoltageab = self.calculate_value(acvoltageab, acvoltagesf)
             acvoltagebc = self.calculate_value(acvoltagebc, acvoltagesf)
             acvoltageca = self.calculate_value(acvoltageca, acvoltagesf)

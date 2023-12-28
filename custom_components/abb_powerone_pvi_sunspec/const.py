@@ -86,7 +86,6 @@ SENSOR_TYPES_THREE_PHASE = {
     "AC_VoltageCN": ["AC Voltage CN", "acvoltagecn", UnitOfElectricPotential.VOLT, "mdi:lightning-bolt", SensorDeviceClass.VOLTAGE, STATE_CLASS_MEASUREMENT],
 }
 
-
 # Sensors for single mppt inverters
 SENSOR_TYPES_SINGLE_MPPT = {
     "DC_Curr": ["DC Current", "dccurr", UnitOfElectricCurrent.AMPERE, "mdi:current-ac", SensorDeviceClass.CURRENT, STATE_CLASS_MEASUREMENT],

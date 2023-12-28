@@ -390,6 +390,8 @@ class ABBPowerOnePVISunSpecHub:
             dcvolt = self.calculate_value(dcvolt, dcvoltsf)
             self.data["dccurr"] = round(dccurr, abs(dccurrsf))
             self.data["dcvolt"] = round(dcvolt, abs(dcvoltsf))
+            _LOGGER.debug("(read_rt_101_103) DC Current Value read: %s", self.data["dccurr"])
+            _LOGGER.debug("(read_rt_101_103) DC Voltage Value read: %s", self.data["dcvolt"])
         else:
             decoder.skip_bytes(8)
 
@@ -414,6 +416,7 @@ class ABBPowerOnePVISunSpecHub:
         tempoth = self.calculate_value(tempoth, tempsf)
         self.data["tempoth"] = round(tempoth, abs(tempsf))
         self.data["tempcab"] = round(tempcab, abs(tempsf))
+        _LOGGER.debug("(read_rt_101_103) Temp Oth Value read: %s", self.data["tempoth"])
         _LOGGER.debug("(read_rt_101_103) Temp Cab Value read: %s", self.data["tempcab"])
         # register 108
         status = decoder.decode_16bit_int()
@@ -428,7 +431,7 @@ class ABBPowerOnePVISunSpecHub:
         statusvendor = decoder.decode_16bit_int()
         # make sure the value is in the known status list
         if statusvendor not in DEVICE_GLOBAL_STATUS:
-            _LOGGER.debug("(init) Unknown Vendor Operating State: %s", statusvendor)
+            _LOGGER.debug("(read_rt_101_103) Unknown Vendor Operating State: %s", statusvendor)
             statusvendor = 999
         self.data["statusvendor"] = DEVICE_GLOBAL_STATUS[statusvendor]
         _LOGGER.debug("(read_rt_101_103) Status Vendor Value read: %s", self.data["statusvendor"])
@@ -505,46 +508,47 @@ class ABBPowerOnePVISunSpecHub:
         self.data["mppt_nr"] = multi_mppt_nr
         _LOGGER.debug("(read_rt_160) mppt_nr %d", multi_mppt_nr)
 
-        if multi_mppt_id == 160:
+        # if we have at least one DC module
+        if multi_mppt_nr >= 1:
 
-            # if we have at least one DC module
-            if multi_mppt_nr >= 1:
+            # skip register 131 to 140
+            decoder.skip_bytes(20)
 
-                # skip register 131 to 140
-                decoder.skip_bytes(20)
+            # registers 141 to 143
+            dc1curr = decoder.decode_16bit_uint()
+            dc1volt = decoder.decode_16bit_uint()
+            dc1power = decoder.decode_16bit_uint()
+            dc1curr = self.calculate_value(dc1curr, dcasf)
+            self.data["dc1curr"] = round(dc1curr, abs(dcasf))
+            dc1volt = self.calculate_value(dc1volt, dcvsf)
+            self.data["dc1volt"] = round(dc1volt, abs(dcvsf))
+            # this fixes dcvolt -0.0 for UNO-DM/REACT2 models
+            self.data["dcvolt"] = round(dc1volt, abs(dcvsf))
+            dc1power = self.calculate_value(dc1power, dcwsf)
+            self.data["dc1power"] = round(dc1power, abs(dcwsf))
+            _LOGGER.debug("(read_rt_160) dc1curr %d", self.data["dc1curr"])
+            _LOGGER.debug("(read_rt_160) dc1volt %d", self.data["dc1volt"])
+            _LOGGER.debug("(read_rt_160) dc1power %d", self.data["dc1power"])
 
-                # registers 141 to 143
-                dc1curr = decoder.decode_16bit_uint()
-                dc1volt = decoder.decode_16bit_uint()
-                dc1power = decoder.decode_16bit_uint()
-                dc1curr = self.calculate_value(dc1curr, dcasf)
-                self.data["dc1curr"] = round(dc1curr, abs(dcasf))
-                dc1volt = self.calculate_value(dc1volt, dcvsf)
-                self.data["dc1volt"] = round(dc1volt, abs(dcvsf))
-                dc1power = self.calculate_value(dc1power, dcwsf)
-                self.data["dc1power"] = round(dc1power, abs(dcwsf))
-                _LOGGER.debug("(read_rt_160) dc1curr %d", self.data["dc1curr"])
-                _LOGGER.debug("(read_rt_160) dc1volt %d", self.data["dc1volt"])
-                _LOGGER.debug("(read_rt_160) dc1power %d", self.data["dc1power"])
-            # if we have more than one DC module
-            if multi_mppt_nr > 1:
+        # if we have more than one DC module
+        if multi_mppt_nr > 1:
 
-                # skip register 144 to 160
-                decoder.skip_bytes(34)
+            # skip register 144 to 160
+            decoder.skip_bytes(34)
 
-                # registers 161 to 163
-                dc2curr = decoder.decode_16bit_uint()
-                dc2volt = decoder.decode_16bit_uint()
-                dc2power = decoder.decode_16bit_uint()
-                dc2curr = self.calculate_value(dc2curr, dcasf)
-                self.data["dc2curr"] = round(dc2curr, abs(dcasf))
-                dc2volt = self.calculate_value(dc2volt, dcvsf)
-                self.data["dc2volt"] = round(dc2volt, abs(dcvsf))
-                dc2power = self.calculate_value(dc2power, dcwsf)
-                self.data["dc2power"] = round(dc2power, abs(dcwsf))
-                _LOGGER.debug("(read_rt_160) dc2curr %d", self.data["dc2curr"])
-                _LOGGER.debug("(read_rt_160) dc2volt %d", self.data["dc2volt"])
-                _LOGGER.debug("(read_rt_160) dc2power %d", self.data["dc2power"])
+            # registers 161 to 163
+            dc2curr = decoder.decode_16bit_uint()
+            dc2volt = decoder.decode_16bit_uint()
+            dc2power = decoder.decode_16bit_uint()
+            dc2curr = self.calculate_value(dc2curr, dcasf)
+            self.data["dc2curr"] = round(dc2curr, abs(dcasf))
+            dc2volt = self.calculate_value(dc2volt, dcvsf)
+            self.data["dc2volt"] = round(dc2volt, abs(dcvsf))
+            dc2power = self.calculate_value(dc2power, dcwsf)
+            self.data["dc2power"] = round(dc2power, abs(dcwsf))
+            _LOGGER.debug("(read_rt_160) dc2curr %d", self.data["dc2curr"])
+            _LOGGER.debug("(read_rt_160) dc2volt %d", self.data["dc2volt"])
+            _LOGGER.debug("(read_rt_160) dc2power %d", self.data["dc2power"])
 
         _LOGGER.debug("(read_rt_160) Completed")
         return True

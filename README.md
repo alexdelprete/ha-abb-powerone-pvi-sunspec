@@ -1,4 +1,4 @@
-# HA Custom Component for ABB/FIMER/Power-One/FIMER PV inverters 
+# HA Custom Component for ABB/FIMER/P1 inverters 
 
 [![GitHub Release][releases-shield]][releases]
 [![BuyMeCoffee][buymecoffee-shield]][buymecoffee]

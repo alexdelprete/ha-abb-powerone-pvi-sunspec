@@ -1,4 +1,4 @@
-"""Entity Class of ABB Power-One PVI SunSpec"""
+"""Entity Class of ABB Power-One PVI SunSpec."""
 
 from homeassistant.const import CONF_NAME
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -7,7 +7,7 @@ from .const import DOMAIN
 
 
 class ABBPowerOnePVISunSpecEntity(CoordinatorEntity):
-    """Representation of an ABB SunSpec Modbus Entity"""
+    """Representation of an ABB SunSpec Modbus Entity."""
     def __init__(self, coordinator, config_entry, sensor_data):
         super().__init__(coordinator)
         self._coordinator = coordinator
@@ -23,12 +23,12 @@ class ABBPowerOnePVISunSpecEntity(CoordinatorEntity):
 
     @property
     def unique_id(self):
-        """Return a unique ID to use for this entity"""
+        """Return a unique ID to use for this entity."""
         return f"{self._device_sn}_{self._key}"
 
     @property
     def device_info(self):
-        """Return device attributes"""
+        """Return device attributes."""
         return {
             "identifiers": {(DOMAIN, self._device_sn)},
             "name": self._device_name,

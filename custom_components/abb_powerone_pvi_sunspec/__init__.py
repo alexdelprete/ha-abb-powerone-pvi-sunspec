@@ -1,4 +1,4 @@
-"""The ABB Power-One PVI SunSpec Integration"""
+"""The ABB Power-One PVI SunSpec Integration."""
 
 import asyncio
 import logging
@@ -21,12 +21,12 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
 async def async_setup(hass: HomeAssistant, entry: Config):
-    """Setup of this integration via YAML is not supported"""
+    """Setup of this integration via YAML is not supported."""
     return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
-    """Set up this integration using UI"""
+    """Set up this integration using UI."""
     if hass.data.get(DOMAIN) is None:
         hass.data.setdefault(DOMAIN, {})
         _LOGGER.info(STARTUP_MESSAGE)
@@ -52,7 +52,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Handle removal of an entry"""
+    """Handle removal of an entry."""
 
     _LOGGER.debug("Unload entry")
     unloaded = all(
@@ -74,7 +74,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Reload config entry"""
+    """Reload config entry."""
     await async_unload_entry(hass, entry)
     await async_setup_entry(hass, entry)
 

@@ -1,4 +1,4 @@
-"""Config Flow of ABB Power-One PVI SunSpec"""
+"""Config Flow of ABB Power-One PVI SunSpec."""
 
 import ipaddress
 import logging
@@ -21,7 +21,7 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
 def host_valid(host):
-    """Return True if hostname or IP address is valid"""
+    """Return True if hostname or IP address is valid."""
     try:
         if ipaddress.ip_address(host).version == (4 or 6):
             return True
@@ -31,14 +31,14 @@ def host_valid(host):
 
 @callback
 def abb_powerone_pvi_sunspec_entries(hass: HomeAssistant):
-    """Return the hosts already configured"""
+    """Return the hosts already configured."""
     return set(
         entry.data.get(CONF_HOST) for entry in hass.config_entries.async_entries(DOMAIN)
     )
 
 
 class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """ABB Power-One PVI SunSpec config flow"""
+    """ABB Power-One PVI SunSpec config flow."""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
@@ -46,7 +46,7 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry: ConfigEntry):
-        """Initiate Options Flow Instance"""
+        """Initiate Options Flow Instance."""
         return ABBPowerOnePVISunSpecOptionsFlow(config_entry)
 
     def _host_in_configuration_exists(self, host) -> bool:
@@ -131,12 +131,12 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
 class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
-    """Config flow options handler"""
+    """Config flow options handler."""
 
     VERSION = 1
 
     def __init__(self, config_entry: ConfigEntry) -> None:
-        """Initialize option flow instance"""
+        """Initialize option flow instance."""
         self.config_entry = config_entry
         self.data_schema=vol.Schema(
             {
@@ -159,7 +159,7 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
             }
         )
     async def async_step_init(self, user_input=None):
-        """Manage the options"""
+        """Manage the options."""
 
         if user_input is not None:
             # complete non-edited entries before update (ht @PeteRage)

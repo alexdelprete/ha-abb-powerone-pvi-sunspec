@@ -1,4 +1,4 @@
-"""Sensor Class of ABB Power-One PVI SunSpec"""
+"""Sensor Class of ABB Power-One PVI SunSpec."""
 
 import logging
 from typing import Any, Dict, Optional
@@ -31,7 +31,7 @@ def add_sensor_defs(coordinator, entry, sensors, definitions):
         sensors.append(ABBPowerOnePVISunSpecSensor(coordinator, entry, sensor_data))
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_devices):
-    """Setup sensor platform"""
+    """Setup sensor platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
     hub = coordinator.api
     sensors = []
@@ -62,7 +62,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
 
 
 class ABBPowerOnePVISunSpecSensor(ABBPowerOnePVISunSpecEntity, SensorEntity):
-    """Representation of an ABB SunSpec Modbus sensor"""
+    """Representation of an ABB SunSpec Modbus sensor."""
 
     def __init__(self, coordinator, config_entry, sensor_data):
         super().__init__(
@@ -79,17 +79,17 @@ class ABBPowerOnePVISunSpecSensor(ABBPowerOnePVISunSpecEntity, SensorEntity):
 
     @property
     def has_entity_name(self):
-        """Return the name"""
+        """Return the name."""
         return True
 
     @property
     def name(self):
-        """Return the name"""
+        """Return the name."""
         return f"{self._name}"
 
     @property
     def native_unit_of_measurement(self):
-        """Return the unit of measurement"""
+        """Return the unit of measurement."""
         return self._unit_of_measurement
 
     @property
@@ -115,10 +115,10 @@ class ABBPowerOnePVISunSpecSensor(ABBPowerOnePVISunSpecEntity, SensorEntity):
 
     @property
     def state_attributes(self) -> Optional[Dict[str, Any]]:
-        """Return the attributes"""
+        """Return the attributes."""
         return None
 
     @property
     def should_poll(self) -> bool:
-        """Data is delivered by the hub"""
+        """Data is delivered by the hub."""
         return False

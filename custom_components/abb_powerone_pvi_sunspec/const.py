@@ -1,4 +1,4 @@
-"""Constants for ABB Power-One PVI SunSpec"""
+"""Constants for ABB Power-One PVI SunSpec."""
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,

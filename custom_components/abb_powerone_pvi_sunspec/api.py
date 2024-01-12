@@ -1,4 +1,4 @@
-"""Hub Implementation"""
+"""Hub Implementation."""
 
 import logging
 import socket
@@ -23,7 +23,7 @@ class ModbusError(Exception):
 
 
 class ABBPowerOnePVISunSpecHub:
-    """Thread safe wrapper class for pymodbus"""
+    """Thread safe wrapper class for pymodbus."""
 
     def __init__(
         self,
@@ -35,7 +35,7 @@ class ABBPowerOnePVISunSpecHub:
         base_addr,
         scan_interval,
     ):
-        """Initialize the Modbus hub"""
+        """Initialize the Modbus hub."""
         self._hass = hass
         self._name = name
         self._host = host
@@ -55,12 +55,12 @@ class ABBPowerOnePVISunSpecHub:
 
     @property
     def name(self):
-        """Return the name of this hub"""
+        """Return the name of this hub."""
         return self._name
 
 
     def check_port(self) -> bool:
-        """Check if port is available"""
+        """Check if port is available."""
         with self._lock:
             sock_timeout = float(3)
             _LOGGER.debug(f"Check_Port: opening socket on {self._host}:{self._port} with a {sock_timeout}s timeout.")
@@ -78,7 +78,7 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def close(self):
-        """Disconnect client"""
+        """Disconnect client."""
         try:
             if self._client.is_socket_open():
                 _LOGGER.debug("Closing Modbus TCP connection")
@@ -93,7 +93,7 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def connect(self):
-        """Connect client"""
+        """Connect client."""
         _LOGGER.debug(
             f"Hub connect to IP: {self._host} port: {self._port} slave id: {self._slave_id} timeout: {self._timeout}"
         )
@@ -121,7 +121,7 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def read_holding_registers(self, slave, address, count):
-        """Read holding registers"""
+        """Read holding registers."""
         kwargs = {"slave": slave} if slave else {}
         try:
             with self._lock:
@@ -135,12 +135,12 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def calculate_value(self, value, scalefactor):
-        """Apply Scale Factor"""
+        """Apply Scale Factor."""
         return value * 10 ** scalefactor
 
 
     def init_modbus_data(self):
-        """Initialize Dataset"""
+        """Initialize Dataset."""
         self.data["accurrent"] = 1
         self.data["accurrenta"] = 1
         self.data["accurrentb"] = 1
@@ -178,7 +178,7 @@ class ABBPowerOnePVISunSpecHub:
 
 
     async def async_get_data(self):
-        """Main Read Function"""
+        """Main Read Function."""
         try:
             if self.connect():
                 _LOGGER.debug("Start Get data (Slave ID: %s - Base Address: %s)", self._slave_id, self._base_addr)
@@ -200,7 +200,7 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def read_sunspec_modbus_model_1(self):
-        """Read SunSpec Model 1 Data"""
+        """Read SunSpec Model 1 Data."""
         # A single register is 2 bytes. Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
         #
@@ -262,7 +262,7 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def read_sunspec_modbus_model_101_103(self):
-        """Read SunSpec Model 101/103 Data"""
+        """Read SunSpec Model 101/103 Data."""
         # Max number of registers in one read for Modbus/TCP is 123
         # (ref.: https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251)
         #
@@ -440,7 +440,7 @@ class ABBPowerOnePVISunSpecHub:
 
 
     def read_sunspec_modbus_model_160(self):
-        """Read SunSpec Model 160 Data"""
+        """Read SunSpec Model 160 Data."""
         # Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
         #

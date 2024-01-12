@@ -22,16 +22,25 @@
           "settings": {
               "files.eol": "\n",
               "editor.tabSize": 4,
-              "python.pythonPath": "/usr/bin/python3",
-              "python.analysis.autoSearchPaths": false,
-              "python.linting.pylintEnabled": true,
-              "python.linting.enabled": true,
-              "python.formatting.provider": "black",
-              "python.formatting.blackPath": "/usr/local/py-utils/bin/black",
               "editor.formatOnPaste": false,
               "editor.formatOnSave": true,
               "editor.formatOnType": true,
-              "files.trimTrailingWhitespace": true
+              "files.trimTrailingWhitespace": true,
+              // Ruff config
+              "notebook.formatOnSave.enabled": false,
+              "notebook.codeActionsOnSave": {
+                  "notebook.source.fixAll": false,
+                  "notebook.source.organizeImports": false
+              },
+              "[python]": {
+                  "editor.formatOnSave": false,
+                  "editor.codeActionsOnSave": {
+                      "source.fixAll": "never",
+                      "source.organizeImports": "never"
+                  },
+                  "editor.defaultFormatter": "charliermarsh.ruff"
+              }
+              // End Ruff config
           }
       }
   },

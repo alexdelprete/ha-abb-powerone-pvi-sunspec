@@ -31,7 +31,7 @@ This integration is available in [HACS][hacs] official repository. Click this bu
 
 [![Quick installation link](https://my.home-assistant.io/badges/hacs_repository.svg)][my-hacs]
 
-1. Either [use this link][my-hacs], or navigate to HACS integration and:
+1. Either click the button above, or navigate to HACS in Home Assistant and:
    - 'Explore & Download Repositories'
    - Search for 'ABB Power-One PVI SunSpec'
    - Download

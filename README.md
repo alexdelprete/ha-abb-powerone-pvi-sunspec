@@ -70,7 +70,7 @@ Configuration is done via config flow right after adding the integration. After 
 
 If you like this integration, I'll gladly accept some quality coffee, but please don't feel obliged. :)
 
-<a href="https://www.buymeacoffee.com/alexdelprete" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/black_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a><br>
+[![BuyMeCoffee][buymecoffee-shield]][buymecoffee]
 
 ---
 

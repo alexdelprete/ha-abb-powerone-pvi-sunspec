@@ -4,7 +4,7 @@
 [![BuyMeCoffee][buymecoffee-shield]][buymecoffee]
 [![Community Forum][forum-shield]][forum]
 
-\*\* **This project is not endorsed by, directly affiliated with, maintained, authorized, or sponsored by ABB or FIMER** \*\*
+**This project is not endorsed by, directly affiliated with, maintained, authorized, or sponsored by ABB or FIMER**
 
 # Introduction
 

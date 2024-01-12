@@ -1,6 +1,9 @@
 {
   "name": "ABB Power-One PVI SunSpec",
+  "filename": "ABB-P1-PVI-SunSpec.zip",
+  "hide_default_branch": true,
   "content_in_root": false,
   "render_readme": true,
+  "zip_release": true,
   "homeassistant": "2023.9.2"
 }

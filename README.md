@@ -4,7 +4,7 @@
 [![BuyMeCoffee][buymecoffee-shield]][buymecoffee]
 [![Community Forum][forum-shield]][forum]
 
-\*\* **This project is not endorsed by, directly affiliated with, maintained, authorized, or sponsored by ABB/FIMER/Power-One** \*\*
+\*\* **This project is not endorsed by, directly affiliated with, maintained, authorized, or sponsored by ABB or FIMER** \*\*
 
 # Introduction
 
@@ -75,10 +75,10 @@ If you like this integration, I'll gladly accept some quality coffee, but please
 ---
 
 [buymecoffee]: https://www.buymeacoffee.com/alexdelprete
-[buymecoffee-shield]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge&color=green
+[buymecoffee-shield]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-green?style=for-the-badge
 [hacs]: https://hacs.xyz
 [my-hacs]: https://my.home-assistant.io/redirect/hacs_repository/?owner=alexdelprete&repository=ha-abb-powerone-pvi-sunspec&category=integration
-[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge&color=darkred
+[forum-shield]: https://img.shields.io/badge/community-forum-darkred?style=for-the-badge
 [forum]: https://community.home-assistant.io/t/custom-component-abb-power-one-fimer-pv-inverters-sunspec-modbus-tcp/316363?u=alexdelprete
 [releases-shield]: https://img.shields.io/github/v/release/alexdelprete/ha-abb-powerone-pvi-sunspec?style=for-the-badge&color=darkgreen
 [releases]: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/releases

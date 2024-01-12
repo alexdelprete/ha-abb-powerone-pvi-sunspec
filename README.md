@@ -4,7 +4,7 @@
 [![BuyMeCoffee][buymecoffee-shield]][buymecoffee]
 [![Community Forum][forum-shield]][forum]
 
-**This project is not endorsed by, directly affiliated with, maintained, authorized, or sponsored by ABB or FIMER**
+_This project is not endorsed by, directly affiliated with, maintained, authorized, or sponsored by ABB or FIMER_
 
 # Introduction
 
@@ -68,7 +68,7 @@ Configuration is done via config flow right after adding the integration. After 
 
 # Coffee
 
-If you like this integration, I'll gladly accept some quality coffee, but please don't feel obliged. :)
+_If you like this integration, I'll gladly accept some quality coffee, but please don't feel obliged._ :)
 
 [![BuyMeCoffee][buymecoffee-shield]][buymecoffee]
 

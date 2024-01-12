@@ -1,4 +1,4 @@
-# ha-abb-powerone-pvi-sunspec
+# HA Custom Component for ABB/FIMER/Power-One/FIMER PV inverters 
 
 [![GitHub Release][releases-shield]][releases]
 [![BuyMeCoffee][buymecoffee-shield]][buymecoffee]

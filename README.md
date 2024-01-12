@@ -75,7 +75,7 @@ _If you like this integration, I'll gladly accept some quality coffee, but pleas
 ---
 
 [buymecoffee]: https://www.buymeacoffee.com/alexdelprete
-[buymecoffee-shield]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-green?style=for-the-badge
+[buymecoffee-shield]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-white?style=for-the-badge
 [hacs]: https://hacs.xyz
 [my-hacs]: https://my.home-assistant.io/redirect/hacs_repository/?owner=alexdelprete&repository=ha-abb-powerone-pvi-sunspec&category=integration
 [forum-shield]: https://img.shields.io/badge/community-forum-darkred?style=for-the-badge

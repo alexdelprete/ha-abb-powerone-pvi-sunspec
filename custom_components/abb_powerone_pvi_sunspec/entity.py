@@ -8,7 +8,10 @@ from .const import DOMAIN
 
 class ABBPowerOnePVISunSpecEntity(CoordinatorEntity):
     """Representation of an ABB SunSpec Modbus Entity."""
+
     def __init__(self, coordinator, config_entry, sensor_data):
+        """Class Initializitation."""
+
         super().__init__(coordinator)
         self._coordinator = coordinator
         self._hub = coordinator.api

@@ -1,7 +1,7 @@
 """Sensor Class of ABB Power-One PVI SunSpec."""
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
@@ -19,6 +19,8 @@ from .entity import ABBPowerOnePVISunSpecEntity
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 def add_sensor_defs(coordinator, entry, sensors, definitions):
+    """Class Initializitation."""
+
     for sensor_info in definitions.values():
         sensor_data = {
                 "name": sensor_info[0],
@@ -31,7 +33,8 @@ def add_sensor_defs(coordinator, entry, sensors, definitions):
         sensors.append(ABBPowerOnePVISunSpecSensor(coordinator, entry, sensor_data))
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_devices):
-    """Setup sensor platform."""
+    """Sensor Platform setup."""
+
     coordinator = hass.data[DOMAIN][entry.entry_id]
     hub = coordinator.api
     sensors = []
@@ -43,10 +46,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     _LOGGER.debug("(sensor) MPPT #: %s", hub.data["mppt_nr"])
     _LOGGER.debug("(sensor) Serial#: %s", hub.data["comm_sernum"])
 
-    add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_COMMON);
+    add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_COMMON)
 
     if hub.data["invtype"] == INVERTER_TYPE[101]:
-        add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_SINGLE_PHASE);
+        add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_SINGLE_PHASE)
     elif hub.data["invtype"] == INVERTER_TYPE[103]:
         add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_THREE_PHASE)
 
@@ -65,6 +68,8 @@ class ABBPowerOnePVISunSpecSensor(ABBPowerOnePVISunSpecEntity, SensorEntity):
     """Representation of an ABB SunSpec Modbus sensor."""
 
     def __init__(self, coordinator, config_entry, sensor_data):
+        """Class Initializitation."""
+
         super().__init__(
             coordinator, config_entry, sensor_data
         )
@@ -114,7 +119,7 @@ class ABBPowerOnePVISunSpecSensor(ABBPowerOnePVISunSpecEntity, SensorEntity):
             return self._hub.data[self._key]
 
     @property
-    def state_attributes(self) -> Optional[Dict[str, Any]]:
+    def state_attributes(self) -> dict[str, Any] | None:
         """Return the attributes."""
         return None
 

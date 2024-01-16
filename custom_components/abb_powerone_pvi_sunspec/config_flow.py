@@ -32,9 +32,9 @@ def host_valid(host):
 @callback
 def abb_powerone_pvi_sunspec_entries(hass: HomeAssistant):
     """Return the hosts already configured."""
-    return set(
+    return {
         entry.data.get(CONF_HOST) for entry in hass.config_entries.async_entries(DOMAIN)
-    )
+    }
 
 
 class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -59,11 +59,11 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Return true if credentials is valid."""
         _LOGGER.debug(f"Test connection to {host}:{port} slave id {slave_id}")
         try:
-            _LOGGER.debug(f"Creating Hub")
+            _LOGGER.debug("Creating Hub")
             self.hub = ABBPowerOnePVISunSpecHub(self.hass, name, host, port, slave_id, base_addr, scan_interval)
-            _LOGGER.debug(f"Hub created: calling get data")
+            _LOGGER.debug("Hub created: calling get data")
             self.hub_data = await self.hub.async_get_data()
-            _LOGGER.debug(f"After Hub, get data")
+            _LOGGER.debug("After Hub, get data")
             _LOGGER.debug(f"Hub Data: {self.hub_data}")
             return self.hub.data["comm_sernum"]
         except ConnectionException as connerr:
@@ -138,7 +138,7 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
     def __init__(self, config_entry: ConfigEntry) -> None:
         """Initialize option flow instance."""
         self.config_entry = config_entry
-        self.data_schema=vol.Schema(
+        self.data_schema = vol.Schema(
             {
                 vol.Required(
                     CONF_PORT,

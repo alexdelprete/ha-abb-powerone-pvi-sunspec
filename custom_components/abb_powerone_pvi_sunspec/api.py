@@ -16,9 +16,13 @@ _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
 class ConnectionError(Exception):
+    """Empty Error Class."""
+
     pass
 
 class ModbusError(Exception):
+    """Empty Error Class."""
+
     pass
 
 
@@ -178,7 +182,8 @@ class ABBPowerOnePVISunSpecHub:
 
 
     async def async_get_data(self):
-        """Main Read Function."""
+        """Read Data Function."""
+
         try:
             if self.connect():
                 _LOGGER.debug("Start Get data (Slave ID: %s - Base Address: %s)", self._slave_id, self._base_addr)

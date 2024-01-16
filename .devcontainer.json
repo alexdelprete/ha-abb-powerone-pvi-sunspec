@@ -24,12 +24,12 @@
             ],
             "settings": {
                 "files.eol": "\n",
+                "files.trimTrailingWhitespace": true,
                 "editor.tabSize": 4,
                 "editor.formatOnPaste": false,
-                "editor.formatOnSave": false,
-                "editor.formatOnType": false,
+                "editor.formatOnSave": true,
+                "editor.formatOnType": true,
                 "editor.defaultFormatter": "esbenp.prettier-vscode",
-                "files.trimTrailingWhitespace": true,
                 // Ruff config
                 "notebook.formatOnSave.enabled": false,
                 "notebook.codeActionsOnSave": {
@@ -37,10 +37,10 @@
                     "notebook.source.organizeImports": false
                 },
                 "[python]": {
-                    "editor.formatOnSave": false,
+                    "editor.formatOnSave": true,
                     "editor.codeActionsOnSave": {
-                        "source.fixAll": false,
-                        "source.organizeImports": false
+                        "source.fixAll": true,
+                        "source.organizeImports": true
                     },
                     "editor.defaultFormatter": "charliermarsh.ruff"
                 }

@@ -6,13 +6,20 @@ from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import Config, HomeAssistant
-from homeassistant.helpers.update_coordinator import (DataUpdateCoordinator,
-                                                      UpdateFailed)
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import ABBPowerOnePVISunSpecHub
-from .const import (CONF_BASE_ADDR, CONF_HOST, CONF_NAME, CONF_PORT,
-                    CONF_SCAN_INTERVAL, CONF_SLAVE_ID, DOMAIN, PLATFORMS,
-                    STARTUP_MESSAGE)
+from .const import (
+    CONF_BASE_ADDR,
+    CONF_HOST,
+    CONF_NAME,
+    CONF_PORT,
+    CONF_SCAN_INTERVAL,
+    CONF_SLAVE_ID,
+    DOMAIN,
+    PLATFORMS,
+    STARTUP_MESSAGE,
+)
 
 SCAN_INTERVAL = timedelta(seconds=30)
 
@@ -37,7 +44,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     base_addr = entry.data.get(CONF_BASE_ADDR)
     scan_interval = entry.data.get(CONF_SCAN_INTERVAL)
 
-    hub = ABBPowerOnePVISunSpecHub(hass, name, host, port, slave_id, base_addr, scan_interval)
+    hub = ABBPowerOnePVISunSpecHub(
+        hass, name, host, port, slave_id, base_addr, scan_interval
+    )
 
     _LOGGER.debug("Setup config entry for ABB")
     coordinator = HubDataUpdateCoordinator(hass, hub=hub, entry=entry)
@@ -50,17 +59,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     return True
 
+
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Handle removal of an entry."""
 
     _LOGGER.debug("Unload entry")
     unloaded = all(
-        await asyncio.gather(
-            *[
-                hass.config_entries.async_forward_entry_unload(entry, platform)
-                for platform in PLATFORMS
-            ]
-        )
+        await asyncio.gather(*[
+            hass.config_entries.async_forward_entry_unload(entry, platform)
+            for platform in PLATFORMS
+        ])
     )
     if not unloaded:
         _LOGGER.debug("Unload entry failed")
@@ -69,7 +77,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.debug("Unload entry ok")
         coordinator = hass.data[DOMAIN].pop(entry.entry_id)
         coordinator.unsub()
-        return True   # unloaded
+        return True  # unloaded
 
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -81,7 +89,9 @@ async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
 class HubDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
 
-    def __init__(self, hass: HomeAssistant, hub: ABBPowerOnePVISunSpecHub, entry: ConfigEntry) -> None:
+    def __init__(
+        self, hass: HomeAssistant, hub: ABBPowerOnePVISunSpecHub, entry: ConfigEntry
+    ) -> None:
         """Initialize."""
         self.api = hub
         self.entities_added = False

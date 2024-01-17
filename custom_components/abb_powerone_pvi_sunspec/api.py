@@ -9,8 +9,7 @@ from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException, ModbusException
 from pymodbus.payload import BinaryPayloadDecoder
 
-from .const import (DEVICE_GLOBAL_STATUS, DEVICE_MODEL, DEVICE_STATUS,
-                    INVERTER_TYPE)
+from .const import DEVICE_GLOBAL_STATUS, DEVICE_MODEL, DEVICE_STATUS, INVERTER_TYPE
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -19,6 +18,7 @@ class ConnectionError(Exception):
     """Empty Error Class."""
 
     pass
+
 
 class ModbusError(Exception):
     """Empty Error Class."""
@@ -49,37 +49,42 @@ class ABBPowerOnePVISunSpecHub:
         self._scan_interval = scan_interval
         # Min. scan_interval is 30s, ensure min. timeout is 29s
         self._timeout = max(29, (scan_interval - 1))
-        self._client = ModbusTcpClient(host=self._host, port=self._port, timeout=self._timeout)
+        self._client = ModbusTcpClient(
+            host=self._host, port=self._port, timeout=self._timeout
+        )
         self._lock = threading.Lock()
         self._sensors = []
         self.data = {}
         # Initialize ModBus data structure before first read
         self.init_modbus_data()
 
-
     @property
     def name(self):
         """Return the name of this hub."""
         return self._name
 
-
     def check_port(self) -> bool:
         """Check if port is available."""
         with self._lock:
             sock_timeout = float(3)
-            _LOGGER.debug(f"Check_Port: opening socket on {self._host}:{self._port} with a {sock_timeout}s timeout.")
+            _LOGGER.debug(
+                f"Check_Port: opening socket on {self._host}:{self._port} with a {sock_timeout}s timeout."
+            )
             socket.setdefaulttimeout(sock_timeout)
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock_res = sock.connect_ex((self._host, self._port))
             is_open = sock_res == 0  # True if open, False if not
             if is_open:
                 sock.shutdown(socket.SHUT_RDWR)
-                _LOGGER.debug(f"Check_Port (SUCCESS): port open on {self._host}:{self._port}")
+                _LOGGER.debug(
+                    f"Check_Port (SUCCESS): port open on {self._host}:{self._port}"
+                )
             else:
-                _LOGGER.debug(f"Check_Port (ERROR): port not available on {self._host}:{self._port} - error: {sock_res}")
+                _LOGGER.debug(
+                    f"Check_Port (ERROR): port not available on {self._host}:{self._port} - error: {sock_res}"
+                )
             sock.close()
         return is_open
-
 
     def close(self):
         """Disconnect client."""
@@ -94,7 +99,6 @@ class ABBPowerOnePVISunSpecHub:
         except ConnectionException as connect_error:
             _LOGGER.debug(f"Close Connection connect_error: {connect_error}")
             raise ConnectionError() from connect_error
-
 
     def connect(self):
         """Connect client."""
@@ -119,10 +123,7 @@ class ABBPowerOnePVISunSpecHub:
                 )
         else:
             _LOGGER.debug("Inverter not ready for Modbus TCP connection")
-            raise ConnectionError(
-                f"Inverter not active on {self._host}:{self._port}"
-            )
-
+            raise ConnectionError(f"Inverter not active on {self._host}:{self._port}")
 
     def read_holding_registers(self, slave, address, count):
         """Read holding registers."""
@@ -137,11 +138,9 @@ class ABBPowerOnePVISunSpecHub:
             _LOGGER.debug(f"Read Holding Registers modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
 
-
     def calculate_value(self, value, scalefactor):
         """Apply Scale Factor."""
-        return value * 10 ** scalefactor
-
+        return value * 10**scalefactor
 
     def init_modbus_data(self):
         """Initialize Dataset."""
@@ -180,13 +179,16 @@ class ABBPowerOnePVISunSpecHub:
         self.data["tempoth"] = 1
         return True
 
-
     async def async_get_data(self):
         """Read Data Function."""
 
         try:
             if self.connect():
-                _LOGGER.debug("Start Get data (Slave ID: %s - Base Address: %s)", self._slave_id, self._base_addr)
+                _LOGGER.debug(
+                    "Start Get data (Slave ID: %s - Base Address: %s)",
+                    self._slave_id,
+                    self._base_addr,
+                )
                 self.read_sunspec_modbus_model_1()
                 self.read_sunspec_modbus_model_101_103()
                 self.read_sunspec_modbus_model_160()
@@ -203,7 +205,6 @@ class ABBPowerOnePVISunSpecHub:
             _LOGGER.debug(f"Async Get Data modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
 
-
     def read_sunspec_modbus_model_1(self):
         """Read SunSpec Model 1 Data."""
         # A single register is 2 bytes. Max number of registers in one read for Modbus/TCP is 123
@@ -214,7 +215,9 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read (M101 or M103)+M160 (Realtime Power/Energy Data) in 1-pass
         try:
-            read_model_1_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 4), count=64)
+            read_model_1_data = self.read_holding_registers(
+                slave=self._slave_id, address=(self._base_addr + 4), count=64
+            )
             _LOGGER.debug("(read_rt_1) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_1) Base Address: %s", self._base_addr)
         except ModbusException as modbus_error:
@@ -230,9 +233,9 @@ class ABBPowerOnePVISunSpecHub:
         comm_manufact = str.strip(decoder.decode_string(size=32).decode("ascii"))
         comm_model = str.strip(decoder.decode_string(size=32).decode("ascii"))
         comm_options = str.strip(decoder.decode_string(size=16).decode("ascii"))
-        self.data["comm_manufact"] = comm_manufact.rstrip(' \t\r\n\0\u0000')
-        self.data["comm_model"] = comm_model.rstrip(' \t\r\n\0\u0000')
-        self.data["comm_options"] = comm_options.rstrip(' \t\r\n\0\u0000')
+        self.data["comm_manufact"] = comm_manufact.rstrip(" \t\r\n\0\u0000")
+        self.data["comm_model"] = comm_model.rstrip(" \t\r\n\0\u0000")
+        self.data["comm_options"] = comm_options.rstrip(" \t\r\n\0\u0000")
         _LOGGER.debug("(read_rt_1) Manufacturer: %s", self.data["comm_manufact"])
         _LOGGER.debug("(read_rt_1) Model: %s", self.data["comm_model"])
         _LOGGER.debug("(read_rt_1) Options: %s", self.data["comm_options"])
@@ -243,28 +246,42 @@ class ABBPowerOnePVISunSpecHub:
         # Then we lookup in the model table, if it's there, good, otherwise we provide the given model
         # test also with opt_model = '0x0DED/0xFFFF'
         opt_model = self.data["comm_options"]
-        if opt_model.startswith('0x'):
+        if opt_model.startswith("0x"):
             opt_model_int = int(opt_model[0:4], 16)
-            _LOGGER.debug("(opt_notprintable) opt_model: %s - opt_model_int: %s", opt_model, opt_model_int)
+            _LOGGER.debug(
+                "(opt_notprintable) opt_model: %s - opt_model_int: %s",
+                opt_model,
+                opt_model_int,
+            )
         else:
             opt_model_int = ord(opt_model[0])
-            _LOGGER.debug("(opt_printable) opt_model: %s - opt_model_int: %s", opt_model, opt_model_int)
+            _LOGGER.debug(
+                "(opt_printable) opt_model: %s - opt_model_int: %s",
+                opt_model,
+                opt_model_int,
+            )
         if opt_model_int in DEVICE_MODEL:
             self.data["comm_model"] = DEVICE_MODEL[opt_model_int]
             _LOGGER.debug("(opt_comm_model) comm_model: %s", self.data["comm_model"])
         else:
-            _LOGGER.error("(opt_comm_model) Model unknown, report to @alexdelprete on the forum the following data: Manuf.: %s - Model: %s - Options: %s - OptModel: %s - OptModelInt: %s", self.data["comm_manufact"], self.data["comm_model"], self.data["comm_options"], opt_model, opt_model_int)
+            _LOGGER.error(
+                "(opt_comm_model) Model unknown, report to @alexdelprete on the forum the following data: Manuf.: %s - Model: %s - Options: %s - OptModel: %s - OptModelInt: %s",
+                self.data["comm_manufact"],
+                self.data["comm_model"],
+                self.data["comm_options"],
+                opt_model,
+                opt_model_int,
+            )
 
         # registers 44 to 67
         comm_version = str.strip(decoder.decode_string(size=16).decode("ascii"))
         comm_sernum = str.strip(decoder.decode_string(size=32).decode("ascii"))
-        self.data["comm_version"] = comm_version.rstrip(' \t\r\n\0\u0000')
-        self.data["comm_sernum"] = comm_sernum.rstrip(' \t\r\n\0\u0000')
+        self.data["comm_version"] = comm_version.rstrip(" \t\r\n\0\u0000")
+        self.data["comm_sernum"] = comm_sernum.rstrip(" \t\r\n\0\u0000")
         _LOGGER.debug("(read_rt_1) Version: %s", self.data["comm_version"])
         _LOGGER.debug("(read_rt_1) Sernum: %s", self.data["comm_sernum"])
 
         return True
-
 
     def read_sunspec_modbus_model_101_103(self):
         """Read SunSpec Model 101/103 Data."""
@@ -277,7 +294,9 @@ class ABBPowerOnePVISunSpecHub:
         #   - Sweep 2 (M103): Start address 70 read 40 registers to read M103+M160 (Realtime Power/Energy Data)
         #   - Sweep 3 (M160): Start address 124 read 40 registers to read M1 (Common Inverter Info)
         try:
-            read_model_101_103_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 70), count=40)
+            read_model_101_103_data = self.read_holding_registers(
+                slave=self._slave_id, address=(self._base_addr + 70), count=40
+            )
             _LOGGER.debug("(read_rt_101_103) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_101_103) Base Address: %s", self._base_addr)
         except ModbusException as modbus_error:
@@ -292,12 +311,17 @@ class ABBPowerOnePVISunSpecHub:
         # register 70
         invtype = decoder.decode_16bit_uint()
         _LOGGER.debug("(read_rt_101_103) Inverter Type (int): %s", invtype)
-        _LOGGER.debug("(read_rt_101_103) Inverter Type (str): %s", INVERTER_TYPE[invtype])
+        _LOGGER.debug(
+            "(read_rt_101_103) Inverter Type (str): %s", INVERTER_TYPE[invtype]
+        )
         # make sure the value is in the known status list
         if invtype not in INVERTER_TYPE:
             invtype = 999
             _LOGGER.debug("(read_rt_101_103) Inverter Type Unknown (int): %s", invtype)
-            _LOGGER.debug("(read_rt_101_103) Inverter Type Unknown (str): %s", INVERTER_TYPE[invtype])
+            _LOGGER.debug(
+                "(read_rt_101_103) Inverter Type Unknown (str): %s",
+                INVERTER_TYPE[invtype],
+            )
         self.data["invtype"] = INVERTER_TYPE[invtype]
 
         # skip register 71
@@ -379,9 +403,16 @@ class ABBPowerOnePVISunSpecHub:
         totalenergy = self.calculate_value(totalenergy, totalenergysf)
         # ensure that totalenergy is always an increasing value (total_increasing)
         _LOGGER.debug("(read_rt_101_103) Total Energy Value Read: %s", totalenergy)
-        _LOGGER.debug("(read_rt_101_103) Total Energy Previous Value: %s", self.data["totalenergy"])
+        _LOGGER.debug(
+            "(read_rt_101_103) Total Energy Previous Value: %s",
+            self.data["totalenergy"],
+        )
         if totalenergy < self.data["totalenergy"]:
-            _LOGGER.error("(read_rt_101_103) Total Energy less than previous value! Value Read: %s - Previous Value: %s", totalenergy, self.data["totalenergy"])
+            _LOGGER.error(
+                "(read_rt_101_103) Total Energy less than previous value! Value Read: %s - Previous Value: %s",
+                totalenergy,
+                self.data["totalenergy"],
+            )
         else:
             self.data["totalenergy"] = totalenergy
 
@@ -395,8 +426,12 @@ class ABBPowerOnePVISunSpecHub:
             dcvolt = self.calculate_value(dcvolt, dcvoltsf)
             self.data["dccurr"] = round(dccurr, abs(dccurrsf))
             self.data["dcvolt"] = round(dcvolt, abs(dcvoltsf))
-            _LOGGER.debug("(read_rt_101_103) DC Current Value read: %s", self.data["dccurr"])
-            _LOGGER.debug("(read_rt_101_103) DC Voltage Value read: %s", self.data["dcvolt"])
+            _LOGGER.debug(
+                "(read_rt_101_103) DC Current Value read: %s", self.data["dccurr"]
+            )
+            _LOGGER.debug(
+                "(read_rt_101_103) DC Voltage Value read: %s", self.data["dcvolt"]
+            )
         else:
             decoder.skip_bytes(8)
 
@@ -430,19 +465,24 @@ class ABBPowerOnePVISunSpecHub:
             _LOGGER.debug("Unknown Operating State: %s", status)
             status = 999
         self.data["status"] = DEVICE_STATUS[status]
-        _LOGGER.debug("(read_rt_101_103) Device Status Value read: %s", self.data["status"])
+        _LOGGER.debug(
+            "(read_rt_101_103) Device Status Value read: %s", self.data["status"]
+        )
 
         # register 109
         statusvendor = decoder.decode_16bit_int()
         # make sure the value is in the known status list
         if statusvendor not in DEVICE_GLOBAL_STATUS:
-            _LOGGER.debug("(read_rt_101_103) Unknown Vendor Operating State: %s", statusvendor)
+            _LOGGER.debug(
+                "(read_rt_101_103) Unknown Vendor Operating State: %s", statusvendor
+            )
             statusvendor = 999
         self.data["statusvendor"] = DEVICE_GLOBAL_STATUS[statusvendor]
-        _LOGGER.debug("(read_rt_101_103) Status Vendor Value read: %s", self.data["statusvendor"])
+        _LOGGER.debug(
+            "(read_rt_101_103) Status Vendor Value read: %s", self.data["statusvendor"]
+        )
         _LOGGER.debug("(read_rt_101_103) Completed")
         return True
-
 
     def read_sunspec_modbus_model_160(self):
         """Read SunSpec Model 160 Data."""
@@ -454,7 +494,9 @@ class ABBPowerOnePVISunSpecHub:
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
         try:
-            read_model_160_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 122), count=42)
+            read_model_160_data = self.read_holding_registers(
+                slave=self._slave_id, address=(self._base_addr + 122), count=42
+            )
             _LOGGER.debug("(read_rt_160) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_160) Base Address: %s", self._base_addr)
         except ModbusException as modbus_error:
@@ -472,10 +514,15 @@ class ABBPowerOnePVISunSpecHub:
         # Model 160 has different offset for UNO-DM-PLUS and REACT2 inverters
         # need to check and try the specific offset address (start address is 41104)
         if multi_mppt_id != 160:
-            _LOGGER.debug("(read_rt_160) Model not 160 try another offset - multi_mppt_id: %d", multi_mppt_id)
+            _LOGGER.debug(
+                "(read_rt_160) Model not 160 try another offset - multi_mppt_id: %d",
+                multi_mppt_id,
+            )
             try:
                 # try address 41104 for UNO-DM-PLUS and REACT2
-                read_model_160_data = self.read_holding_registers(slave=self._slave_id, address=(self._base_addr + 1104), count=42)
+                read_model_160_data = self.read_holding_registers(
+                    slave=self._slave_id, address=(self._base_addr + 1104), count=42
+                )
                 _LOGGER.debug("(read_rt_160) Slave ID: %s", self._slave_id)
                 _LOGGER.debug("(read_rt_160) Base Address: %s", self._base_addr)
             except ModbusException as modbus_error:
@@ -490,12 +537,20 @@ class ABBPowerOnePVISunSpecHub:
             multi_mppt_id = decoder.decode_16bit_int()
 
             if multi_mppt_id != 160:
-                _LOGGER.debug("(read_rt_160) Model not 160 (UNO-DM/REACT2) - multi_mppt_id: %d", multi_mppt_id)
+                _LOGGER.debug(
+                    "(read_rt_160) Model not 160 (UNO-DM/REACT2) - multi_mppt_id: %d",
+                    multi_mppt_id,
+                )
                 return False
             else:
-                _LOGGER.debug("(read_rt_160) Model is 160 (UNO-DM/REACT2) - multi_mppt_id: %d", multi_mppt_id)
+                _LOGGER.debug(
+                    "(read_rt_160) Model is 160 (UNO-DM/REACT2) - multi_mppt_id: %d",
+                    multi_mppt_id,
+                )
         else:
-            _LOGGER.debug("(read_rt_160) Model is 160 - multi_mppt_id: %d", multi_mppt_id)
+            _LOGGER.debug(
+                "(read_rt_160) Model is 160 - multi_mppt_id: %d", multi_mppt_id
+            )
 
         # skip register 123
         decoder.skip_bytes(2)
@@ -515,7 +570,6 @@ class ABBPowerOnePVISunSpecHub:
 
         # if we have at least one DC module
         if multi_mppt_nr >= 1:
-
             # skip register 131 to 140
             decoder.skip_bytes(20)
 
@@ -537,7 +591,6 @@ class ABBPowerOnePVISunSpecHub:
 
         # if we have more than one DC module
         if multi_mppt_nr > 1:
-
             # skip register 144 to 160
             decoder.skip_bytes(34)
 

@@ -8,29 +8,34 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
 
-from .const import (DOMAIN, INVERTER_TYPE,
-                    SENSOR_TYPES_COMMON,
-                    SENSOR_TYPES_SINGLE_PHASE,
-                    SENSOR_TYPES_THREE_PHASE,
-                    SENSOR_TYPES_SINGLE_MPPT,
-                    SENSOR_TYPES_DUAL_MPPT)
+from .const import (
+    DOMAIN,
+    INVERTER_TYPE,
+    SENSOR_TYPES_COMMON,
+    SENSOR_TYPES_SINGLE_PHASE,
+    SENSOR_TYPES_THREE_PHASE,
+    SENSOR_TYPES_SINGLE_MPPT,
+    SENSOR_TYPES_DUAL_MPPT,
+)
 from .entity import ABBPowerOnePVISunSpecEntity
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
+
 
 def add_sensor_defs(coordinator, entry, sensors, definitions):
     """Class Initializitation."""
 
     for sensor_info in definitions.values():
         sensor_data = {
-                "name": sensor_info[0],
-                "key": sensor_info[1],
-                "unit": sensor_info[2],
-                "icon": sensor_info[3],
-                "device_class": sensor_info[4],
-                "state_class": sensor_info[5],
-            }
+            "name": sensor_info[0],
+            "key": sensor_info[1],
+            "unit": sensor_info[2],
+            "icon": sensor_info[3],
+            "device_class": sensor_info[4],
+            "state_class": sensor_info[5],
+        }
         sensors.append(ABBPowerOnePVISunSpecSensor(coordinator, entry, sensor_data))
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_devices):
     """Sensor Platform setup."""
@@ -53,7 +58,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     elif hub.data["invtype"] == INVERTER_TYPE[103]:
         add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_THREE_PHASE)
 
-    _LOGGER.debug("(sensor) DC Voltages : single=%d dc1=%d dc2=%d", hub.data["dcvolt"], hub.data["dc1volt"], hub.data["dc2volt"])
+    _LOGGER.debug(
+        "(sensor) DC Voltages : single=%d dc1=%d dc2=%d",
+        hub.data["dcvolt"],
+        hub.data["dc1volt"],
+        hub.data["dc2volt"],
+    )
     if hub.data["mppt_nr"] == 1:
         add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_SINGLE_MPPT)
     else:
@@ -70,9 +80,7 @@ class ABBPowerOnePVISunSpecSensor(ABBPowerOnePVISunSpecEntity, SensorEntity):
     def __init__(self, coordinator, config_entry, sensor_data):
         """Class Initializitation."""
 
-        super().__init__(
-            coordinator, config_entry, sensor_data
-        )
+        super().__init__(coordinator, config_entry, sensor_data)
         self._hub = coordinator.api
         self._device_name = config_entry.data.get(CONF_NAME)
         self._name = sensor_data["name"]

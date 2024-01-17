@@ -38,5 +38,5 @@ class ABBPowerOnePVISunSpecEntity(CoordinatorEntity):
             "model": self._device_model,
             "manufacturer": self._device_manufact,
             "sw_version": self._device_swver,
-            "via_device": self._hub
+            "via_device": self._hub,
         }

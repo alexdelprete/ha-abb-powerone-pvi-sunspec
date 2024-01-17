@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: "Checkout the repository"
         uses: "actions/checkout@v4.1.1"
+        with:
+          token: ${{ secrets.WORKFLOW_PAT }}
 
       - name: "Adjust version number"
         shell: "bash"

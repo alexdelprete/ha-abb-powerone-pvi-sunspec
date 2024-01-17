@@ -16,6 +16,7 @@ jobs:
           uses: "actions/checkout@v4.1.1"
           with:
             token: ${{ secrets.WORKFLOW_PAT }}
+            ref: ${{ github.head_ref }}
 
         - name: "Run hassfest validation"
           uses: "home-assistant/actions/hassfest@master"
@@ -26,6 +27,9 @@ jobs:
     steps:
         - name: "Checkout the repository"
           uses: "actions/checkout@v4.1.1"
+          with:
+            token: ${{ secrets.WORKFLOW_PAT }}
+            ref: ${{ github.head_ref }}
 
         - name: "Run HACS validation"
           uses: "hacs/action@main"

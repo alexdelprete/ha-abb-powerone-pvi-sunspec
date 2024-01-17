@@ -115,9 +115,9 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         title=user_input[CONF_NAME], data=user_input
                     )
                 else:
-                    errors[CONF_HOST] = (
-                        "Connection to device failed (S/N not retreived)"
-                    )
+                    errors[
+                        CONF_HOST
+                    ] = "Connection to device failed (S/N not retreived)"
 
         return self.async_show_form(
             step_id="user",
@@ -160,24 +160,26 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
     def __init__(self, config_entry: ConfigEntry) -> None:
         """Initialize option flow instance."""
         self.config_entry = config_entry
-        self.data_schema = vol.Schema({
-            vol.Required(
-                CONF_PORT,
-                default=self.config_entry.data.get(CONF_PORT),
-            ): vol.Coerce(int),
-            vol.Required(
-                CONF_SLAVE_ID,
-                default=self.config_entry.data.get(CONF_SLAVE_ID),
-            ): vol.Coerce(int),
-            vol.Required(
-                CONF_BASE_ADDR,
-                default=self.config_entry.data.get(CONF_BASE_ADDR),
-            ): vol.Coerce(int),
-            vol.Required(
-                CONF_SCAN_INTERVAL,
-                default=self.config_entry.data.get(CONF_SCAN_INTERVAL),
-            ): vol.All(vol.Coerce(int), vol.Range(min=30, max=600)),
-        })
+        self.data_schema = vol.Schema(
+            {
+                vol.Required(
+                    CONF_PORT,
+                    default=self.config_entry.data.get(CONF_PORT),
+                ): vol.Coerce(int),
+                vol.Required(
+                    CONF_SLAVE_ID,
+                    default=self.config_entry.data.get(CONF_SLAVE_ID),
+                ): vol.Coerce(int),
+                vol.Required(
+                    CONF_BASE_ADDR,
+                    default=self.config_entry.data.get(CONF_BASE_ADDR),
+                ): vol.Coerce(int),
+                vol.Required(
+                    CONF_SCAN_INTERVAL,
+                    default=self.config_entry.data.get(CONF_SCAN_INTERVAL),
+                ): vol.All(vol.Coerce(int), vol.Range(min=30, max=600)),
+            }
+        )
 
     async def async_step_init(self, user_input=None):
         """Manage the options."""

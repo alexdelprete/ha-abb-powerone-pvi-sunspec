@@ -6,18 +6,18 @@ from typing import Any
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     DOMAIN,
     INVERTER_TYPE,
     SENSOR_TYPES_COMMON,
+    SENSOR_TYPES_DUAL_MPPT,
+    SENSOR_TYPES_SINGLE_MPPT,
     SENSOR_TYPES_SINGLE_PHASE,
     SENSOR_TYPES_THREE_PHASE,
-    SENSOR_TYPES_SINGLE_MPPT,
-    SENSOR_TYPES_DUAL_MPPT,
 )
-from .entity import ABBPowerOnePVISunSpecEntity
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -74,7 +74,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     return True
 
 
-class ABBPowerOnePVISunSpecSensor(ABBPowerOnePVISunSpecEntity, SensorEntity):
+class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
     """Representation of an ABB SunSpec Modbus sensor."""
 
     def __init__(self, coordinator, config_entry, sensor_data):
@@ -82,13 +82,24 @@ class ABBPowerOnePVISunSpecSensor(ABBPowerOnePVISunSpecEntity, SensorEntity):
 
         super().__init__(coordinator, config_entry, sensor_data)
         self._hub = coordinator.api
-        self._device_name = config_entry.data.get(CONF_NAME)
         self._name = sensor_data["name"]
         self._key = sensor_data["key"]
         self._unit_of_measurement = sensor_data["unit"]
         self._icon = sensor_data["icon"]
         self._device_class = sensor_data["device_class"]
         self._state_class = sensor_data["state_class"]
+        self._device_name = config_entry.data.get(CONF_NAME)
+        self._device_model = self._hub.data["comm_model"]
+        self._device_manufact = self._hub.data["comm_manufact"]
+        self._device_sn = self._hub.data["comm_sernum"]
+        self._device_swver = self._hub.data["comm_version"]
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        _LOGGER.debug(f"{self.name} sensor update requested")
+        self._state = self._hub.data[self._key]
+        self.async_write_ha_state()
 
     @property
     def has_entity_name(self):
@@ -135,3 +146,20 @@ class ABBPowerOnePVISunSpecSensor(ABBPowerOnePVISunSpecEntity, SensorEntity):
     def should_poll(self) -> bool:
         """Data is delivered by the hub."""
         return False
+
+    @property
+    def unique_id(self):
+        """Return a unique ID to use for this entity."""
+        return f"{self._device_sn}_{self._key}"
+
+    @property
+    def device_info(self):
+        """Return device attributes."""
+        return {
+            "identifiers": {(DOMAIN, self._device_sn)},
+            "name": self._device_name,
+            "model": self._device_model,
+            "manufacturer": self._device_manufact,
+            "sw_version": self._device_swver,
+            "via_device": self._hub,
+        }

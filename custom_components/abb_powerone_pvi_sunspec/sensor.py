@@ -80,7 +80,7 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, config_entry, sensor_data):
         """Class Initializitation."""
 
-        super().__init__(coordinator, config_entry, sensor_data)
+        super().__init__(coordinator)
         self._hub = coordinator.api
         self._name = sensor_data["name"]
         self._key = sensor_data["key"]

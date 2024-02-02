@@ -169,5 +169,5 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
             "name": self._device_name,
             "serial_number": self._device_sn,
             "sw_version": self._device_swver,
-            "via_device_id": (DOMAIN, self._device_sn),
+            "via_device": (DOMAIN, self._device_sn),
         }

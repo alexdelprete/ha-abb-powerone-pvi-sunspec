@@ -90,7 +90,7 @@ async def async_update_device_registry(hass: HomeAssistant, config_entry):
         name=config_entry.data.get(CONF_NAME),
         serial_number=hub.data["comm_sernum"],
         sw_version=hub.data["comm_version"],
-        via_device_id=(DOMAIN, hub.data["comm_sernum"]),
+        via_device=(DOMAIN, hub.data["comm_sernum"]),
     )
 
 

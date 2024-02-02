@@ -93,6 +93,7 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
         self._device_manufact = self._hub.data["comm_manufact"]
         self._device_sn = self._hub.data["comm_sernum"]
         self._device_swver = self._hub.data["comm_version"]
+        self._device_hwver = self._hub.data["comm_options"]
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -154,12 +155,14 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def device_info(self):
-        """Return device attributes."""
+        """Return device specific attributes."""
         return {
+            "hw_version": self._device_hwver,
             "identifiers": {(DOMAIN, self._device_sn)},
-            "name": self._device_name,
-            "model": self._device_model,
             "manufacturer": self._device_manufact,
+            "model": self._device_model,
+            "name": self._device_name,
+            "serial_number": self._device_sn,
             "sw_version": self._device_swver,
-            "via_device": self._hub,
+            "via_device_id": (DOMAIN, self._device_sn),
         }

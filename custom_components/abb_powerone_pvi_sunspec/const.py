@@ -26,7 +26,11 @@ BINARY_SENSOR_DEVICE_CLASS = "connectivity"
 
 # Platforms
 SENSOR = "sensor"
-PLATFORMS = [SENSOR]
+PLATFORMS = [
+    "sensor",
+]
+UPDATE_LISTENER = "update_listener"
+DATA = "data"
 
 # Configuration and options
 CONF_NAME = "name"
@@ -40,6 +44,7 @@ DEFAULT_PORT = 502
 DEFAULT_SLAVE_ID = 2
 DEFAULT_BASE_ADDR = 0
 DEFAULT_SCAN_INTERVAL = 60
+MIN_SCAN_INTERVAL = 30
 STARTUP_MESSAGE = f"""
 -------------------------------------------------------------------
 {NAME}

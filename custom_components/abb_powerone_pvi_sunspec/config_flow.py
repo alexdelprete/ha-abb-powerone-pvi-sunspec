@@ -1,4 +1,7 @@
-"""Config Flow of ABB Power-One PVI SunSpec."""
+"""Config Flow for ABB Power-One PVI SunSpec.
+
+https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
+"""
 
 import ipaddress
 import logging
@@ -9,6 +12,7 @@ from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.selector import selector
 from pymodbus.exceptions import ConnectionException
 
 from .api import ABBPowerOnePVISunSpecHub
@@ -27,7 +31,7 @@ from .const import (
     DOMAIN,
 )
 
-_LOGGER: logging.Logger = logging.getLogger(__package__)
+_LOGGER = logging.getLogger(__name__)
 
 
 def host_valid(host):
@@ -44,7 +48,8 @@ def host_valid(host):
 def abb_powerone_pvi_sunspec_entries(hass: HomeAssistant):
     """Return the hosts already configured."""
     return {
-        entry.data.get(CONF_HOST) for entry in hass.config_entries.async_entries(DOMAIN)
+        config_entry.data.get(CONF_HOST)
+        for config_entry in hass.config_entries.async_entries(DOMAIN)
     }
 
 
@@ -145,7 +150,17 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_SCAN_INTERVAL,
                         default=DEFAULT_SCAN_INTERVAL,
-                    ): vol.All(vol.Coerce(int), vol.Range(min=30, max=600)),
+                    ): selector(
+                        {
+                            "number": {
+                                "min": 30,
+                                "max": 600,
+                                "step": 10,
+                                "unit_of_measurement": "s",
+                                "mode": "slider",
+                            }
+                        }
+                    ),
                 },
             ),
             errors=errors,
@@ -177,7 +192,17 @@ class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
                 vol.Required(
                     CONF_SCAN_INTERVAL,
                     default=self.config_entry.data.get(CONF_SCAN_INTERVAL),
-                ): vol.All(vol.Coerce(int), vol.Range(min=30, max=600)),
+                ): selector(
+                    {
+                        "number": {
+                            "min": 30,
+                            "max": 600,
+                            "step": 10,
+                            "unit_of_measurement": "s",
+                            "mode": "slider",
+                        }
+                    }
+                ),
             }
         )
 

@@ -1,4 +1,7 @@
-"""Constants for ABB Power-One PVI SunSpec."""
+"""Constants for ABB Power-One PVI SunSpec.
+
+https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
+"""
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.const import (

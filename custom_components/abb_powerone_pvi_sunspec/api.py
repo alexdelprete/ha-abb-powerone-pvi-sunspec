@@ -1,4 +1,7 @@
-"""Hub Implementation."""
+"""Hub Platform for ABB Power-One PVI SunSpec.
+
+https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
+"""
 
 import logging
 import socket
@@ -11,7 +14,7 @@ from pymodbus.payload import BinaryPayloadDecoder
 
 from .const import DEVICE_GLOBAL_STATUS, DEVICE_MODEL, DEVICE_STATUS, INVERTER_TYPE
 
-_LOGGER: logging.Logger = logging.getLogger(__package__)
+_LOGGER = logging.getLogger(__name__)
 
 
 class ConnectionError(Exception):

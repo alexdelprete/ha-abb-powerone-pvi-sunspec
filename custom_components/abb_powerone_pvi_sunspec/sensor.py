@@ -1,4 +1,7 @@
-"""Sensor Class of ABB Power-One PVI SunSpec."""
+"""Sensor Platform Device for ABB Power-One PVI SunSpec.
+
+https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
+"""
 
 import logging
 from typing import Any
@@ -20,7 +23,7 @@ from .const import (
     SENSOR_TYPES_THREE_PHASE,
 )
 
-_LOGGER: logging.Logger = logging.getLogger(__package__)
+_LOGGER = logging.getLogger(__name__)
 
 
 def add_sensor_defs(coordinator, config_entry, sensors, definitions):

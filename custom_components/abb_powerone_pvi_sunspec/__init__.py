@@ -78,7 +78,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
 async def async_update_device_registry(hass: HomeAssistant, config_entry):
     """Update device registry."""
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator = hass.data[DOMAIN][config_entry.entry_id][DATA]
     hub = coordinator.api
     device_registry = dr.async_get(hass)
     device_registry.async_get_or_create(

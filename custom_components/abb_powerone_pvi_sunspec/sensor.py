@@ -10,6 +10,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
+    DATA,
     DOMAIN,
     INVERTER_TYPE,
     SENSOR_TYPES_COMMON,
@@ -22,7 +23,7 @@ from .const import (
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
-def add_sensor_defs(coordinator, entry, sensors, definitions):
+def add_sensor_defs(coordinator, config_entry, sensors, definitions):
     """Class Initializitation."""
 
     for sensor_info in definitions.values():
@@ -34,16 +35,20 @@ def add_sensor_defs(coordinator, entry, sensors, definitions):
             "device_class": sensor_info[4],
             "state_class": sensor_info[5],
         }
-        sensors.append(ABBPowerOnePVISunSpecSensor(coordinator, entry, sensor_data))
+        sensors.append(
+            ABBPowerOnePVISunSpecSensor(coordinator, config_entry, sensor_data)
+        )
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_devices):
+async def async_setup_entry(
+    hass: HomeAssistant, config_entry: ConfigEntry, async_add_devices
+):
     """Sensor Platform setup."""
 
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = hass.data[DOMAIN][config_entry.entry_id][DATA]
     hub = coordinator.api
     sensors = []
-    _LOGGER.debug("(sensor) Name: %s", entry.data.get(CONF_NAME))
+    _LOGGER.debug("(sensor) Name: %s", config_entry.data.get(CONF_NAME))
     _LOGGER.debug("(sensor) Manufacturer: %s", hub.data["comm_manufact"])
     _LOGGER.debug("(sensor) Model: %s", hub.data["comm_model"])
     _LOGGER.debug("(sensor) SW Version: %s", hub.data["comm_version"])
@@ -51,12 +56,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
     _LOGGER.debug("(sensor) MPPT #: %s", hub.data["mppt_nr"])
     _LOGGER.debug("(sensor) Serial#: %s", hub.data["comm_sernum"])
 
-    add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_COMMON)
+    add_sensor_defs(coordinator, config_entry, sensors, SENSOR_TYPES_COMMON)
 
     if hub.data["invtype"] == INVERTER_TYPE[101]:
-        add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_SINGLE_PHASE)
+        add_sensor_defs(coordinator, config_entry, sensors, SENSOR_TYPES_SINGLE_PHASE)
     elif hub.data["invtype"] == INVERTER_TYPE[103]:
-        add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_THREE_PHASE)
+        add_sensor_defs(coordinator, config_entry, sensors, SENSOR_TYPES_THREE_PHASE)
 
     _LOGGER.debug(
         "(sensor) DC Voltages : single=%d dc1=%d dc2=%d",
@@ -65,9 +70,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_d
         hub.data["dc2volt"],
     )
     if hub.data["mppt_nr"] == 1:
-        add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_SINGLE_MPPT)
+        add_sensor_defs(coordinator, config_entry, sensors, SENSOR_TYPES_SINGLE_MPPT)
     else:
-        add_sensor_defs(coordinator, entry, sensors, SENSOR_TYPES_DUAL_MPPT)
+        add_sensor_defs(coordinator, config_entry, sensors, SENSOR_TYPES_DUAL_MPPT)
 
     async_add_devices(sensors)
 

@@ -50,7 +50,8 @@ class ABBPowerOnePVISunSpecHub:
         self._slave_id = slave_id
         self._base_addr = base_addr
         self._update_interval = scan_interval
-        # Ensure ModBus Timeout is 1s less than update_interval
+        # Ensure ModBus Timeout is 1s less than scan_interval
+        # https://github.com/binsentsu/home-assistant-solaredge-modbus/pull/183
         self._timeout = self._update_interval - 1
         self._client = ModbusTcpClient(
             host=self._host, port=self._port, timeout=self._timeout
@@ -192,12 +193,15 @@ class ABBPowerOnePVISunSpecHub:
                     self._slave_id,
                     self._base_addr,
                 )
-                self.read_sunspec_modbus_model_1()
-                self.read_sunspec_modbus_model_101_103()
-                self.read_sunspec_modbus_model_160()
+                result = await self._hass.async_add_executor_job(
+                    self.read_sunspec_modbus
+                )
                 self.close()
                 _LOGGER.debug("End Get data")
-                return True
+                if result:
+                    return True
+                else:
+                    return False
             else:
                 _LOGGER.debug("Get Data failed: client not connected")
                 return False
@@ -207,6 +211,19 @@ class ABBPowerOnePVISunSpecHub:
         except ModbusException as modbus_error:
             _LOGGER.debug(f"Async Get Data modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
+
+    def read_sunspec_modbus(self):
+        """Read Modbus Data Function."""
+        try:
+            self.read_sunspec_modbus_model_1()
+            self.read_sunspec_modbus_model_101_103()
+            self.read_sunspec_modbus_model_160()
+            result = True
+        except Exception as modbus_error:
+            _LOGGER.debug(f"Error reading modbus data: {modbus_error}")
+            result = False
+            raise ModbusError() from modbus_error
+        return result
 
     def read_sunspec_modbus_model_1(self):
         """Read SunSpec Model 1 Data."""

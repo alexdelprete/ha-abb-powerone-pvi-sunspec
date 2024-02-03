@@ -55,6 +55,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     # Update listener for config option changes
     update_listener = config_entry.add_update_listener(_async_update_listener)
 
+    # Add coordinator and update_listener to config_entry
     hass.data[DOMAIN][config_entry.entry_id] = {
         DATA: coordinator,
         UPDATE_LISTENER: update_listener,
@@ -73,7 +74,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
 
 async def async_update_device_registry(hass: HomeAssistant, config_entry):
-    """Update device registry."""
+    """Manual device registration."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id][DATA]
     hub = coordinator.api
     device_registry = dr.async_get(hass)
@@ -109,10 +110,9 @@ async def async_remove_config_entry_device(
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Handle removal of config_entry."""
-
     _LOGGER.debug("Unload config_entry")
+    # Check if there are other instances
     if get_instance_count(hass) == 0:
-        # Unload lovelace module resource if only instance
         _LOGGER.debug("Unload config_entry: no more entries found")
 
     _LOGGER.debug("Unload integration platforms")
@@ -138,6 +138,7 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> 
         return False  # unload failed
 
 
+# Sample migration code in case it's needed
 # async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 #     """Migrate an old config_entry."""
 #     version = config_entry.version

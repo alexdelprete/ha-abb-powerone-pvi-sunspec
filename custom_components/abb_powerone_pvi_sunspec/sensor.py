@@ -44,7 +44,7 @@ def add_sensor_defs(coordinator, config_entry, sensors, definitions):
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, config_entry: ConfigEntry, async_add_devices
+    hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities
 ):
     """Sensor Platform setup."""
 
@@ -77,7 +77,7 @@ async def async_setup_entry(
     else:
         add_sensor_defs(coordinator, config_entry, sensors, SENSOR_TYPES_DUAL_MPPT)
 
-    async_add_devices(sensors)
+    async_add_entities(sensors)
 
     return True
 
@@ -153,8 +153,8 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def should_poll(self) -> bool:
-        """Data is delivered by the hub."""
-        return False
+        """Data is not delivered by the hub."""
+        return True
 
     @property
     def unique_id(self):

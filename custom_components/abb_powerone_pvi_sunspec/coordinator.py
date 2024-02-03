@@ -34,18 +34,11 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         self.scan_interval = config_entry.options.get(
             CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
         )
-        self.update_interval = (
-            timedelta(
-                seconds=self.scan_interval
-                if self.scan_interval > MIN_SCAN_INTERVAL
-                else MIN_SCAN_INTERVAL
-            ),
-        )
+        if self.scan_interval < MIN_SCAN_INTERVAL:
+            self.scan_interval = MIN_SCAN_INTERVAL
+        self.update_interval = timedelta(seconds=self.scan_interval)
         _LOGGER.debug(
             f"Scan Interval: scan_interval={self.scan_interval} update_interval={self.update_interval}"
-        )
-        _LOGGER.debug(
-            f"Scan Interval: CONF_SCAN_INTERVAL={CONF_SCAN_INTERVAL} DEFAULT_SCAN_INTERVAL={DEFAULT_SCAN_INTERVAL}"
         )
         super().__init__(
             hass,

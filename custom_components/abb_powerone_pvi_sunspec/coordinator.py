@@ -31,7 +31,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
         """Initialize data update coordinator."""
-        self.scan_interval = config_entry.options.get(
+        self.scan_interval = config_entry.data.get(
             CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
         )
         if self.scan_interval < MIN_SCAN_INTERVAL:
@@ -40,6 +40,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         _LOGGER.debug(
             f"Scan Interval: scan_interval={self.scan_interval} update_interval={self.update_interval}"
         )
+
         super().__init__(
             hass,
             _LOGGER,

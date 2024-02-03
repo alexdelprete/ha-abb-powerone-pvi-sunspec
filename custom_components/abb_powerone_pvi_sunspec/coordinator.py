@@ -29,6 +29,8 @@ _LOGGER = logging.getLogger(__name__)
 class HubDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
 
+    config_entry: ConfigEntry
+
     def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
         """Initialize data update coordinator."""
         self.scan_interval = config_entry.options.get(

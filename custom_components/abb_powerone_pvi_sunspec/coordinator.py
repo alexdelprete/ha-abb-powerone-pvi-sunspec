@@ -29,23 +29,30 @@ _LOGGER = logging.getLogger(__name__)
 class HubDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
 
-    config_entry: ConfigEntry
-
     def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
         """Initialize data update coordinator."""
         self.scan_interval = config_entry.options.get(
             CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
+        )
+        self.update_interval = (
+            timedelta(
+                seconds=self.scan_interval
+                if self.scan_interval > MIN_SCAN_INTERVAL
+                else MIN_SCAN_INTERVAL
+            ),
+        )
+        _LOGGER.debug(
+            f"Scan Interval: scan_interval={self.scan_interval} update_interval={self.update_interval}"
+        )
+        _LOGGER.debug(
+            f"Scan Interval: CONF_SCAN_INTERVAL={CONF_SCAN_INTERVAL} DEFAULT_SCAN_INTERVAL={DEFAULT_SCAN_INTERVAL}"
         )
         super().__init__(
             hass,
             _LOGGER,
             name=f"{DOMAIN} ({config_entry.unique_id})",
             update_method=self.async_update_data,
-            update_interval=timedelta(
-                seconds=self.scan_interval
-                if self.scan_interval > MIN_SCAN_INTERVAL
-                else MIN_SCAN_INTERVAL
-            ),
+            update_interval=self.update_interval,
         )
 
         self.hub_version = 0
@@ -66,7 +73,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
             self.port,
             self.slave_id,
             self.base_addr,
-            self.scan_interval,
+            self.update_interval,
         )
 
         _LOGGER.debug("Data: %s", config_entry.data)

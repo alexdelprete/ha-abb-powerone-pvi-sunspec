@@ -48,7 +48,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     await coordinator.async_config_entry_first_refresh()
     hub = coordinator.api
     if not hub.data["comm_sernum"]:
-        raise ConfigEntryNotReady
+        raise ConfigEntryNotReady(
+            f"Timeout connecting to {config_entry.data.get(CONF_NAME)}"
+        )
 
     # Update listener for config option changes
     update_listener = config_entry.add_update_listener(_async_update_listener)

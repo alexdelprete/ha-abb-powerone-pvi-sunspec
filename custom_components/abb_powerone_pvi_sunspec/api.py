@@ -40,7 +40,7 @@ class ABBPowerOnePVISunSpecHub:
         port,
         slave_id,
         base_addr,
-        update_interval,
+        scan_interval,
     ):
         """Initialize the Modbus hub."""
         self._hass = hass
@@ -49,7 +49,7 @@ class ABBPowerOnePVISunSpecHub:
         self._port = port
         self._slave_id = slave_id
         self._base_addr = base_addr
-        self._update_interval = update_interval
+        self._update_interval = scan_interval
         # Ensure ModBus Timeout is 1s less than update_interval
         self._timeout = self._update_interval - 1
         self._client = ModbusTcpClient(

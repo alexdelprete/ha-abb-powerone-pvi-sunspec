@@ -66,7 +66,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
             self.port,
             self.slave_id,
             self.base_addr,
-            self.update_interval,
+            self.scan_interval,
         )
 
         _LOGGER.debug("Data: %s", config_entry.data)

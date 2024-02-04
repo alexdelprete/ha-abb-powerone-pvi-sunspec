@@ -109,7 +109,7 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        _LOGGER.debug(f"{self.name} sensor update requested")
+        _LOGGER.debug(f"{self.name} sensor state written to state machine")
         self._state = self._hub.data[self._key]
         self.async_write_ha_state()
 
@@ -165,7 +165,7 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
     @property
     def should_poll(self) -> bool:
         """HA state machine writes are managed by the coordinator."""
-        return False
+        return True
 
     @property
     def unique_id(self):

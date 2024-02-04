@@ -177,10 +177,12 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
         """Return device specific attributes."""
         return {
             "configuration_url": f"http://{self._device_host}",
+            "hw_version": None,
             "identifiers": {(DOMAIN, self._device_sn)},
             "manufacturer": self._device_manufact,
             "model": self._device_model,
             "name": self._device_name,
             "serial_number": self._device_sn,
             "sw_version": self._device_swver,
+            "via_device": None,
         }

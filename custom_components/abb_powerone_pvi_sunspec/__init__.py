@@ -81,6 +81,7 @@ async def async_update_device_registry(hass: HomeAssistant, config_entry):
     device_registry = dr.async_get(hass)
     device_registry.async_get_or_create(
         config_entry_id=config_entry.entry_id,
+        hw_version=None,
         configuration_url=f"http://{config_entry.data.get(CONF_HOST)}",
         identifiers={(DOMAIN, hub.data["comm_sernum"])},
         manufacturer=hub.data["comm_manufact"],
@@ -88,6 +89,7 @@ async def async_update_device_registry(hass: HomeAssistant, config_entry):
         name=config_entry.data.get(CONF_NAME),
         serial_number=hub.data["comm_sernum"],
         sw_version=hub.data["comm_version"],
+        via_device=None,
     )
 
 

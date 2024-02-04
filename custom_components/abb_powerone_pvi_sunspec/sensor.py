@@ -8,11 +8,13 @@ from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
+    CONF_HOST,
+    CONF_NAME,
     DATA,
     DOMAIN,
     INVERTER_TYPE,
@@ -97,6 +99,7 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
         self._device_class = sensor_data["device_class"]
         self._state_class = sensor_data["state_class"]
         self._device_name = config_entry.data.get(CONF_NAME)
+        self._device_host = config_entry.data.get(CONF_HOST)
         self._device_model = self._hub.data["comm_model"]
         self._device_manufact = self._hub.data["comm_manufact"]
         self._device_sn = self._hub.data["comm_sernum"]
@@ -141,6 +144,14 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
         return self._state_class
 
     @property
+    def entity_category(self):
+        """Return the sensor entity_category."""
+        if self._state_class is None:
+            return EntityCategory.DIAGNOSTIC
+        else:
+            return None
+
+    @property
     def native_value(self):
         """Return the state of the sensor."""
         if self._key in self._hub.data:
@@ -153,8 +164,8 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def should_poll(self) -> bool:
-        """Data is not delivered by the hub."""
-        return True
+        """HA state machine writes are managed by the coordinator."""
+        return False
 
     @property
     def unique_id(self):
@@ -165,6 +176,7 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
     def device_info(self):
         """Return device specific attributes."""
         return {
+            "configuration_url": f"http://{self._device_host}",
             "hw_version": self._device_hwver,
             "identifiers": {(DOMAIN, self._device_sn)},
             "manufacturer": self._device_manufact,

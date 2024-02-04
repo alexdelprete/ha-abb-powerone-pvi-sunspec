@@ -12,6 +12,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
 
 from .const import (
+    CONF_HOST,
     CONF_NAME,
     DATA,
     DOMAIN,
@@ -80,6 +81,7 @@ async def async_update_device_registry(hass: HomeAssistant, config_entry):
     device_registry = dr.async_get(hass)
     device_registry.async_get_or_create(
         config_entry_id=config_entry.entry_id,
+        configuration_url=f"http://{config_entry.data.get(CONF_HOST)}",
         hw_version=hub.data["comm_options"],
         identifiers={(DOMAIN, hub.data["comm_sernum"])},
         manufacturer=hub.data["comm_manufact"],

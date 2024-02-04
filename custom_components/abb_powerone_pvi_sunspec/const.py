@@ -117,7 +117,7 @@ SENSOR_TYPES_COMMON = {
         "acfreq",
         UnitOfFrequency.HERTZ,
         "mdi:sine-wave",
-        None,
+        SensorDeviceClass.FREQUENCY,
         SensorStateClass.MEASUREMENT,
     ],
     "DC_Power": [

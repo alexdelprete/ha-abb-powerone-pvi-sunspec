@@ -31,16 +31,19 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
         """Initialize data update coordinator."""
+        # get scan_interval from user config
         self.scan_interval = config_entry.data.get(
             CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
         )
+        # enforce scan_interval lower bound
         if self.scan_interval < MIN_SCAN_INTERVAL:
             self.scan_interval = MIN_SCAN_INTERVAL
+        # set coordinator update interval
         self.update_interval = timedelta(seconds=self.scan_interval)
         _LOGGER.debug(
             f"Scan Interval: scan_interval={self.scan_interval} update_interval={self.update_interval}"
         )
-
+        # set update method and interval for coordinator
         super().__init__(
             hass,
             _LOGGER,

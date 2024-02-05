@@ -52,7 +52,6 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
             update_interval=self.update_interval,
         )
 
-        self.hub_version = 0
         self.last_update_time = datetime.now()
         self.last_update_status = ""
 

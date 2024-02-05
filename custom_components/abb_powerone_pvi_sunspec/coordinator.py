@@ -10,7 +10,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import ABBPowerOnePVISunSpecHub
+from .api import ABBPowerOnePVISunSpecAPI
 from .const import (
     CONF_BASE_ADDR,
     CONF_HOST,
@@ -63,7 +63,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         self.port = config_entry.data.get(CONF_PORT)
         self.slave_id = config_entry.data.get(CONF_SLAVE_ID)
         self.base_addr = config_entry.data.get(CONF_BASE_ADDR)
-        self.api = ABBPowerOnePVISunSpecHub(
+        self.api = ABBPowerOnePVISunSpecAPI(
             hass,
             self.name,
             self.host,
@@ -91,10 +91,12 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
             self.last_update_time = datetime.now()
             self.last_update_status = "Success"
 
-            _LOGGER.debug(f"Hub update completed at {self.last_update_time}")
+            _LOGGER.debug(f"Coordinator update completed at {self.last_update_time}")
 
             return True
         except Exception as ex:
             self.last_update_status = "Failed"
-            _LOGGER.debug(f"Hub Update Data error: {ex} at {self.last_update_time}")
+            _LOGGER.debug(
+                f"Coordinator Update Data error: {ex} at {self.last_update_time}"
+            )
             raise UpdateFailed() from ex

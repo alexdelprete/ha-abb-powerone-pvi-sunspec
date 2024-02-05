@@ -51,30 +51,30 @@ async def async_setup_entry(
     """Sensor Platform setup."""
 
     coordinator = hass.data[DOMAIN][config_entry.entry_id][DATA]
-    hub = coordinator.api
+    api = coordinator.api
     sensors = []
     _LOGGER.debug("(sensor) Name: %s", config_entry.data.get(CONF_NAME))
-    _LOGGER.debug("(sensor) Manufacturer: %s", hub.data["comm_manufact"])
-    _LOGGER.debug("(sensor) Model: %s", hub.data["comm_model"])
-    _LOGGER.debug("(sensor) SW Version: %s", hub.data["comm_version"])
-    _LOGGER.debug("(sensor) Inverter Type (str): %s", hub.data["invtype"])
-    _LOGGER.debug("(sensor) MPPT #: %s", hub.data["mppt_nr"])
-    _LOGGER.debug("(sensor) Serial#: %s", hub.data["comm_sernum"])
+    _LOGGER.debug("(sensor) Manufacturer: %s", api.data["comm_manufact"])
+    _LOGGER.debug("(sensor) Model: %s", api.data["comm_model"])
+    _LOGGER.debug("(sensor) SW Version: %s", api.data["comm_version"])
+    _LOGGER.debug("(sensor) Inverter Type (str): %s", api.data["invtype"])
+    _LOGGER.debug("(sensor) MPPT #: %s", api.data["mppt_nr"])
+    _LOGGER.debug("(sensor) Serial#: %s", api.data["comm_sernum"])
 
     add_sensor_defs(coordinator, config_entry, sensors, SENSOR_TYPES_COMMON)
 
-    if hub.data["invtype"] == INVERTER_TYPE[101]:
+    if api.data["invtype"] == INVERTER_TYPE[101]:
         add_sensor_defs(coordinator, config_entry, sensors, SENSOR_TYPES_SINGLE_PHASE)
-    elif hub.data["invtype"] == INVERTER_TYPE[103]:
+    elif api.data["invtype"] == INVERTER_TYPE[103]:
         add_sensor_defs(coordinator, config_entry, sensors, SENSOR_TYPES_THREE_PHASE)
 
     _LOGGER.debug(
         "(sensor) DC Voltages : single=%d dc1=%d dc2=%d",
-        hub.data["dcvolt"],
-        hub.data["dc1volt"],
-        hub.data["dc2volt"],
+        api.data["dcvolt"],
+        api.data["dc1volt"],
+        api.data["dc2volt"],
     )
-    if hub.data["mppt_nr"] == 1:
+    if api.data["mppt_nr"] == 1:
         add_sensor_defs(coordinator, config_entry, sensors, SENSOR_TYPES_SINGLE_MPPT)
     else:
         add_sensor_defs(coordinator, config_entry, sensors, SENSOR_TYPES_DUAL_MPPT)
@@ -115,7 +115,7 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def has_entity_name(self):
-        """Return the name."""
+        """Return the name state."""
         return True
 
     @property

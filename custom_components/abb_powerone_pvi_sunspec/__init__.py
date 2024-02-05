@@ -47,8 +47,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     # raise ConfigEntryNotReady and setup will try again later
     # ref.: https://developers.home-assistant.io/docs/integration_setup_failures
     await coordinator.async_config_entry_first_refresh()
-    hub = coordinator.api
-    if not hub.data["comm_sernum"]:
+    api = coordinator.api
+    if not api.data["comm_sernum"]:
         raise ConfigEntryNotReady(
             f"Timeout connecting to {config_entry.data.get(CONF_NAME)}"
         )
@@ -68,7 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
             hass.config_entries.async_forward_entry_setup(config_entry, platform)
         )
 
-    # Add hub as device
+    # Regiser device
     await async_update_device_registry(hass, config_entry)
 
     return True
@@ -77,18 +77,18 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 async def async_update_device_registry(hass: HomeAssistant, config_entry):
     """Manual device registration."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id][DATA]
-    hub = coordinator.api
+    api = coordinator.api
     device_registry = dr.async_get(hass)
     device_registry.async_get_or_create(
         config_entry_id=config_entry.entry_id,
         hw_version=None,
         configuration_url=f"http://{config_entry.data.get(CONF_HOST)}",
-        identifiers={(DOMAIN, hub.data["comm_sernum"])},
-        manufacturer=hub.data["comm_manufact"],
-        model=hub.data["comm_model"],
+        identifiers={(DOMAIN, api.data["comm_sernum"])},
+        manufacturer=api.data["comm_manufact"],
+        model=api.data["comm_model"],
         name=config_entry.data.get(CONF_NAME),
-        serial_number=hub.data["comm_sernum"],
-        sw_version=hub.data["comm_version"],
+        serial_number=api.data["comm_sernum"],
+        sw_version=api.data["comm_version"],
         via_device=None,
     )
 
@@ -148,12 +148,12 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> 
 #     # 1-> 2: Migration format
 #     if version == 1:
 #         hub_name = config_entry.data.get(CONF_NAME)
-#         hub = hass.data[DOMAIN][hub_name]["hub"]
-#         # hub.read_sunspec_modbus_init()
-#         # hub.read_sunspec_modbus_data()
+#         api = hass.data[DOMAIN][hub_name]["hub"]
+#         # api.read_sunspec_modbus_init()
+#         # api.read_sunspec_modbus_data()
 #         _LOGGER.debug("Migrating from version %s", version)
 #         old_uid = config_entry.unique_id
-#         new_uid = hub.data["comm_sernum"]
+#         new_uid = api.data["comm_sernum"]
 #         if old_uid != new_uid:
 #             hass.config_entries.async_update_entry(
 #                 config_entry, unique_id=new_uid

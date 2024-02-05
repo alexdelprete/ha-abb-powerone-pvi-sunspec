@@ -15,7 +15,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.selector import selector
 from pymodbus.exceptions import ConnectionException
 
-from .api import ABBPowerOnePVISunSpecHub
+from .api import ABBPowerOnePVISunSpecAPI
 from .const import (
     CONF_BASE_ADDR,
     CONF_HOST,
@@ -77,15 +77,15 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Return true if credentials is valid."""
         _LOGGER.debug(f"Test connection to {host}:{port} slave id {slave_id}")
         try:
-            _LOGGER.debug("Creating Hub")
-            self.hub = ABBPowerOnePVISunSpecHub(
+            _LOGGER.debug("Creating API Client")
+            self.api = ABBPowerOnePVISunSpecAPI(
                 self.hass, name, host, port, slave_id, base_addr, scan_interval
             )
-            _LOGGER.debug("Hub created: calling get data")
-            self.hub_data = await self.hub.async_get_data()
-            _LOGGER.debug("After Hub, get data")
-            _LOGGER.debug(f"Hub Data: {self.hub_data}")
-            return self.hub.data["comm_sernum"]
+            _LOGGER.debug("API Client created: calling get data")
+            self.api_data = await self.api.async_get_data()
+            _LOGGER.debug("API Client: get data")
+            _LOGGER.debug(f"API Client Data: {self.api_data}")
+            return self.api.data["comm_sernum"]
         except ConnectionException as connerr:
             _LOGGER.error(
                 f"Failed to connect to host: {host}:{port} - slave id: {slave_id} - Exception: {connerr}"

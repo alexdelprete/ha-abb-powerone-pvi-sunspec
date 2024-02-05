@@ -1,4 +1,4 @@
-"""Hub Platform for ABB Power-One PVI SunSpec.
+"""API Platform for ABB Power-One PVI SunSpec.
 
 https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 """
@@ -29,7 +29,7 @@ class ModbusError(Exception):
     pass
 
 
-class ABBPowerOnePVISunSpecHub:
+class ABBPowerOnePVISunSpecAPI:
     """Thread safe wrapper class for pymodbus."""
 
     def __init__(
@@ -42,7 +42,7 @@ class ABBPowerOnePVISunSpecHub:
         base_addr,
         scan_interval,
     ):
-        """Initialize the Modbus hub."""
+        """Initialize the Modbus API Client."""
         self._hass = hass
         self._name = name
         self._host = host
@@ -64,7 +64,7 @@ class ABBPowerOnePVISunSpecHub:
 
     @property
     def name(self):
-        """Return the name of this hub."""
+        """Return the device name."""
         return self._name
 
     def check_port(self) -> bool:
@@ -107,7 +107,7 @@ class ABBPowerOnePVISunSpecHub:
     def connect(self):
         """Connect client."""
         _LOGGER.debug(
-            f"Hub connect to IP: {self._host} port: {self._port} slave id: {self._slave_id} timeout: {self._timeout}"
+            f"API Client connect to IP: {self._host} port: {self._port} slave id: {self._slave_id} timeout: {self._timeout}"
         )
         if self.check_port():
             _LOGGER.debug("Inverter ready for Modbus TCP connection")

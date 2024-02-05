@@ -84,7 +84,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
             config_entry.data.get(CONF_SLAVE_ID),
         )
 
-    async def async_update_data(self):
+    async def _async_update_data(self):
         """Update data method."""
         _LOGGER.debug("ABB SunSpec Update data coordinator update")
         try:

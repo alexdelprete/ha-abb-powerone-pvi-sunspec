@@ -201,8 +201,10 @@ class ABBPowerOnePVISunSpecAPI:
                 self.close()
                 _LOGGER.debug("End Get data")
                 if result:
+                    _LOGGER.debug("Get Data Result: valid")
                     return True
                 else:
+                    _LOGGER.debug("Get Data Result: invalid")
                     return False
             else:
                 _LOGGER.debug("Get Data failed: client not connected")
@@ -221,8 +223,9 @@ class ABBPowerOnePVISunSpecAPI:
             self.read_sunspec_modbus_model_101_103()
             self.read_sunspec_modbus_model_160()
             result = True
+            _LOGGER.debug(f"read_sunspec_modbus: success {result}")
         except Exception as modbus_error:
-            _LOGGER.debug(f"Error reading modbus data: {modbus_error}")
+            _LOGGER.debug(f"Error in read_sunspec_modbus: {modbus_error}")
             result = False
             raise ModbusError() from modbus_error
         return result

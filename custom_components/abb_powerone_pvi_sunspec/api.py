@@ -198,7 +198,7 @@ class ABBPowerOnePVISunSpecAPI:
                 # result = await self._hass.async_add_executor_job(
                 #     self.read_sunspec_modbus
                 # )
-                result = self.read_sunspec_modbus
+                result = self.read_sunspec_modbus()
                 self.close()
                 _LOGGER.debug("End Get data")
                 if result:

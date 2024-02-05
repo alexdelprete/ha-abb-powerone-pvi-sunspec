@@ -195,10 +195,9 @@ class ABBPowerOnePVISunSpecAPI:
                 )
                 # HA proper way to call a sync function from async function
                 # https://developers.home-assistant.io/docs/asyncio_working_with_async?#calling-sync-functions-from-async
-                # result = await self._hass.async_add_executor_job(
-                #     self.read_sunspec_modbus
-                # )
-                result = self.read_sunspec_modbus()
+                result = await self._hass.async_add_executor_job(
+                    self.read_sunspec_modbus
+                )
                 self.close()
                 _LOGGER.debug("End Get data")
                 if result:

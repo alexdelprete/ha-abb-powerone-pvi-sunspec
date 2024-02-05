@@ -29,6 +29,8 @@ _LOGGER = logging.getLogger(__name__)
 class HubDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
 
+    config_entry: ConfigEntry
+
     def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
         """Initialize data update coordinator."""
         # get scan_interval from user config
@@ -48,7 +50,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
             hass,
             _LOGGER,
             name=f"{DOMAIN} ({config_entry.unique_id})",
-            update_method=self.async_update_data,
+            # update_method=self.async_update_data,
             update_interval=self.update_interval,
         )
 
@@ -83,7 +85,7 @@ class HubDataUpdateCoordinator(DataUpdateCoordinator):
         )
 
     async def async_update_data(self):
-        """Update data via library."""
+        """Update data method."""
         _LOGGER.debug("ABB SunSpec Update data coordinator update")
         try:
             await self.api.async_get_data()

@@ -90,8 +90,8 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, config_entry, sensor_data):
         """Class Initializitation."""
 
-        super().__init__(coordinator)
-        self._hub = coordinator.api
+        # super().__init__(coordinator)
+        self._api = coordinator.api
         self._name = sensor_data["name"]
         self._key = sensor_data["key"]
         self._unit_of_measurement = sensor_data["unit"]
@@ -100,21 +100,21 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
         self._state_class = sensor_data["state_class"]
         self._device_name = config_entry.data.get(CONF_NAME)
         self._device_host = config_entry.data.get(CONF_HOST)
-        self._device_model = self._hub.data["comm_model"]
-        self._device_manufact = self._hub.data["comm_manufact"]
-        self._device_sn = self._hub.data["comm_sernum"]
-        self._device_swver = self._hub.data["comm_version"]
-        self._device_hwver = self._hub.data["comm_options"]
+        self._device_model = self._api.data["comm_model"]
+        self._device_manufact = self._api.data["comm_manufact"]
+        self._device_sn = self._api.data["comm_sernum"]
+        self._device_swver = self._api.data["comm_version"]
+        self._device_hwver = self._api.data["comm_options"]
 
     @callback
     def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
+        """Fetch new state data for the sensor."""
         # write debug log only on first sensor to avoid spamming
         if self.name == "Manufacturer":
             _LOGGER.debug(
                 "_handle_coordinator_update: sensors state written to state machine"
             )
-        self._state = self._hub.data[self._key]
+        self._state = self._api.data[self._key]
         self.async_write_ha_state()
 
     @property
@@ -158,8 +158,8 @@ class ABBPowerOnePVISunSpecSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         """Return the state of the sensor."""
-        if self._key in self._hub.data:
-            return self._hub.data[self._key]
+        if self._key in self._api.data:
+            return self._api.data[self._key]
 
     @property
     def state_attributes(self) -> dict[str, Any] | None:

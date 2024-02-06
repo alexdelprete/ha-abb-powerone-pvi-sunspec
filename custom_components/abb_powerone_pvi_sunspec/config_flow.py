@@ -45,7 +45,7 @@ def host_valid(host):
 
 
 @callback
-def abb_powerone_pvi_sunspec_entries(hass: HomeAssistant):
+def get_host_from_config(hass: HomeAssistant):
     """Return the hosts already configured."""
     return {
         config_entry.data.get(CONF_HOST)
@@ -67,7 +67,7 @@ class ABBPowerOneFimerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def _host_in_configuration_exists(self, host) -> bool:
         """Return True if host exists in configuration."""
-        if host in abb_powerone_pvi_sunspec_entries(self.hass):
+        if host in get_host_from_config(self.hass):
             return True
         return False
 

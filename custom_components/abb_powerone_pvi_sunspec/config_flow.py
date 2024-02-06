@@ -15,7 +15,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.selector import selector
 from pymodbus.exceptions import ConnectionException
 
-from .api import ABBPowerOnePVISunSpecAPI
+from .api import ABBPowerOneFimerAPI
 from .const import (
     CONF_BASE_ADDR,
     CONF_HOST,
@@ -53,7 +53,7 @@ def abb_powerone_pvi_sunspec_entries(hass: HomeAssistant):
     }
 
 
-class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class ABBPowerOneFimerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """ABB Power-One PVI SunSpec config flow."""
 
     VERSION = 1
@@ -63,7 +63,7 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry: ConfigEntry):
         """Initiate Options Flow Instance."""
-        return ABBPowerOnePVISunSpecOptionsFlow(config_entry)
+        return ABBPowerOneFimerOptionsFlow(config_entry)
 
     def _host_in_configuration_exists(self, host) -> bool:
         """Return True if host exists in configuration."""
@@ -78,7 +78,7 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         _LOGGER.debug(f"Test connection to {host}:{port} slave id {slave_id}")
         try:
             _LOGGER.debug("Creating API Client")
-            self.api = ABBPowerOnePVISunSpecAPI(
+            self.api = ABBPowerOneFimerAPI(
                 self.hass, name, host, port, slave_id, base_addr, scan_interval
             )
             _LOGGER.debug("API Client created: calling get data")
@@ -167,7 +167,7 @@ class ABBPowerOnePVISunSpecConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
 
-class ABBPowerOnePVISunSpecOptionsFlow(config_entries.OptionsFlow):
+class ABBPowerOneFimerOptionsFlow(config_entries.OptionsFlow):
     """Config flow options handler."""
 
     VERSION = 1

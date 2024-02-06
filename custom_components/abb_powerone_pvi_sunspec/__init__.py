@@ -20,7 +20,7 @@ from .const import (
     STARTUP_MESSAGE,
     UPDATE_LISTENER,
 )
-from .coordinator import HubDataUpdateCoordinator
+from .coordinator import ABBPowerOneFimerCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         _LOGGER.info(STARTUP_MESSAGE)
 
     _LOGGER.debug("Setup config_entry for ABB")
-    coordinator = HubDataUpdateCoordinator(hass, config_entry)
+    coordinator = ABBPowerOneFimerCoordinator(hass, config_entry)
     # If the refresh fails, async_config_entry_first_refresh() will
     # raise ConfigEntryNotReady and setup will try again later
     # ref.: https://developers.home-assistant.io/docs/integration_setup_failures
@@ -147,10 +147,10 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> 
 
 #     # 1-> 2: Migration format
 #     if version == 1:
-#         hub_name = config_entry.data.get(CONF_NAME)
-#         api = hass.data[DOMAIN][hub_name]["hub"]
-#         # api.read_sunspec_modbus_init()
-#         # api.read_sunspec_modbus_data()
+#         # Get handler to coordinator from config
+#         coordinator = hass.data[DOMAIN][config_entry.entry_id][DATA]
+#         # Get handler to API data in coordinator
+#         api = coordinator.api
 #         _LOGGER.debug("Migrating from version %s", version)
 #         old_uid = config_entry.unique_id
 #         new_uid = api.data["comm_sernum"]

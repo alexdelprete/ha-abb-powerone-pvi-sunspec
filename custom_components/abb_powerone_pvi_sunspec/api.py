@@ -29,7 +29,7 @@ class ModbusError(Exception):
     pass
 
 
-class ABBPowerOnePVISunSpecAPI:
+class ABBPowerOneFimerAPI:
     """Thread safe wrapper class for pymodbus."""
 
     def __init__(
@@ -193,7 +193,7 @@ class ABBPowerOnePVISunSpecAPI:
                     self._slave_id,
                     self._base_addr,
                 )
-                # HA proper way to call a sync function from async function
+                # HA way to call a sync function from async function
                 # https://developers.home-assistant.io/docs/asyncio_working_with_async?#calling-sync-functions-from-async
                 result = await self._hass.async_add_executor_job(
                     self.read_sunspec_modbus
@@ -610,7 +610,11 @@ class ABBPowerOnePVISunSpecAPI:
             self.data["dcvolt"] = round(dc1volt, abs(dcvsf))
             dc1power = self.calculate_value(dc1power, dcwsf)
             self.data["dc1power"] = round(dc1power, abs(dcwsf))
-            _LOGGER.debug("(read_rt_160) dc1curr %d", self.data["dc1curr"])
+            _LOGGER.debug(
+                "(read_rt_160) Raw dc1curr: %d - Rounded dc1curr %d",
+                dc1curr,
+                self.data["dc1curr"],
+            )
             _LOGGER.debug("(read_rt_160) dc1volt %d", self.data["dc1volt"])
             _LOGGER.debug("(read_rt_160) dc1power %d", self.data["dc1power"])
 
@@ -629,7 +633,11 @@ class ABBPowerOnePVISunSpecAPI:
             self.data["dc2volt"] = round(dc2volt, abs(dcvsf))
             dc2power = self.calculate_value(dc2power, dcwsf)
             self.data["dc2power"] = round(dc2power, abs(dcwsf))
-            _LOGGER.debug("(read_rt_160) dc2curr %d", self.data["dc2curr"])
+            _LOGGER.debug(
+                "(read_rt_160) Raw dc2curr: %d - Rounded dc2curr %d",
+                dc2curr,
+                self.data["dc2curr"],
+            )
             _LOGGER.debug("(read_rt_160) dc2volt %d", self.data["dc2volt"])
             _LOGGER.debug("(read_rt_160) dc2power %d", self.data["dc2power"])
 

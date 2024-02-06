@@ -52,9 +52,7 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
             hass,
             _LOGGER,
             name=f"{DOMAIN} ({config_entry.unique_id})",
-            # BUG: If update_method is specified, two updates are made
-            # Workaround: override class _async_update_data()
-            # update_method=self.async_update_data,
+            update_method=self.async_update_data,
             update_interval=self.update_interval,
         )
 
@@ -80,7 +78,7 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
             self.scan_interval,
         )
 
-    async def _async_update_data(self):
+    async def async_update_data(self):
         """Update data method."""
         _LOGGER.debug("ABB SunSpec Update data coordinator update")
         try:

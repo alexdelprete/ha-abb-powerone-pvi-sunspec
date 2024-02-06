@@ -611,9 +611,7 @@ class ABBPowerOneFimerAPI:
             dc1power = self.calculate_value(dc1power, dcwsf)
             self.data["dc1power"] = round(dc1power, abs(dcwsf))
             _LOGGER.debug(
-                "(read_rt_160) Raw dc1curr: %d - Rounded dc1curr %d",
-                dc1curr,
-                self.data["dc1curr"],
+                f"(read_rt_160) dc1curr: {dc1curr} Round: {self.data["dc1curr"]} SF: {dcasf}"
             )
             _LOGGER.debug("(read_rt_160) dc1volt %d", self.data["dc1volt"])
             _LOGGER.debug("(read_rt_160) dc1power %d", self.data["dc1power"])
@@ -634,12 +632,10 @@ class ABBPowerOneFimerAPI:
             dc2power = self.calculate_value(dc2power, dcwsf)
             self.data["dc2power"] = round(dc2power, abs(dcwsf))
             _LOGGER.debug(
-                "(read_rt_160) Raw dc2curr: %d - Rounded dc2curr %d",
-                dc2curr,
-                self.data["dc2curr"],
+                f"(read_rt_160) dc2curr: {dc2curr} Round: {self.data["dc2curr"]} SF: {dcasf}"
             )
-            _LOGGER.debug("(read_rt_160) dc2volt %d", self.data["dc2volt"])
-            _LOGGER.debug("(read_rt_160) dc2power %d", self.data["dc2power"])
+            _LOGGER.debug("(read_rt_160) dc2volt %s", self.data["dc2volt"])
+            _LOGGER.debug("(read_rt_160) dc2power %s", self.data["dc2power"])
 
         _LOGGER.debug("(read_rt_160) Completed")
         return True

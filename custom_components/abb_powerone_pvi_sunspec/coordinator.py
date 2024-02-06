@@ -80,11 +80,13 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
 
     async def async_update_data(self):
         """Update data method."""
-        _LOGGER.debug("ABB SunSpec Update data coordinator update")
+        _LOGGER.debug(f"Data Coordinator: Update started at {datetime.now()}")
         try:
             self.last_update_status = await self.api.async_get_data()
             self.last_update_time = datetime.now()
-            _LOGGER.debug(f"Coordinator update completed at {self.last_update_time}")
+            _LOGGER.debug(
+                f"Data Coordinator: Update completed at {self.last_update_time}"
+            )
             return self.last_update_status
         except Exception as ex:
             self.last_update_status = False

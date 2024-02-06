@@ -70,7 +70,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry, async_add_entitie
         )
 
     _LOGGER.debug(
-        "(sensor) DC Voltages : single=%d dc1=%d dc2=%d",
+        "(sensor) DC Voltages : single=%s dc1=%s dc2=%s",
         coordinator.api.data["dcvolt"],
         coordinator.api.data["dc1volt"],
         coordinator.api.data["dc2volt"],
@@ -100,13 +100,8 @@ class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
         self._icon = sensor_data["icon"]
         self._device_class = sensor_data["device_class"]
         self._state_class = sensor_data["state_class"]
-        # self._device_name = config_entry.data.get(CONF_NAME)
-        # self._device_host = config_entry.data.get(CONF_HOST)
         self._device_name = self.coordinator.api.name
         self._device_host = self.coordinator.api.host
-        _LOGGER.debug(
-            f"Sensor - DevName: {self._device_name} DevHost: {self._device_host}"
-        )
         self._device_model = self.coordinator.api.data["comm_model"]
         self._device_manufact = self.coordinator.api.data["comm_manufact"]
         self._device_sn = self.coordinator.api.data["comm_sernum"]

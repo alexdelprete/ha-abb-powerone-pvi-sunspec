@@ -41,7 +41,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         hass.data.setdefault(DOMAIN, {})
         _LOGGER.info(STARTUP_MESSAGE)
 
-    _LOGGER.debug("Setup config_entry for ABB")
+    _LOGGER.debug(f"Setup config_entry for {DOMAIN}")
     coordinator = ABBPowerOneFimerCoordinator(hass, config_entry)
     # If the refresh fails, async_config_entry_first_refresh() will
     # raise ConfigEntryNotReady and setup will try again later

@@ -225,7 +225,7 @@ class ABBPowerOneFimerAPI:
             result = True
             _LOGGER.debug(f"read_sunspec_modbus: success {result}")
         except Exception as modbus_error:
-            _LOGGER.debug(f"Error in read_sunspec_modbus: {modbus_error}")
+            _LOGGER.debug(f"read_sunspec_modbus: failed with error: {modbus_error}")
             result = False
             raise ModbusError() from modbus_error
         return result
@@ -246,7 +246,7 @@ class ABBPowerOneFimerAPI:
             _LOGGER.debug("(read_rt_1) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_1) Base Address: %s", self._base_addr)
         except ModbusException as modbus_error:
-            _LOGGER.debug(f"Read M1 modbus_error: {modbus_error}")
+            _LOGGER.debug(f"ReadM1 modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
 
         # No connection errors, we can start scraping registers
@@ -540,7 +540,7 @@ class ABBPowerOneFimerAPI:
         # need to check and try the specific offset address (start address is 41104)
         if multi_mppt_id != 160:
             _LOGGER.debug(
-                "(read_rt_160) Model not 160 try another offset - multi_mppt_id: %d",
+                "(read_rt_160) Model not 160 try another offset - multi_mppt_id: %s",
                 multi_mppt_id,
             )
             try:
@@ -563,18 +563,18 @@ class ABBPowerOneFimerAPI:
 
             if multi_mppt_id != 160:
                 _LOGGER.debug(
-                    "(read_rt_160) Model not 160 (UNO-DM/REACT2) - multi_mppt_id: %d",
+                    "(read_rt_160) Model not 160 (UNO-DM/REACT2) - multi_mppt_id: %s",
                     multi_mppt_id,
                 )
                 return False
             else:
                 _LOGGER.debug(
-                    "(read_rt_160) Model is 160 (UNO-DM/REACT2) - multi_mppt_id: %d",
+                    "(read_rt_160) Model is 160 (UNO-DM/REACT2) - multi_mppt_id: %s",
                     multi_mppt_id,
                 )
         else:
             _LOGGER.debug(
-                "(read_rt_160) Model is 160 - multi_mppt_id: %d", multi_mppt_id
+                "(read_rt_160) Model is 160 - multi_mppt_id: %s", multi_mppt_id
             )
 
         # skip register 123
@@ -591,7 +591,7 @@ class ABBPowerOneFimerAPI:
         # register 130 (# of DC modules)
         multi_mppt_nr = decoder.decode_16bit_int()
         self.data["mppt_nr"] = multi_mppt_nr
-        _LOGGER.debug("(read_rt_160) mppt_nr %d", multi_mppt_nr)
+        _LOGGER.debug("(read_rt_160) mppt_nr %s", multi_mppt_nr)
 
         # if we have at least one DC module
         if multi_mppt_nr >= 1:

@@ -611,10 +611,13 @@ class ABBPowerOneFimerAPI:
             dc1power = self.calculate_value(dc1power, dcwsf)
             self.data["dc1power"] = round(dc1power, abs(dcwsf))
             _LOGGER.debug(
-                f"(read_rt_160) dc1curr: {dc1curr} Round: {self.data["dc1curr"]} SF: {dcasf}"
+                "(read_rt_160) dc1curr: %s Round: %s SF: %s",
+                dc1curr,
+                self.data["dc1curr"],
+                dcasf,
             )
-            _LOGGER.debug("(read_rt_160) dc1volt %d", self.data["dc1volt"])
-            _LOGGER.debug("(read_rt_160) dc1power %d", self.data["dc1power"])
+            _LOGGER.debug("(read_rt_160) dc1volt %s", self.data["dc1volt"])
+            _LOGGER.debug("(read_rt_160) dc1power %s", self.data["dc1power"])
 
         # if we have more than one DC module
         if multi_mppt_nr > 1:
@@ -632,7 +635,10 @@ class ABBPowerOneFimerAPI:
             dc2power = self.calculate_value(dc2power, dcwsf)
             self.data["dc2power"] = round(dc2power, abs(dcwsf))
             _LOGGER.debug(
-                f"(read_rt_160) dc2curr: {dc2curr} Round: {self.data["dc2curr"]} SF: {dcasf}"
+                "(read_rt_160) dc2curr: %s Round: %s SF: %s",
+                dc2curr,
+                self.data["dc2curr"],
+                dcasf,
             )
             _LOGGER.debug("(read_rt_160) dc2volt %s", self.data["dc2volt"])
             _LOGGER.debug("(read_rt_160) dc2power %s", self.data["dc2power"])

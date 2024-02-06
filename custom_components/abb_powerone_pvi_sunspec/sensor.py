@@ -12,7 +12,6 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
-    CONF_HOST,
     CONF_NAME,
     DATA,
     DOMAIN,
@@ -101,8 +100,13 @@ class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
         self._icon = sensor_data["icon"]
         self._device_class = sensor_data["device_class"]
         self._state_class = sensor_data["state_class"]
-        self._device_name = config_entry.data.get(CONF_NAME)
-        self._device_host = config_entry.data.get(CONF_HOST)
+        # self._device_name = config_entry.data.get(CONF_NAME)
+        # self._device_host = config_entry.data.get(CONF_HOST)
+        self._device_name = self.coordinator.api.name
+        self._device_host = self.coordinator.api.host
+        _LOGGER.debug(
+            f"Sensor - DevName: {self._device_name} DevHost: {self._device_host}"
+        )
         self._device_model = self.coordinator.api.data["comm_model"]
         self._device_manufact = self.coordinator.api.data["comm_manufact"]
         self._device_sn = self.coordinator.api.data["comm_sernum"]

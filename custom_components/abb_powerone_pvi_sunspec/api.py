@@ -60,12 +60,49 @@ class ABBPowerOneFimerAPI:
         self._sensors = []
         self.data = {}
         # Initialize ModBus data structure before first read
-        self.init_modbus_data()
+        self.data["accurrent"] = 1
+        self.data["accurrenta"] = 1
+        self.data["accurrentb"] = 1
+        self.data["accurrentc"] = 1
+        self.data["acvoltageab"] = 1
+        self.data["acvoltagebc"] = 1
+        self.data["acvoltageca"] = 1
+        self.data["acvoltagean"] = 1
+        self.data["acvoltagebn"] = 1
+        self.data["acvoltagecn"] = 1
+        self.data["acpower"] = 1
+        self.data["acfreq"] = 1
+        self.data["comm_options"] = 1
+        self.data["comm_manufact"] = ""
+        self.data["comm_model"] = ""
+        self.data["comm_version"] = ""
+        self.data["comm_sernum"] = ""
+        self.data["mppt_nr"] = 1
+        self.data["dccurr"] = 1
+        self.data["dcvolt"] = 1
+        self.data["dcpower"] = 1
+        self.data["dc1curr"] = 1
+        self.data["dc1volt"] = 1
+        self.data["dc1power"] = 1
+        self.data["dc2curr"] = 1
+        self.data["dc2volt"] = 1
+        self.data["dc2power"] = 1
+        self.data["invtype"] = ""
+        self.data["status"] = ""
+        self.data["statusvendor"] = ""
+        self.data["totalenergy"] = 1
+        self.data["tempcab"] = 1
+        self.data["tempoth"] = 1
 
     @property
     def name(self):
         """Return the device name."""
         return self._name
+
+    @property
+    def host(self):
+        """Return the device name."""
+        return self._host
 
     def check_port(self) -> bool:
         """Check if port is available."""
@@ -145,43 +182,6 @@ class ABBPowerOneFimerAPI:
     def calculate_value(self, value, scalefactor):
         """Apply Scale Factor."""
         return value * 10**scalefactor
-
-    def init_modbus_data(self):
-        """Initialize Dataset."""
-        self.data["accurrent"] = 1
-        self.data["accurrenta"] = 1
-        self.data["accurrentb"] = 1
-        self.data["accurrentc"] = 1
-        self.data["acvoltageab"] = 1
-        self.data["acvoltagebc"] = 1
-        self.data["acvoltageca"] = 1
-        self.data["acvoltagean"] = 1
-        self.data["acvoltagebn"] = 1
-        self.data["acvoltagecn"] = 1
-        self.data["acpower"] = 1
-        self.data["acfreq"] = 1
-        self.data["comm_options"] = 1
-        self.data["comm_manufact"] = ""
-        self.data["comm_model"] = ""
-        self.data["comm_version"] = ""
-        self.data["comm_sernum"] = ""
-        self.data["mppt_nr"] = 1
-        self.data["dccurr"] = 1
-        self.data["dcvolt"] = 1
-        self.data["dcpower"] = 1
-        self.data["dc1curr"] = 1
-        self.data["dc1volt"] = 1
-        self.data["dc1power"] = 1
-        self.data["dc2curr"] = 1
-        self.data["dc2volt"] = 1
-        self.data["dc2power"] = 1
-        self.data["invtype"] = ""
-        self.data["status"] = ""
-        self.data["statusvendor"] = ""
-        self.data["totalenergy"] = 1
-        self.data["tempcab"] = 1
-        self.data["tempoth"] = 1
-        return True
 
     async def async_get_data(self):
         """Read Data Function."""

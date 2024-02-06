@@ -49,36 +49,34 @@ async def async_setup_entry(hass: HomeAssistant, config_entry, async_add_entitie
 
     # Get handler to coordinator from config
     coordinator = hass.data[DOMAIN][config_entry.entry_id][DATA]
-    # Get handler to API data in coordinator
-    api = coordinator.api
 
     _LOGGER.debug("(sensor) Name: %s", config_entry.data.get(CONF_NAME))
-    _LOGGER.debug("(sensor) Manufacturer: %s", api.data["comm_manufact"])
-    _LOGGER.debug("(sensor) Model: %s", api.data["comm_model"])
-    _LOGGER.debug("(sensor) SW Version: %s", api.data["comm_version"])
-    _LOGGER.debug("(sensor) Inverter Type (str): %s", api.data["invtype"])
-    _LOGGER.debug("(sensor) MPPT #: %s", api.data["mppt_nr"])
-    _LOGGER.debug("(sensor) Serial#: %s", api.data["comm_sernum"])
+    _LOGGER.debug("(sensor) Manufacturer: %s", coordinator.api.data["comm_manufact"])
+    _LOGGER.debug("(sensor) Model: %s", coordinator.api.data["comm_model"])
+    _LOGGER.debug("(sensor) SW Version: %s", coordinator.api.data["comm_version"])
+    _LOGGER.debug("(sensor) Inverter Type (str): %s", coordinator.api.data["invtype"])
+    _LOGGER.debug("(sensor) MPPT #: %s", coordinator.api.data["mppt_nr"])
+    _LOGGER.debug("(sensor) Serial#: %s", coordinator.api.data["comm_sernum"])
 
     sensor_list = []
     add_sensor_defs(coordinator, config_entry, sensor_list, SENSOR_TYPES_COMMON)
 
-    if api.data["invtype"] == INVERTER_TYPE[101]:
+    if coordinator.api.data["invtype"] == INVERTER_TYPE[101]:
         add_sensor_defs(
             coordinator, config_entry, sensor_list, SENSOR_TYPES_SINGLE_PHASE
         )
-    elif api.data["invtype"] == INVERTER_TYPE[103]:
+    elif coordinator.api.data["invtype"] == INVERTER_TYPE[103]:
         add_sensor_defs(
             coordinator, config_entry, sensor_list, SENSOR_TYPES_THREE_PHASE
         )
 
     _LOGGER.debug(
         "(sensor) DC Voltages : single=%d dc1=%d dc2=%d",
-        api.data["dcvolt"],
-        api.data["dc1volt"],
-        api.data["dc2volt"],
+        coordinator.api.data["dcvolt"],
+        coordinator.api.data["dc1volt"],
+        coordinator.api.data["dc2volt"],
     )
-    if api.data["mppt_nr"] == 1:
+    if coordinator.api.data["mppt_nr"] == 1:
         add_sensor_defs(
             coordinator, config_entry, sensor_list, SENSOR_TYPES_SINGLE_MPPT
         )
@@ -96,7 +94,7 @@ class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, config_entry, sensor_data):
         """Class Initializitation."""
         super().__init__(coordinator)
-        self._api = coordinator.api
+        self.coordinator = coordinator
         self._name = sensor_data["name"]
         self._key = sensor_data["key"]
         self._unit_of_measurement = sensor_data["unit"]
@@ -105,16 +103,16 @@ class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
         self._state_class = sensor_data["state_class"]
         self._device_name = config_entry.data.get(CONF_NAME)
         self._device_host = config_entry.data.get(CONF_HOST)
-        self._device_model = self._api.data["comm_model"]
-        self._device_manufact = self._api.data["comm_manufact"]
-        self._device_sn = self._api.data["comm_sernum"]
-        self._device_swver = self._api.data["comm_version"]
-        self._device_hwver = self._api.data["comm_options"]
+        self._device_model = self.coordinator.api.data["comm_model"]
+        self._device_manufact = self.coordinator.api.data["comm_manufact"]
+        self._device_sn = self.coordinator.api.data["comm_sernum"]
+        self._device_swver = self.coordinator.api.data["comm_version"]
+        self._device_hwver = self.coordinator.api.data["comm_options"]
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Fetch new state data for the sensor."""
-        self._state = self._api.data[self._key]
+        self._state = self.coordinator.api.data[self._key]
         self.async_write_ha_state()
         # write debug log only on first sensor to avoid spamming the log
         if self.name == "Manufacturer":
@@ -163,8 +161,8 @@ class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         """Return the state of the sensor."""
-        if self._key in self._api.data:
-            return self._api.data[self._key]
+        if self._key in self.coordinator.api.data:
+            return self.coordinator.api.data[self._key]
 
     @property
     def state_attributes(self) -> dict[str, Any] | None:

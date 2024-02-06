@@ -52,6 +52,8 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
             hass,
             _LOGGER,
             name=f"{DOMAIN} ({config_entry.unique_id})",
+            # BUG: If update_method is specified, two updates are made
+            # Workaround: override class _async_update_data()
             # update_method=self.async_update_data,
             update_interval=self.update_interval,
         )
@@ -70,7 +72,6 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
         )
 
         _LOGGER.debug("Coordinator Config Data: %s", config_entry.data)
-        _LOGGER.debug("Coordinator Config Options: %s", config_entry.options)
         _LOGGER.debug(
             "Coordinator API init: Host: %s Port: %s ID: %s ScanInterval: %s",
             config_entry.data.get(CONF_HOST),

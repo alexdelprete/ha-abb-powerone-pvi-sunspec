@@ -19,7 +19,7 @@ jobs:
 
     steps:
         - name: "Checkout the repository"
-          uses: "actions/checkout@v4.1.4"
+          uses: "actions/checkout@v4.1.5"
           with:
             token: ${{ secrets.WORKFLOW_PAT || github.token }}
             ref: ${{ github.head_ref }}

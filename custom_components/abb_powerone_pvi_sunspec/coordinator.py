@@ -6,10 +6,10 @@ https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 import logging
 from datetime import datetime, timedelta
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from . import ABBPowerOneFimerConfigEntry
 from .api import ABBPowerOneFimerAPI
 from .const import (
     CONF_BASE_ADDR,
@@ -29,11 +29,9 @@ _LOGGER = logging.getLogger(__name__)
 class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
 
-    config_entry: ABBPowerOneFimerConfigEntry
+    config_entry: ConfigEntry
 
-    def __init__(
-        self, hass: HomeAssistant, config_entry: ABBPowerOneFimerConfigEntry
-    ) -> None:
+    def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
         """Initialize data update coordinator."""
 
         # get scan_interval from user config

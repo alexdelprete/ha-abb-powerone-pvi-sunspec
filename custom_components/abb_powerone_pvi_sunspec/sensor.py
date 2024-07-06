@@ -11,9 +11,9 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from . import ABBPowerOneFimerConfigEntry
 from .const import (
     CONF_NAME,
-    DATA,
     DOMAIN,
     INVERTER_TYPE,
     SENSOR_TYPES_COMMON,
@@ -22,11 +22,17 @@ from .const import (
     SENSOR_TYPES_SINGLE_PHASE,
     SENSOR_TYPES_THREE_PHASE,
 )
+from .coordinator import ABBPowerOneFimerCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def add_sensor_defs(coordinator, config_entry, sensor_list, sensor_definitions):
+def add_sensor_defs(
+    coordinator: ABBPowerOneFimerCoordinator,
+    config_entry: ABBPowerOneFimerConfigEntry,
+    sensor_list,
+    sensor_definitions,
+):
     """Class Initializitation."""
 
     for sensor_info in sensor_definitions.values():
@@ -43,11 +49,13 @@ def add_sensor_defs(coordinator, config_entry, sensor_list, sensor_definitions):
         )
 
 
-async def async_setup_entry(hass: HomeAssistant, config_entry, async_add_entities):
+async def async_setup_entry(
+    hass: HomeAssistant, config_entry: ABBPowerOneFimerConfigEntry, async_add_entities
+):
     """Sensor Platform setup."""
 
     # Get handler to coordinator from config
-    coordinator = hass.data[DOMAIN][config_entry.entry_id][DATA]
+    coordinator: ABBPowerOneFimerCoordinator = config_entry.runtime_data.coordinator
 
     _LOGGER.debug("(sensor) Name: %s", config_entry.data.get(CONF_NAME))
     _LOGGER.debug("(sensor) Manufacturer: %s", coordinator.api.data["comm_manufact"])
@@ -93,25 +101,25 @@ class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, config_entry, sensor_data):
         """Class Initializitation."""
         super().__init__(coordinator)
-        self.coordinator = coordinator
+        self._coordinator = coordinator
         self._name = sensor_data["name"]
         self._key = sensor_data["key"]
         self._unit_of_measurement = sensor_data["unit"]
         self._icon = sensor_data["icon"]
         self._device_class = sensor_data["device_class"]
         self._state_class = sensor_data["state_class"]
-        self._device_name = self.coordinator.api.name
-        self._device_host = self.coordinator.api.host
-        self._device_model = self.coordinator.api.data["comm_model"]
-        self._device_manufact = self.coordinator.api.data["comm_manufact"]
-        self._device_sn = self.coordinator.api.data["comm_sernum"]
-        self._device_swver = self.coordinator.api.data["comm_version"]
-        self._device_hwver = self.coordinator.api.data["comm_options"]
+        self._device_name = self._coordinator.api.name
+        self._device_host = self._coordinator.api.host
+        self._device_model = self._coordinator.api.data["comm_model"]
+        self._device_manufact = self._coordinator.api.data["comm_manufact"]
+        self._device_sn = self._coordinator.api.data["comm_sernum"]
+        self._device_swver = self._coordinator.api.data["comm_version"]
+        self._device_hwver = self._coordinator.api.data["comm_options"]
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Fetch new state data for the sensor."""
-        self._state = self.coordinator.api.data[self._key]
+        self._state = self._coordinator.api.data[self._key]
         self.async_write_ha_state()
         # write debug log only on first sensor to avoid spamming the log
         if self.name == "Manufacturer":
@@ -160,8 +168,10 @@ class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         """Return the state of the sensor."""
-        if self._key in self.coordinator.api.data:
-            return self.coordinator.api.data[self._key]
+        if self._key in self._coordinator.api.data:
+            return self._coordinator.api.data[self._key]
+        else:
+            return None
 
     @property
     def state_attributes(self) -> dict[str, Any] | None:

@@ -16,7 +16,6 @@ from homeassistant.const import (
 # Base component constants
 NAME = "ABB/Power-One/FIMER PVI SunSpec ModBus TCP"
 DOMAIN = "abb_powerone_pvi_sunspec"
-DOMAIN_DATA = f"{DOMAIN}_data"
 VERSION = "3.0.0"
 ATTRIBUTION = "by @alexdelprete"
 ISSUE_URL = "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues"
@@ -26,14 +25,6 @@ ICON = "mdi:format-quote-close"
 
 # Device classes
 BINARY_SENSOR_DEVICE_CLASS = "connectivity"
-
-# Platforms
-SENSOR = "sensor"
-PLATFORMS = [
-    "sensor",
-]
-UPDATE_LISTENER = "update_listener"
-DATA = "data"
 
 # Configuration and options
 CONF_NAME = "name"

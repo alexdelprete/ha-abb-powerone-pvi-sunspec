@@ -519,11 +519,22 @@ class ABBPowerOneFimerAPI:
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
         try:
+            # Model 160 default address: 40122 (or base address + 122)
+            # For UNO-DM-PLUS/REACT2/TRIO inverters it has different offset
+            invmodel = self.data["comm_model"].upper()
+            if invmodel.startswith("UNO-DM") or invmodel.startswith("REACT2"):
+                offset = 1104
+            elif invmodel.startswith("TRIO"):
+                offset = 208
+            else:
+                offset = 122
             read_model_160_data = self.read_holding_registers(
-                slave=self._slave_id, address=(self._base_addr + 122), count=42
+                slave=self._slave_id, address=(self._base_addr + offset), count=42
             )
+            _LOGGER.debug("(read_rt_160) Model: %s", invmodel)
             _LOGGER.debug("(read_rt_160) Slave ID: %s", self._slave_id)
             _LOGGER.debug("(read_rt_160) Base Address: %s", self._base_addr)
+            _LOGGER.debug("(read_rt_160) Offset: %s", offset)
         except ModbusException as modbus_error:
             _LOGGER.debug(f"Read M160 modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
@@ -536,45 +547,16 @@ class ABBPowerOneFimerAPI:
         # register 122
         multi_mppt_id = decoder.decode_16bit_int()
 
-        # Model 160 has different offset for UNO-DM-PLUS and REACT2 inverters
-        # need to check and try the specific offset address (start address is 41104)
         if multi_mppt_id != 160:
             _LOGGER.debug(
-                "(read_rt_160) Model not 160 try another offset - multi_mppt_id: %s",
+                "(read_rt_160) Model not 160 - multi_mppt_id: %s",
                 multi_mppt_id,
             )
-            try:
-                # try address 41104 for UNO-DM-PLUS and REACT2
-                read_model_160_data = self.read_holding_registers(
-                    slave=self._slave_id, address=(self._base_addr + 1104), count=42
-                )
-                _LOGGER.debug("(read_rt_160) Slave ID: %s", self._slave_id)
-                _LOGGER.debug("(read_rt_160) Base Address: %s", self._base_addr)
-            except ModbusException as modbus_error:
-                _LOGGER.debug(f"Read M160 modbus_error: {modbus_error}")
-                raise ModbusError() from modbus_error
-            # No connection errors, we can start scraping registers
-            decoder = BinaryPayloadDecoder.fromRegisters(
-                read_model_160_data.registers, byteorder=Endian.BIG
-            )
-
-            # register 122
-            multi_mppt_id = decoder.decode_16bit_int()
-
-            if multi_mppt_id != 160:
-                _LOGGER.debug(
-                    "(read_rt_160) Model not 160 (UNO-DM/REACT2) - multi_mppt_id: %s",
-                    multi_mppt_id,
-                )
-                return False
-            else:
-                _LOGGER.debug(
-                    "(read_rt_160) Model is 160 (UNO-DM/REACT2) - multi_mppt_id: %s",
-                    multi_mppt_id,
-                )
+            return False
         else:
             _LOGGER.debug(
-                "(read_rt_160) Model is 160 - multi_mppt_id: %s", multi_mppt_id
+                "(read_rt_160) Model is 160 - multi_mppt_id: %s",
+                multi_mppt_id,
             )
 
         # skip register 123

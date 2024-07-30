@@ -545,8 +545,10 @@ class ABBPowerOneFimerAPI:
         )
 
         # register 122
-        multi_mppt_id = decoder.decode_16bit_int()
+        _LOGGER.debug("(read_rt_160) Decode Model #")
+        multi_mppt_id = decoder.decode_16bit_uint()
 
+        _LOGGER.debug("(read_rt_160) Check Model #")
         if multi_mppt_id != 160:
             _LOGGER.debug(
                 "(read_rt_160) Model not 160 - multi_mppt_id: %s",

@@ -524,8 +524,8 @@ class ABBPowerOneFimerAPI:
             invmodel = self.data["comm_model"].upper()
             if invmodel.startswith("UNO-DM") or invmodel.startswith("REACT2"):
                 offset = 1104
-            elif invmodel.startswith("TRIO"):
-                offset = 208
+            # elif invmodel.startswith("TRIO"):
+            #     offset = 208
             else:
                 offset = 122
             read_model_160_data = self.read_holding_registers(

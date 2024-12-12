@@ -10,7 +10,7 @@ __pycache__
 .coverage
 .vscode
 coverage.xml
-
+enforce_branch_protection.sh
 
 # Home Assistant configuration
 config/*

@@ -5,11 +5,15 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+      time: "21:00"
+      timezone: "Europe/Rome"
 
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "daily"
+      time: "21:00"
+      timezone: "Europe/Rome"
     ignore:
       # Dependabot should not update Home Assistant as that should match the homeassistant key in hacs.json
       - dependency-name: "homeassistant"

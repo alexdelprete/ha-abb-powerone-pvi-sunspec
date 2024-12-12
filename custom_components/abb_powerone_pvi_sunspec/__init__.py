@@ -75,7 +75,7 @@ async def async_setup_entry(
 
     # Initialise a listener for config flow options changes.
     # See config_flow for defining an options setting that shows up as configure on the integration.
-    update_listener = config_entry.add_update_listener(_async_update_listener)
+    update_listener = config_entry.add_update_listener(async_reload_entry)
 
     # Add the coordinator and update listener to hass data to make
     # accessible throughout your integration
@@ -112,8 +112,8 @@ async def async_update_device_registry(
     )
 
 
-async def _async_update_listener(hass: HomeAssistant, config_entry):
-    """Handle options update."""
+async def async_reload_entry(hass: HomeAssistant, config_entry):
+    """Reload the config entry when it changes."""
     await hass.config_entries.async_reload(config_entry.entry_id)
 
 
@@ -136,7 +136,7 @@ async def async_unload_entry(
     # This is called when you remove your integration or shutdown HA.
     # If you have created any custom services, they need to be removed here too.
 
-    _LOGGER.debug("Unload config_entry")
+    _LOGGER.debug("Unload config_entry: started")
 
     # This is called when you remove your integration or shutdown HA.
     # If you have created any custom services, they need to be removed here too.
@@ -147,7 +147,7 @@ async def async_unload_entry(
 
     # Check if there are other instances
     if get_instance_count(hass) == 0:
-        _LOGGER.debug("Unload config_entry: no more entries found")
+        _LOGGER.debug("No other entries found")
 
     _LOGGER.debug("Unload integration platforms")
 
@@ -155,15 +155,16 @@ async def async_unload_entry(
     unload_ok = await hass.config_entries.async_unload_platforms(
         config_entry, PLATFORMS
     )
-
-    # Remove the config entry from the hass data object.
     if unload_ok:
-        _LOGGER.debug("Unload integration")
+        coordinator = config_entry.runtime_data.coordinator
+        await coordinator.api.close()
+        _LOGGER.debug("Unloaded integration")
         hass.data[DOMAIN].pop(config_entry.entry_id)
-        return True  # unloaded
     else:
-        _LOGGER.debug("Unload config_entry failed: integration not unloaded")
-        return False  # unload failed
+        _LOGGER.debug("Unload integration failed")
+
+    _LOGGER.debug("Unload config_entry: done")
+    return unload_ok
 
 
 # Sample migration code in case it's needed

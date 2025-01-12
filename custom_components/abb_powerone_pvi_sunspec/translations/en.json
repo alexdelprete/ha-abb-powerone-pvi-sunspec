@@ -14,9 +14,6 @@
         }
       }
     },
-    "error": {
-      "already_configured": "Device is already configured"
-    },
     "abort": {
       "already_configured": "Device is already configured"
     }
@@ -27,6 +24,8 @@
         "title": "Inverter Connection Options",
         "description": "Set Connection Options",
         "data": {
+          "name": "Custom Name of the inverter (used for sensors' prefix)",
+          "host": "IP or hostname",
           "port": "TCP port",
           "slave_id": "Modbus Slave address of the inverter",
           "base_addr": "Modbus Register Map Base Address",

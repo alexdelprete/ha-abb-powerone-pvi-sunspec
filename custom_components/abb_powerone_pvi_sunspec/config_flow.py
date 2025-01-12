@@ -138,15 +138,15 @@ class ABBPowerOneFimerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_PORT,
                         default=DEFAULT_PORT,
-                    ): vol.Coerce(int),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=0, max=65535)),
                     vol.Required(
                         CONF_SLAVE_ID,
                         default=DEFAULT_SLAVE_ID,
-                    ): vol.Coerce(int),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=1, max=247)),
                     vol.Required(
                         CONF_BASE_ADDR,
                         default=DEFAULT_BASE_ADDR,
-                    ): vol.Coerce(int),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=0, max=65535)),
                     vol.Required(
                         CONF_SCAN_INTERVAL,
                         default=DEFAULT_SCAN_INTERVAL,
@@ -174,21 +174,28 @@ class ABBPowerOneFimerOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: ConfigEntry) -> None:
         """Initialize option flow instance."""
-        self.config_entry = config_entry
         self.data_schema = vol.Schema(
             {
                 vol.Required(
+                    CONF_NAME,
+                    default=self.config_entry.data.get(CONF_NAME),
+                ): cv.string,
+                vol.Required(
+                    CONF_HOST,
+                    default=self.config_entry.data.get(CONF_HOST),
+                ): cv.string,
+                vol.Required(
                     CONF_PORT,
                     default=self.config_entry.data.get(CONF_PORT),
-                ): vol.Coerce(int),
+                ): vol.All(vol.Coerce(int), vol.Range(min=0, max=65535)),
                 vol.Required(
                     CONF_SLAVE_ID,
                     default=self.config_entry.data.get(CONF_SLAVE_ID),
-                ): vol.Coerce(int),
+                ): vol.All(vol.Coerce(int), vol.Range(min=1, max=247)),
                 vol.Required(
                     CONF_BASE_ADDR,
                     default=self.config_entry.data.get(CONF_BASE_ADDR),
-                ): vol.Coerce(int),
+                ): vol.All(vol.Coerce(int), vol.Range(min=0, max=65535)),
                 vol.Required(
                     CONF_SCAN_INTERVAL,
                     default=self.config_entry.data.get(CONF_SCAN_INTERVAL),
@@ -210,12 +217,6 @@ class ABBPowerOneFimerOptionsFlow(config_entries.OptionsFlow):
         """Manage the options."""
 
         if user_input is not None:
-            # complete non-edited entries before update (ht @PeteRage)
-            if CONF_NAME in self.config_entry.data:
-                user_input[CONF_NAME] = self.config_entry.data.get(CONF_NAME)
-            if CONF_HOST in self.config_entry.data:
-                user_input[CONF_HOST] = self.config_entry.data.get(CONF_HOST)
-
             # write updated config entries (ht @PeteRage / @fuatakgun)
             self.hass.config_entries.async_update_entry(
                 self.config_entry, data=user_input, options=self.config_entry.options

@@ -522,10 +522,10 @@ class ABBPowerOneFimerAPI:
             # Model 160 default address: 40122 (or base address + 122)
             # For UNO-DM-PLUS/REACT2/TRIO inverters it has different offset
             invmodel = self.data["comm_model"].upper()
-            if invmodel.startswith("UNO-DM") or invmodel.startswith("REACT2"):
+            if invmodel.startswith("UNO") or invmodel.startswith("REACT2"):
                 offset = 1104
-            # elif invmodel.startswith("TRIO"):
-            #     offset = 208
+            elif invmodel.startswith("TRIO"):
+                offset = 208
             else:
                 offset = 122
             read_model_160_data = self.read_holding_registers(

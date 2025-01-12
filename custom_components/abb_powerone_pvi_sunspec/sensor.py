@@ -95,7 +95,9 @@ async def async_setup_entry(
     return True
 
 
-class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
+class ABBPowerOneFimerSensor(
+    CoordinatorEntity, ABBPowerOneFimerConfigEntry, SensorEntity
+):
     """Representation of an ABB SunSpec Modbus sensor."""
 
     def __init__(self, coordinator, config_entry, sensor_data):
@@ -127,6 +129,7 @@ class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
                 "_handle_coordinator_update: sensors state written to state machine"
             )
 
+    # when has_entity_name is True, the resulting entity name will be: {device_name}_{self._name}
     @property
     def has_entity_name(self):
         """Return the name state."""

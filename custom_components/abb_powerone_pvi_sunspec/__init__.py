@@ -38,16 +38,6 @@ class RuntimeData:
     update_listener: Callable
 
 
-def get_instance_count(hass: HomeAssistant) -> int:
-    """Return number of instances."""
-    entries = [
-        entry
-        for entry in hass.config_entries.async_entries(DOMAIN)
-        if not entry.disabled_by
-    ]
-    return len(entries)
-
-
 async def async_setup_entry(
     hass: HomeAssistant, config_entry: ABBPowerOneFimerConfigEntry
 ):
@@ -144,15 +134,13 @@ async def async_unload_entry(
             # Close API connection if exists
             # coordinator = getattr(config_entry.runtime_data, 'coordinator', None)
             coordinator = config_entry.runtime_data.coordinator
-            if coordinator and coordinator.api:
+            if coordinator.api:
                 coordinator.api.close()
                 _LOGGER.debug("Closed API connection")
 
             # Remove update listener if exists
             if config_entry.entry_id in hass.data[DOMAIN]:
-                update_listener = hass.data[DOMAIN][
-                    config_entry.entry_id
-                ].update_listener
+                update_listener = config_entry.runtime_data.update_listener
                 if update_listener:
                     update_listener()
                 _LOGGER.debug("Removed update listener")

@@ -136,31 +136,33 @@ async def async_unload_entry(
 
     _LOGGER.debug("Unload config_entry: started")
 
-    # This is called when you remove your integration or shutdown HA.
-    # If you have created any custom services, they need to be removed here too.
-
-    # Check if there are other instances
-    if get_instance_count(hass) == 0:
-        _LOGGER.debug("No other entries found")
-
-    _LOGGER.debug("Unload integration platforms")
-
     # Unload platforms and cleanup resources
     if unload_ok := await hass.config_entries.async_unload_platforms(
         config_entry, PLATFORMS
     ):
-        # Unloaded platforms
-        _LOGGER.debug("Unloaded platforms")
-        # Close the API connection
-        coordinator = config_entry.runtime_data.coordinator
-        await coordinator.api.close()
-        _LOGGER.debug("Closed API connection")
-        # Remove the config options update listener
-        hass.data[DOMAIN][config_entry.entry_id].update_listener()
-        _LOGGER.debug("Removed update listener")
-        # Remove the config entry from hass data
-        hass.data[DOMAIN].pop(config_entry.entry_id)
-        _LOGGER.debug("Removed config entry from hass data")
+        try:
+            # Close API connection if exists
+            # coordinator = getattr(config_entry.runtime_data, 'coordinator', None)
+            coordinator = config_entry.runtime_data.coordinator
+            if coordinator and coordinator.api:
+                coordinator.api.close()
+                _LOGGER.debug("Closed API connection")
+
+            # Remove update listener if exists
+            if config_entry.entry_id in hass.data[DOMAIN]:
+                update_listener = hass.data[DOMAIN][
+                    config_entry.entry_id
+                ].update_listener
+                if update_listener:
+                    update_listener()
+                _LOGGER.debug("Removed update listener")
+
+                # Remove config entry from hass data
+                hass.data[DOMAIN].pop(config_entry.entry_id)
+                _LOGGER.debug("Removed config entry from hass data")
+        except Exception as ex:
+            _LOGGER.error("Error during unload: %s", str(ex))
+            return False
     else:
         _LOGGER.debug("Failed to unload platforms")
 

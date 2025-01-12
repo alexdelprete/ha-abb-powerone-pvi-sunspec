@@ -178,27 +178,27 @@ class ABBPowerOneFimerOptionsFlow(config_entries.OptionsFlow):
             {
                 vol.Required(
                     CONF_NAME,
-                    default=self.config_entry.data.get(CONF_NAME),
+                    default=config_entry.data.get(CONF_NAME),
                 ): cv.string,
                 vol.Required(
                     CONF_HOST,
-                    default=self.config_entry.data.get(CONF_HOST),
+                    default=config_entry.data.get(CONF_HOST),
                 ): cv.string,
                 vol.Required(
                     CONF_PORT,
-                    default=self.config_entry.data.get(CONF_PORT),
+                    default=config_entry.data.get(CONF_PORT),
                 ): vol.All(vol.Coerce(int), vol.Range(min=0, max=65535)),
                 vol.Required(
                     CONF_SLAVE_ID,
-                    default=self.config_entry.data.get(CONF_SLAVE_ID),
+                    default=config_entry.data.get(CONF_SLAVE_ID),
                 ): vol.All(vol.Coerce(int), vol.Range(min=1, max=247)),
                 vol.Required(
                     CONF_BASE_ADDR,
-                    default=self.config_entry.data.get(CONF_BASE_ADDR),
+                    default=config_entry.data.get(CONF_BASE_ADDR),
                 ): vol.All(vol.Coerce(int), vol.Range(min=0, max=65535)),
                 vol.Required(
                     CONF_SCAN_INTERVAL,
-                    default=self.config_entry.data.get(CONF_SCAN_INTERVAL),
+                    default=config_entry.data.get(CONF_SCAN_INTERVAL),
                 ): selector(
                     {
                         "number": {

@@ -203,7 +203,16 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
                 vol.Required(
                     CONF_SLAVE_ID,
                     default=config_entry.data.get(CONF_SLAVE_ID),
-                ): vol.All(vol.Coerce(int), vol.Range(min=1, max=247)),
+                ): selector(
+                    {
+                        "number": {
+                            "min": 1,
+                            "max": 247,
+                            "step": 1,
+                            "mode": "slider",
+                        }
+                    },
+                ),
                 vol.Required(
                     CONF_BASE_ADDR,
                     default=config_entry.data.get(CONF_BASE_ADDR),

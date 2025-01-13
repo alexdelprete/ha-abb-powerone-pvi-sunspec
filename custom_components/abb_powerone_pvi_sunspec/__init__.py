@@ -163,9 +163,6 @@ async def async_reload_entry(
 ):
     """Reload the config entry."""
     await hass.config_entries.async_schedule_reload(config_entry.entry_id)
-    # if not await async_unload_entry(hass, config_entry):
-    #     return
-    # await async_setup_entry(hass, config_entry)
 
 
 # Sample migration code in case it's needed

@@ -76,9 +76,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
             return True
         return False
 
-    async def test_connection(
-        self, name, host, port, slave_id, base_addr, scan_interval
-    ):
+    async def get_unique_id(self, name, host, port, slave_id, base_addr, scan_interval):
         """Return true if credentials is valid."""
         _LOGGER.debug(f"Test connection to {host}:{port} slave id {slave_id}")
         try:
@@ -114,7 +112,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
             elif not host_valid(user_input[CONF_HOST]):
                 errors[CONF_HOST] = "invalid Host IP"
             else:
-                uid = await self.test_connection(
+                uid = await self.get_unique_id(
                     name, host, port, slave_id, base_addr, scan_interval
                 )
                 if uid is not False:
@@ -182,10 +180,6 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
         self.data_schema = vol.Schema(
             {
                 vol.Required(
-                    CONF_NAME,
-                    default=config_entry.data.get(CONF_NAME),
-                ): cv.string,
-                vol.Required(
                     CONF_HOST,
                     default=config_entry.data.get(CONF_HOST),
                 ): cv.string,
@@ -222,6 +216,10 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
         """Manage the options."""
 
         if user_input is not None:
+            # complete non-edited entries before update (ht @PeteRage)
+            if CONF_NAME in self.config_entry.data:
+                user_input[CONF_NAME] = self.config_entry.data.get(CONF_NAME)
+
             # write updated config entries (ht @PeteRage / @fuatakgun)
             self.hass.config_entries.async_update_entry(
                 self.config_entry, data=user_input, options=self.config_entry.options

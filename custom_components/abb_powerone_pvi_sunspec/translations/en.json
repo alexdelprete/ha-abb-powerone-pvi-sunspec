@@ -24,7 +24,6 @@
         "title": "Inverter Connection Options",
         "description": "Set Connection Options",
         "data": {
-          "name": "Custom Name of the inverter (used for sensors' prefix)",
           "host": "IP or hostname",
           "port": "TCP port",
           "slave_id": "Modbus Slave address of the inverter",

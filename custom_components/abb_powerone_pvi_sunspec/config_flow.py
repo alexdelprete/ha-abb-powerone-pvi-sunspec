@@ -117,7 +117,11 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                 )
                 if uid is not False:
                     _LOGGER.debug(f"Device unique id: {uid}")
+                    # Assign a unique ID to the flow and abort the flow
+                    # if another flow with the same unique ID is in progress
                     await self.async_set_unique_id(uid)
+
+                    # Abort the flow if a config entry with the same unique ID exists
                     self._abort_if_unique_id_configured()
                     return self.async_create_entry(
                         title=user_input[CONF_NAME], data=user_input
@@ -145,7 +149,16 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_SLAVE_ID,
                         default=DEFAULT_SLAVE_ID,
-                    ): vol.All(vol.Coerce(int), vol.Range(min=1, max=247)),
+                    ): selector(
+                        {
+                            "number": {
+                                "min": 1,
+                                "max": 247,
+                                "step": 1,
+                                "mode": "slider",
+                            }
+                        },
+                    ),
                     vol.Required(
                         CONF_BASE_ADDR,
                         default=DEFAULT_BASE_ADDR,

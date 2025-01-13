@@ -44,9 +44,7 @@ def add_sensor_defs(
             "device_class": sensor_info[4],
             "state_class": sensor_info[5],
         }
-        sensor_list.append(
-            ABBPowerOneFimerSensor(coordinator, config_entry, sensor_data)
-        )
+        sensor_list.append(ABBPowerOneFimerSensor(coordinator, sensor_data))
 
 
 async def async_setup_entry(
@@ -95,12 +93,10 @@ async def async_setup_entry(
     return True
 
 
-class ABBPowerOneFimerSensor(
-    CoordinatorEntity, ABBPowerOneFimerConfigEntry, SensorEntity
-):
+class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
     """Representation of an ABB SunSpec Modbus sensor."""
 
-    def __init__(self, coordinator, config_entry, sensor_data):
+    def __init__(self, coordinator, sensor_data):
         """Class Initializitation."""
         super().__init__(coordinator)
         self._coordinator = coordinator

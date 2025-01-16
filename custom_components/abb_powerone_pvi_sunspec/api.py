@@ -18,6 +18,7 @@ from .const import (
     DEVICE_STATUS,
     INVERTER_TYPE,
     SUNSPEC_M160_OFFSETS,
+    SUNSPEC_MODEL_160_ID,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -254,8 +255,7 @@ class ABBPowerOneFimerAPI:
             invmodel = self.data["comm_model"].upper()
             found_offset = 0
             multi_mppt_id = 0
-            offsets = SUNSPEC_M160_OFFSETS
-            for offset in offsets:
+            for offset in SUNSPEC_M160_OFFSETS:
                 _LOGGER.debug(
                     f"(find_m160) Find M160 for model: {invmodel} at offset: {offset}"
                 )
@@ -266,7 +266,7 @@ class ABBPowerOneFimerAPI:
                     read_model_160_data.registers, byteorder=Endian.BIG
                 )
                 multi_mppt_id = decoder.decode_16bit_uint()
-                if multi_mppt_id != 160:
+                if multi_mppt_id != SUNSPEC_MODEL_160_ID:
                     _LOGGER.debug(
                         f"(find_m160) Model is not 160 - offset: {offset} - multi_mppt_id: {multi_mppt_id}"
                     )

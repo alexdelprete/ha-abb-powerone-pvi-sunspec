@@ -40,6 +40,7 @@ DEFAULT_BASE_ADDR = 0
 DEFAULT_SCAN_INTERVAL = 60
 MIN_SCAN_INTERVAL = 30
 SUNSPEC_M160_OFFSETS = [122, 1104, 208]
+SUNSPEC_MODEL_160_ID = 160
 STARTUP_MESSAGE = f"""
 -------------------------------------------------------------------
 {NAME}

@@ -12,7 +12,13 @@ from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException, ModbusException
 from pymodbus.payload import BinaryPayloadDecoder
 
-from .const import DEVICE_GLOBAL_STATUS, DEVICE_MODEL, DEVICE_STATUS, INVERTER_TYPE
+from .const import (
+    DEVICE_GLOBAL_STATUS,
+    DEVICE_MODEL,
+    DEVICE_STATUS,
+    INVERTER_TYPE,
+    SUNSPEC_M160_OFFSETS,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -189,9 +195,7 @@ class ABBPowerOneFimerAPI:
         try:
             if self.connect():
                 _LOGGER.debug(
-                    "Start Get data (Slave ID: %s - Base Address: %s)",
-                    self._slave_id,
-                    self._base_addr,
+                    f"Start Get data (Slave ID: {self._slave_id} - Base Address: {self._base_addr})"
                 )
                 # HA way to call a sync function from async function
                 # https://developers.home-assistant.io/docs/asyncio_working_with_async?#calling-sync-functions-from-async
@@ -221,7 +225,9 @@ class ABBPowerOneFimerAPI:
         try:
             self.read_sunspec_modbus_model_1()
             self.read_sunspec_modbus_model_101_103()
-            self.read_sunspec_modbus_model_160()
+            # Find SunSpec Model 160 Offset and read data only if found
+            if offset := self.find_sunspec_modbus_m160_offset():
+                self.read_sunspec_modbus_model_160(offset)
             result = True
             _LOGGER.debug(f"read_sunspec_modbus: success {result}")
         except Exception as modbus_error:
@@ -229,6 +235,57 @@ class ABBPowerOneFimerAPI:
             result = False
             raise ModbusError() from modbus_error
         return result
+
+    def find_sunspec_modbus_m160_offset(self) -> int:
+        """Find SunSpec Model 160 Offset.
+
+        This function attempts to find the offset for SunSpec Model 160 by trying different offsets.
+
+        Returns:
+            int: The found offset for SunSpec Model 160. Returns 0 if not found.
+
+        Raises:
+            ModbusError: If there is an error reading the Modbus registers.
+
+        """
+        try:
+            # Model 160 default address: 40122 (or base address + 122)
+            # For some inverters the offset is different, so we try 3 offsets
+            invmodel = self.data["comm_model"].upper()
+            found_offset = 0
+            multi_mppt_id = 0
+            offsets = SUNSPEC_M160_OFFSETS
+            for offset in offsets:
+                _LOGGER.debug(
+                    f"(find_m160) Find M160 for model: {invmodel} at offset: {offset}"
+                )
+                read_model_160_data = self.read_holding_registers(
+                    slave=self._slave_id, address=(self._base_addr + offset), count=1
+                )
+                decoder = BinaryPayloadDecoder.fromRegisters(
+                    read_model_160_data.registers, byteorder=Endian.BIG
+                )
+                multi_mppt_id = decoder.decode_16bit_uint()
+                if multi_mppt_id != 160:
+                    _LOGGER.debug(
+                        f"(find_m160) Model is not 160 - offset: {offset} - multi_mppt_id: {multi_mppt_id}"
+                    )
+                else:
+                    _LOGGER.debug(
+                        f"(find_m160) Model is 160 - offset: {offset} - multi_mppt_id: {multi_mppt_id}"
+                    )
+                    found_offset = offset
+                    break
+            if found_offset != 0:
+                _LOGGER.debug(
+                    f"(find_m160) Found M160 for model: {invmodel} at offset: {found_offset}"
+                )
+            else:
+                _LOGGER.debug(f"(find_m160) M160 not found for model: {invmodel}")
+            return found_offset
+        except ModbusException as modbus_error:
+            _LOGGER.debug(f"Find M160 modbus_error: {modbus_error}")
+            raise ModbusError() from modbus_error
 
     def read_sunspec_modbus_model_1(self):
         """Read SunSpec Model 1 Data."""
@@ -243,8 +300,8 @@ class ABBPowerOneFimerAPI:
             read_model_1_data = self.read_holding_registers(
                 slave=self._slave_id, address=(self._base_addr + 4), count=64
             )
-            _LOGGER.debug("(read_rt_1) Slave ID: %s", self._slave_id)
-            _LOGGER.debug("(read_rt_1) Base Address: %s", self._base_addr)
+            _LOGGER.debug(f"(read_rt_1) Slave ID: {self._slave_id}")
+            _LOGGER.debug(f"(read_rt_1) Base Address: {self._base_addr}")
         except ModbusException as modbus_error:
             _LOGGER.debug(f"ReadM1 modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
@@ -261,9 +318,9 @@ class ABBPowerOneFimerAPI:
         self.data["comm_manufact"] = comm_manufact.rstrip(" \t\r\n\0\u0000")
         self.data["comm_model"] = comm_model.rstrip(" \t\r\n\0\u0000")
         self.data["comm_options"] = comm_options.rstrip(" \t\r\n\0\u0000")
-        _LOGGER.debug("(read_rt_1) Manufacturer: %s", self.data["comm_manufact"])
-        _LOGGER.debug("(read_rt_1) Model: %s", self.data["comm_model"])
-        _LOGGER.debug("(read_rt_1) Options: %s", self.data["comm_options"])
+        _LOGGER.debug(f"(read_rt_1) Manufacturer: {self.data['comm_manufact']}")
+        _LOGGER.debug(f"(read_rt_1) Model: {self.data['comm_model']}")
+        _LOGGER.debug(f"(read_rt_1) Options: {self.data['comm_options']}")
 
         # Model based on options register, if unknown, raise an error to report it
         # First char is the model: if non-printable char, hex string of the char is provided
@@ -274,28 +331,21 @@ class ABBPowerOneFimerAPI:
         if opt_model.startswith("0x"):
             opt_model_int = int(opt_model[0:4], 16)
             _LOGGER.debug(
-                "(opt_notprintable) opt_model: %s - opt_model_int: %s",
-                opt_model,
-                opt_model_int,
+                f"(opt_notprintable) opt_model: {opt_model} - opt_model_int: {opt_model_int}"
             )
         else:
             opt_model_int = ord(opt_model[0])
             _LOGGER.debug(
-                "(opt_printable) opt_model: %s - opt_model_int: %s",
-                opt_model,
-                opt_model_int,
+                f"(opt_printable) opt_model: {opt_model} - opt_model_int: {opt_model_int}"
             )
         if opt_model_int in DEVICE_MODEL:
             self.data["comm_model"] = DEVICE_MODEL[opt_model_int]
-            _LOGGER.debug("(opt_comm_model) comm_model: %s", self.data["comm_model"])
+            _LOGGER.debug(f"(opt_comm_model) comm_model: {self.data['comm_model']}")
         else:
             _LOGGER.error(
-                "(opt_comm_model) Model unknown, report to @alexdelprete on the forum the following data: Manuf.: %s - Model: %s - Options: %s - OptModel: %s - OptModelInt: %s",
-                self.data["comm_manufact"],
-                self.data["comm_model"],
-                self.data["comm_options"],
-                opt_model,
-                opt_model_int,
+                f"(opt_comm_model) Model unknown, report to @alexdelprete on the forum the following data: "
+                f"Manuf.: {self.data['comm_manufact']} - Model: {self.data['comm_model']} - "
+                f"Options: {self.data['comm_options']} - OptModel: {opt_model} - OptModelInt: {opt_model_int}"
             )
 
         # registers 44 to 67
@@ -303,13 +353,14 @@ class ABBPowerOneFimerAPI:
         comm_sernum = str.strip(decoder.decode_string(size=32).decode("ascii"))
         self.data["comm_version"] = comm_version.rstrip(" \t\r\n\0\u0000")
         self.data["comm_sernum"] = comm_sernum.rstrip(" \t\r\n\0\u0000")
-        _LOGGER.debug("(read_rt_1) Version: %s", self.data["comm_version"])
-        _LOGGER.debug("(read_rt_1) Sernum: %s", self.data["comm_sernum"])
+        _LOGGER.debug(f"(read_rt_1) Version: {self.data['comm_version']}")
+        _LOGGER.debug(f"(read_rt_1) Sernum: {self.data['comm_sernum']}")
 
         return True
 
     def read_sunspec_modbus_model_101_103(self):
         """Read SunSpec Model 101/103 Data."""
+
         # Max number of registers in one read for Modbus/TCP is 123
         # (ref.: https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251)
         #
@@ -322,10 +373,12 @@ class ABBPowerOneFimerAPI:
             read_model_101_103_data = self.read_holding_registers(
                 slave=self._slave_id, address=(self._base_addr + 70), count=40
             )
-            _LOGGER.debug("(read_rt_101_103) Slave ID: %s", self._slave_id)
-            _LOGGER.debug("(read_rt_101_103) Base Address: %s", self._base_addr)
+            _LOGGER.debug(f"(read_rt_101_103) Slave ID: {self._slave_id}")
+            _LOGGER.debug(f"(read_rt_101_103) Base Address: {self._base_addr}")
         except ModbusException as modbus_error:
-            _LOGGER.debug(f"Read M101/M103 modbus_error: {modbus_error}")
+            _LOGGER.debug(
+                f"(read_rt_101_103) Read M101/M103 modbus_error: {modbus_error}"
+            )
             raise ModbusError() from modbus_error
 
         # No connection errors, we can start scraping registers
@@ -335,17 +388,17 @@ class ABBPowerOneFimerAPI:
 
         # register 70
         invtype = decoder.decode_16bit_uint()
-        _LOGGER.debug("(read_rt_101_103) Inverter Type (int): %s", invtype)
+        _LOGGER.debug(f"(read_rt_101_103) Inverter Type (int): {invtype}")
         _LOGGER.debug(
-            "(read_rt_101_103) Inverter Type (str): %s", INVERTER_TYPE[invtype]
+            f"(read_rt_101_103) Inverter Type (str): {INVERTER_TYPE[invtype]}"
         )
+
         # make sure the value is in the known status list
         if invtype not in INVERTER_TYPE:
             invtype = 999
-            _LOGGER.debug("(read_rt_101_103) Inverter Type Unknown (int): %s", invtype)
+            _LOGGER.debug(f"(read_rt_101_103) Inverter Type Unknown (int): {invtype}")
             _LOGGER.debug(
-                "(read_rt_101_103) Inverter Type Unknown (str): %s",
-                INVERTER_TYPE[invtype],
+                f"(read_rt_101_103) Inverter Type Unknown (str): {INVERTER_TYPE[invtype]}"
             )
         self.data["invtype"] = INVERTER_TYPE[invtype]
 
@@ -427,16 +480,13 @@ class ABBPowerOneFimerAPI:
         totalenergysf = decoder.decode_16bit_uint()
         totalenergy = self.calculate_value(totalenergy, totalenergysf)
         # ensure that totalenergy is always an increasing value (total_increasing)
-        _LOGGER.debug("(read_rt_101_103) Total Energy Value Read: %s", totalenergy)
+        _LOGGER.debug(f"(read_rt_101_103) Total Energy Value Read: {totalenergy}")
         _LOGGER.debug(
-            "(read_rt_101_103) Total Energy Previous Value: %s",
-            self.data["totalenergy"],
+            f"(read_rt_101_103) Total Energy Previous Value: {self.data['totalenergy']}"
         )
         if totalenergy < self.data["totalenergy"]:
             _LOGGER.error(
-                "(read_rt_101_103) Total Energy less than previous value! Value Read: %s - Previous Value: %s",
-                totalenergy,
-                self.data["totalenergy"],
+                f"(read_rt_101_103) Total Energy less than previous value! Value Read: {totalenergy} - Previous Value: {self.data['totalenergy']}"
             )
         else:
             self.data["totalenergy"] = totalenergy
@@ -452,10 +502,10 @@ class ABBPowerOneFimerAPI:
             self.data["dccurr"] = round(dccurr, abs(dccurrsf))
             self.data["dcvolt"] = round(dcvolt, abs(dcvoltsf))
             _LOGGER.debug(
-                "(read_rt_101_103) DC Current Value read: %s", self.data["dccurr"]
+                f"(read_rt_101_103) DC Current Value read: {self.data['dccurr']}"
             )
             _LOGGER.debug(
-                "(read_rt_101_103) DC Voltage Value read: %s", self.data["dcvolt"]
+                f"(read_rt_101_103) DC Voltage Value read: {self.data['dcvolt']}"
             )
         else:
             decoder.skip_bytes(8)
@@ -465,7 +515,7 @@ class ABBPowerOneFimerAPI:
         dcpowersf = decoder.decode_16bit_int()
         dcpower = self.calculate_value(dcpower, dcpowersf)
         self.data["dcpower"] = round(dcpower, abs(dcpowersf))
-        _LOGGER.debug("(read_rt_101_103) DC Power Value read: %s", self.data["dcpower"])
+        _LOGGER.debug(f"(read_rt_101_103) DC Power Value read: {self.data['dcpower']}")
         # register 103
         tempcab = decoder.decode_16bit_int()
         # skip registers 104-105
@@ -481,17 +531,17 @@ class ABBPowerOneFimerAPI:
         tempoth = self.calculate_value(tempoth, tempsf)
         self.data["tempoth"] = round(tempoth, abs(tempsf))
         self.data["tempcab"] = round(tempcab, abs(tempsf))
-        _LOGGER.debug("(read_rt_101_103) Temp Oth Value read: %s", self.data["tempoth"])
-        _LOGGER.debug("(read_rt_101_103) Temp Cab Value read: %s", self.data["tempcab"])
+        _LOGGER.debug(f"(read_rt_101_103) Temp Oth Value read: {self.data['tempoth']}")
+        _LOGGER.debug(f"(read_rt_101_103) Temp Cab Value read: {self.data['tempcab']}")
         # register 108
         status = decoder.decode_16bit_int()
         # make sure the value is in the known status list
         if status not in DEVICE_STATUS:
-            _LOGGER.debug("Unknown Operating State: %s", status)
+            _LOGGER.debug(f"Unknown Operating State: {status}")
             status = 999
         self.data["status"] = DEVICE_STATUS[status]
         _LOGGER.debug(
-            "(read_rt_101_103) Device Status Value read: %s", self.data["status"]
+            f"(read_rt_101_103) Device Status Value read: {self.data['status']}"
         )
 
         # register 109
@@ -499,17 +549,17 @@ class ABBPowerOneFimerAPI:
         # make sure the value is in the known status list
         if statusvendor not in DEVICE_GLOBAL_STATUS:
             _LOGGER.debug(
-                "(read_rt_101_103) Unknown Vendor Operating State: %s", statusvendor
+                f"(read_rt_101_103) Unknown Vendor Operating State: {statusvendor}"
             )
             statusvendor = 999
         self.data["statusvendor"] = DEVICE_GLOBAL_STATUS[statusvendor]
         _LOGGER.debug(
-            "(read_rt_101_103) Status Vendor Value read: %s", self.data["statusvendor"]
+            f"(read_rt_101_103) Status Vendor Value read: {self.data['statusvendor']}"
         )
         _LOGGER.debug("(read_rt_101_103) Completed")
         return True
 
-    def read_sunspec_modbus_model_160(self):
+    def read_sunspec_modbus_model_160(self, offset=122):
         """Read SunSpec Model 160 Data."""
         # Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
@@ -518,23 +568,18 @@ class ABBPowerOneFimerAPI:
         #
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 70 read 94 registers to read M103+M160 (Realtime Power/Energy Data) in 1-pass
+
         try:
             # Model 160 default address: 40122 (or base address + 122)
             # For UNO-DM-PLUS/REACT2/TRIO inverters it has different offset
             invmodel = self.data["comm_model"].upper()
-            if invmodel.startswith("UNO") or invmodel.startswith("REACT2"):
-                offset = 1104
-            elif invmodel.startswith("TRIO"):
-                offset = 208
-            else:
-                offset = 122
+            _LOGGER.debug(f"(read_rt_160) Model: {invmodel}")
+            _LOGGER.debug(f"(read_rt_160) Slave ID: {self._slave_id}")
+            _LOGGER.debug(f"(read_rt_160) Base Address: {self._base_addr}")
+            _LOGGER.debug(f"(read_rt_160) Offset: {offset}")
             read_model_160_data = self.read_holding_registers(
                 slave=self._slave_id, address=(self._base_addr + offset), count=42
             )
-            _LOGGER.debug("(read_rt_160) Model: %s", invmodel)
-            _LOGGER.debug("(read_rt_160) Slave ID: %s", self._slave_id)
-            _LOGGER.debug("(read_rt_160) Base Address: %s", self._base_addr)
-            _LOGGER.debug("(read_rt_160) Offset: %s", offset)
         except ModbusException as modbus_error:
             _LOGGER.debug(f"Read M160 modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
@@ -544,25 +589,8 @@ class ABBPowerOneFimerAPI:
             read_model_160_data.registers, byteorder=Endian.BIG
         )
 
-        # register 122
-        _LOGGER.debug("(read_rt_160) Decode Model #")
-        multi_mppt_id = decoder.decode_16bit_uint()
-
-        _LOGGER.debug("(read_rt_160) Check Model #")
-        if multi_mppt_id != 160:
-            _LOGGER.debug(
-                "(read_rt_160) Model not 160 - multi_mppt_id: %s",
-                multi_mppt_id,
-            )
-            return False
-        else:
-            _LOGGER.debug(
-                "(read_rt_160) Model is 160 - multi_mppt_id: %s",
-                multi_mppt_id,
-            )
-
-        # skip register 123
-        decoder.skip_bytes(2)
+        # skip registers 122-123
+        decoder.skip_bytes(4)
 
         # registers 124 to 126
         dcasf = decoder.decode_16bit_int()
@@ -575,7 +603,7 @@ class ABBPowerOneFimerAPI:
         # register 130 (# of DC modules)
         multi_mppt_nr = decoder.decode_16bit_int()
         self.data["mppt_nr"] = multi_mppt_nr
-        _LOGGER.debug("(read_rt_160) mppt_nr %s", multi_mppt_nr)
+        _LOGGER.debug(f"(read_rt_160) mppt_nr {multi_mppt_nr}")
 
         # if we have at least one DC module
         if multi_mppt_nr >= 1:
@@ -595,13 +623,10 @@ class ABBPowerOneFimerAPI:
             dc1power = self.calculate_value(dc1power, dcwsf)
             self.data["dc1power"] = round(dc1power, abs(dcwsf))
             _LOGGER.debug(
-                "(read_rt_160) dc1curr: %s Round: %s SF: %s",
-                dc1curr,
-                self.data["dc1curr"],
-                dcasf,
+                f"(read_rt_160) dc1curr: {dc1curr} Round: {self.data['dc1curr']} SF: {dcasf}"
             )
-            _LOGGER.debug("(read_rt_160) dc1volt %s", self.data["dc1volt"])
-            _LOGGER.debug("(read_rt_160) dc1power %s", self.data["dc1power"])
+            _LOGGER.debug(f"(read_rt_160) dc1volt {self.data['dc1volt']}")
+            _LOGGER.debug(f"(read_rt_160) dc1power {self.data['dc1power']}")
 
         # if we have more than one DC module
         if multi_mppt_nr > 1:
@@ -619,13 +644,10 @@ class ABBPowerOneFimerAPI:
             dc2power = self.calculate_value(dc2power, dcwsf)
             self.data["dc2power"] = round(dc2power, abs(dcwsf))
             _LOGGER.debug(
-                "(read_rt_160) dc2curr: %s Round: %s SF: %s",
-                dc2curr,
-                self.data["dc2curr"],
-                dcasf,
+                f"(read_rt_160) dc2curr: {dc2curr} Round: {self.data['dc2curr']} SF: {dcasf}"
             )
-            _LOGGER.debug("(read_rt_160) dc2volt %s", self.data["dc2volt"])
-            _LOGGER.debug("(read_rt_160) dc2power %s", self.data["dc2power"])
+            _LOGGER.debug(f"(read_rt_160) dc2volt {self.data['dc2volt']}")
+            _LOGGER.debug(f"(read_rt_160) dc2power {self.data['dc2power']}")
 
         _LOGGER.debug("(read_rt_160) Completed")
         return True

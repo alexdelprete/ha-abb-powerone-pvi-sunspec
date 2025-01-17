@@ -7,6 +7,7 @@ import logging
 import socket
 import threading
 
+from homeassistant.core import HomeAssistant
 from pymodbus.client import ModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException, ModbusException
@@ -41,15 +42,26 @@ class ABBPowerOneFimerAPI:
 
     def __init__(
         self,
-        hass,
-        name,
-        host,
-        port,
-        slave_id,
-        base_addr,
-        scan_interval,
-    ):
-        """Initialize the Modbus API Client."""
+        hass: HomeAssistant,
+        name: str,
+        host: str,
+        port: int,
+        slave_id: int,
+        base_addr: int,
+        scan_interval: int,
+    ) -> None:
+        """Initialize the Modbus API Client.
+
+        Args:
+            hass: HomeAssistant instance
+            name: Device name
+            host: Device IP address
+            port: Modbus TCP port
+            slave_id: Modbus slave ID (1-247)
+            base_addr: Base address for register reads
+            scan_interval: Update interval in seconds
+
+        """
         self._hass = hass
         self._name = name
         self._host = host

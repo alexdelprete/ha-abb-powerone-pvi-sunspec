@@ -55,13 +55,13 @@ async def async_setup_entry(
     # Get handler to coordinator from config
     coordinator: ABBPowerOneFimerCoordinator = config_entry.runtime_data.coordinator
 
-    _LOGGER.debug("(sensor) Name: %s", config_entry.data.get(CONF_NAME))
-    _LOGGER.debug("(sensor) Manufacturer: %s", coordinator.api.data["comm_manufact"])
-    _LOGGER.debug("(sensor) Model: %s", coordinator.api.data["comm_model"])
-    _LOGGER.debug("(sensor) SW Version: %s", coordinator.api.data["comm_version"])
-    _LOGGER.debug("(sensor) Inverter Type (str): %s", coordinator.api.data["invtype"])
-    _LOGGER.debug("(sensor) MPPT #: %s", coordinator.api.data["mppt_nr"])
-    _LOGGER.debug("(sensor) Serial#: %s", coordinator.api.data["comm_sernum"])
+    _LOGGER.debug(f"(sensor) Name: {config_entry.data.get(CONF_NAME)}")
+    _LOGGER.debug(f"(sensor) Manufacturer: {coordinator.api.data['comm_manufact']}")
+    _LOGGER.debug(f"(sensor) Model: {coordinator.api.data['comm_model']}")
+    _LOGGER.debug(f"(sensor) SW Version: {coordinator.api.data['comm_version']}")
+    _LOGGER.debug(f"(sensor) Inverter Type (str): {coordinator.api.data['invtype']}")
+    _LOGGER.debug(f"(sensor) MPPT #: {coordinator.api.data['mppt_nr']}")
+    _LOGGER.debug(f"(sensor) Serial#: {coordinator.api.data['comm_sernum']}")
 
     sensor_list = []
     add_sensor_defs(coordinator, config_entry, sensor_list, SENSOR_TYPES_COMMON)
@@ -76,10 +76,7 @@ async def async_setup_entry(
         )
 
     _LOGGER.debug(
-        "(sensor) DC Voltages : single=%s dc1=%s dc2=%s",
-        coordinator.api.data["dcvolt"],
-        coordinator.api.data["dc1volt"],
-        coordinator.api.data["dc2volt"],
+        f"(sensor) DC Voltages : single={coordinator.api.data['dcvolt']} dc1={coordinator.api.data['dc1volt']} dc2={coordinator.api.data['dc2volt']}"
     )
     if coordinator.api.data["mppt_nr"] == 1:
         add_sensor_defs(

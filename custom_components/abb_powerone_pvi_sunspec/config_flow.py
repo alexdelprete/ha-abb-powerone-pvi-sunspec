@@ -17,6 +17,7 @@ from homeassistant.config_entries import (
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.selector import selector
 from pymodbus.exceptions import ConnectionException
 
 from .api import ABBPowerOneFimerAPI
@@ -167,19 +168,28 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_PORT,
                         default=DEFAULT_PORT,
-                    ): vol.All(vol.Coerce(int), vol.Range(min=0, max=65535)),
+                    ): vol.All(vol.Coerce(int), vol.Clamp(min=0, max=65535)),
                     vol.Required(
                         CONF_SLAVE_ID,
                         default=DEFAULT_SLAVE_ID,
-                    ): vol.All(vol.Coerce(int), vol.Range(min=1, max=247)),
+                    ): selector(
+                        {
+                            "number": {
+                                "min": 1,
+                                "max": 247,
+                                "step": 1,
+                                "mode": "box",
+                            }
+                        }
+                    ),
                     vol.Required(
                         CONF_BASE_ADDR,
                         default=DEFAULT_BASE_ADDR,
-                    ): vol.All(vol.Coerce(int), vol.Range(min=0, max=65535)),
+                    ): vol.All(vol.Coerce(int), vol.Clamp(min=0, max=65535)),
                     vol.Required(
                         CONF_SCAN_INTERVAL,
                         default=DEFAULT_SCAN_INTERVAL,
-                    ): vol.All(vol.Coerce(int), vol.Range(min=30, max=600)),
+                    ): vol.All(vol.Coerce(int), vol.Clamp(min=30, max=600)),
                 },
             ),
             errors=errors,
@@ -202,19 +212,28 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
                 vol.Required(
                     CONF_PORT,
                     default=config_entry.data.get(CONF_PORT),
-                ): vol.All(vol.Coerce(int), vol.Range(min=0, max=65535)),
+                ): vol.All(vol.Coerce(int), vol.Clamp(min=0, max=65535)),
                 vol.Required(
                     CONF_SLAVE_ID,
                     default=config_entry.data.get(CONF_SLAVE_ID),
-                ): vol.All(vol.Coerce(int), vol.Range(min=1, max=247)),
+                ): selector(
+                    {
+                        "number": {
+                            "min": 1,
+                            "max": 247,
+                            "step": 1,
+                            "mode": "box",
+                        }
+                    }
+                ),
                 vol.Required(
                     CONF_BASE_ADDR,
                     default=config_entry.data.get(CONF_BASE_ADDR),
-                ): vol.All(vol.Coerce(int), vol.Range(min=0, max=65535)),
+                ): vol.All(vol.Coerce(int), vol.Clamp(min=0, max=65535)),
                 vol.Required(
                     CONF_SCAN_INTERVAL,
                     default=config_entry.data.get(CONF_SCAN_INTERVAL),
-                ): vol.All(vol.Coerce(int), vol.Range(min=30, max=600)),
+                ): vol.All(vol.Coerce(int), vol.Clamp(min=30, max=600)),
             }
         )
 

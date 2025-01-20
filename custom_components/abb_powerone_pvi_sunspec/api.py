@@ -63,12 +63,12 @@ class ABBPowerOneFimerAPI:
 
         """
         self._hass = hass
-        self._name = name
-        self._host = host
-        self._port = port
-        self._slave_id = slave_id
-        self._base_addr = base_addr
-        self._update_interval = scan_interval
+        self._name = str(name)
+        self._host = str(host)
+        self._port = int(port)
+        self._slave_id = int(slave_id)
+        self._base_addr = int(base_addr)
+        self._update_interval = int(scan_interval)
         # Ensure ModBus Timeout is 1s less than scan_interval
         # https://github.com/binsentsu/home-assistant-solaredge-modbus/pull/183
         self._timeout = self._update_interval - 1

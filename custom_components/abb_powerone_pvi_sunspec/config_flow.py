@@ -17,7 +17,6 @@ from homeassistant.config_entries import (
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.selector import selector
 from pymodbus.exceptions import ConnectionException
 
 from .api import ABBPowerOneFimerAPI
@@ -76,13 +75,36 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
             return True
         return False
 
-    async def get_unique_id(self, name, host, port, slave_id, base_addr, scan_interval):
-        """Return true if credentials is valid."""
-        _LOGGER.debug(f"Test connection to {host}:{port} slave id {slave_id}")
+    async def get_unique_id(
+        self,
+        name: str,
+        host: str,
+        port: int,
+        slave_id: int,
+        base_addr: int,
+        scan_interval: int,
+    ):
+        """Return device serial number."""
+        self._name = str(name)
+        self._host = str(host)
+        self._port = int(port)
+        self._slave_id = int(slave_id)
+        self._base_addr = int(base_addr)
+        self._scan_interval = int(scan_interval)
+
+        _LOGGER.debug(
+            f"Test connection to {self._host}:{self._port} slave id {self._slave_id}"
+        )
         try:
             _LOGGER.debug("Creating API Client")
             self.api = ABBPowerOneFimerAPI(
-                self.hass, name, host, port, slave_id, base_addr, scan_interval
+                self.hass,
+                self._name,
+                self._host,
+                self._port,
+                self._slave_id,
+                self._base_addr,
+                self._scan_interval,
             )
             _LOGGER.debug("API Client created: calling get data")
             self.api_data = await self.api.async_get_data()
@@ -91,7 +113,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.api.data["comm_sernum"]
         except ConnectionException as connerr:
             _LOGGER.error(
-                f"Failed to connect to host: {host}:{port} - slave id: {slave_id} - Exception: {connerr}"
+                f"Failed to connect to host: {self._host}:{self._port} - slave id: {self._slave_id} - Exception: {connerr}"
             )
             return False
 
@@ -100,16 +122,16 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            name = user_input[CONF_NAME]
-            host = user_input[CONF_HOST]
-            port = user_input[CONF_PORT]
-            slave_id = user_input[CONF_SLAVE_ID]
-            base_addr = user_input[CONF_BASE_ADDR]
-            scan_interval = user_input[CONF_SCAN_INTERVAL]
+            name = str(user_input[CONF_NAME])
+            host = str(user_input[CONF_HOST])
+            port = int(user_input[CONF_PORT])
+            slave_id = int(user_input[CONF_SLAVE_ID])
+            base_addr = int(user_input[CONF_BASE_ADDR])
+            scan_interval = int(user_input[CONF_SCAN_INTERVAL])
 
             if self._host_in_configuration_exists(host):
                 errors[CONF_HOST] = "Device Already Configured"
-            elif not host_valid(user_input[CONF_HOST]):
+            elif not host_valid(host):
                 errors[CONF_HOST] = "invalid Host IP"
             else:
                 uid = await self.get_unique_id(
@@ -149,16 +171,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_SLAVE_ID,
                         default=DEFAULT_SLAVE_ID,
-                    ): selector(
-                        {
-                            "number": {
-                                "min": 1,
-                                "max": 247,
-                                "step": 1,
-                                "mode": "slider",
-                            }
-                        },
-                    ),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=1, max=247)),
                     vol.Required(
                         CONF_BASE_ADDR,
                         default=DEFAULT_BASE_ADDR,
@@ -166,17 +179,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_SCAN_INTERVAL,
                         default=DEFAULT_SCAN_INTERVAL,
-                    ): selector(
-                        {
-                            "number": {
-                                "min": 30,
-                                "max": 600,
-                                "step": 10,
-                                "unit_of_measurement": "s",
-                                "mode": "slider",
-                            }
-                        }
-                    ),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=30, max=600)),
                 },
             ),
             errors=errors,
@@ -203,16 +206,7 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
                 vol.Required(
                     CONF_SLAVE_ID,
                     default=config_entry.data.get(CONF_SLAVE_ID),
-                ): selector(
-                    {
-                        "number": {
-                            "min": 1,
-                            "max": 247,
-                            "step": 1,
-                            "mode": "slider",
-                        }
-                    },
-                ),
+                ): vol.All(vol.Coerce(int), vol.Range(min=1, max=247)),
                 vol.Required(
                     CONF_BASE_ADDR,
                     default=config_entry.data.get(CONF_BASE_ADDR),
@@ -220,17 +214,7 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
                 vol.Required(
                     CONF_SCAN_INTERVAL,
                     default=config_entry.data.get(CONF_SCAN_INTERVAL),
-                ): selector(
-                    {
-                        "number": {
-                            "min": 30,
-                            "max": 600,
-                            "step": 10,
-                            "unit_of_measurement": "s",
-                            "mode": "slider",
-                        }
-                    }
-                ),
+                ): vol.All(vol.Coerce(int), vol.Range(min=30, max=600)),
             }
         )
 

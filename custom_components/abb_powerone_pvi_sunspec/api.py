@@ -37,6 +37,12 @@ class ModbusError(Exception):
     pass
 
 
+class ExceptionError(Exception):
+    """Empty Error Class."""
+
+    pass
+
+
 class ABBPowerOneFimerAPI:
     """Thread safe wrapper class for pymodbus."""
 
@@ -233,7 +239,7 @@ class ABBPowerOneFimerAPI:
             _LOGGER.debug(f"Async Get Data modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
 
-    def read_sunspec_modbus(self):
+    def read_sunspec_modbus(self) -> bool:
         """Read Modbus Data Function."""
         try:
             self.read_sunspec_modbus_model_1()
@@ -243,10 +249,18 @@ class ABBPowerOneFimerAPI:
                 self.read_sunspec_modbus_model_160(offset)
             result = True
             _LOGGER.debug(f"read_sunspec_modbus: success {result}")
-        except Exception as modbus_error:
-            _LOGGER.debug(f"read_sunspec_modbus: failed with error: {modbus_error}")
+        except ModbusException as modbus_error:
+            _LOGGER.debug(f"(find_m160) Find M160 modbus_error: {modbus_error}")
             result = False
             raise ModbusError() from modbus_error
+        except ConnectionException as connect_error:
+            _LOGGER.debug(f"(find_m160) Connection connect_error: {connect_error}")
+            result = False
+            raise ConnectionError() from connect_error
+        except Exception as exception_error:
+            _LOGGER.debug(f"(find_m160) Generic error: {exception_error}")
+            result = False
+            raise ExceptionError() from exception_error
         return result
 
     def find_sunspec_modbus_m160_offset(self) -> int:
@@ -294,10 +308,16 @@ class ABBPowerOneFimerAPI:
                 )
             else:
                 _LOGGER.debug(f"(find_m160) M160 not found for model: {invmodel}")
-            return found_offset
         except ModbusException as modbus_error:
-            _LOGGER.debug(f"Find M160 modbus_error: {modbus_error}")
+            _LOGGER.debug(f"(find_m160) Find M160 modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
+        except ConnectionException as connect_error:
+            _LOGGER.debug(f"(find_m160) Connection connect_error: {connect_error}")
+            raise ConnectionError() from connect_error
+        except Exception as exception_error:
+            _LOGGER.debug(f"(find_m160) Generic error: {exception_error}")
+            raise ExceptionError() from exception_error
+        return found_offset
 
     def read_sunspec_modbus_model_1(self):
         """Read SunSpec Model 1 Data."""
@@ -315,8 +335,14 @@ class ABBPowerOneFimerAPI:
             _LOGGER.debug(f"(read_rt_1) Slave ID: {self._slave_id}")
             _LOGGER.debug(f"(read_rt_1) Base Address: {self._base_addr}")
         except ModbusException as modbus_error:
-            _LOGGER.debug(f"ReadM1 modbus_error: {modbus_error}")
+            _LOGGER.debug(f"(read_rt_1) Find M160 modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
+        except ConnectionException as connect_error:
+            _LOGGER.debug(f"(read_rt_1) Connection connect_error: {connect_error}")
+            raise ConnectionError() from connect_error
+        except Exception as exception_error:
+            _LOGGER.debug(f"(read_rt_1) Generic error: {exception_error}")
+            raise ExceptionError() from exception_error
 
         # No connection errors, we can start scraping registers
         decoder = BinaryPayloadDecoder.fromRegisters(
@@ -392,6 +418,17 @@ class ABBPowerOneFimerAPI:
                 f"(read_rt_101_103) Read M101/M103 modbus_error: {modbus_error}"
             )
             raise ModbusError() from modbus_error
+        except ModbusException as modbus_error:
+            _LOGGER.debug(f"(read_rt_101_103) Find M160 modbus_error: {modbus_error}")
+            raise ModbusError() from modbus_error
+        except ConnectionException as connect_error:
+            _LOGGER.debug(
+                f"(read_rt_101_103) Connection connect_error: {connect_error}"
+            )
+            raise ConnectionError() from connect_error
+        except Exception as exception_error:
+            _LOGGER.debug(f"(read_rt_101_103) Generic error: {exception_error}")
+            raise ExceptionError() from exception_error
 
         # No connection errors, we can start scraping registers
         decoder = BinaryPayloadDecoder.fromRegisters(
@@ -593,8 +630,14 @@ class ABBPowerOneFimerAPI:
                 slave=self._slave_id, address=(self._base_addr + offset), count=42
             )
         except ModbusException as modbus_error:
-            _LOGGER.debug(f"Read M160 modbus_error: {modbus_error}")
+            _LOGGER.debug(f"(read_rt_160) Read M160 modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
+        except ConnectionException as connect_error:
+            _LOGGER.debug(f"(read_rt_160) Connection connect_error: {connect_error}")
+            raise ConnectionError() from connect_error
+        except Exception as exception_error:
+            _LOGGER.debug(f"(read_rt_160) Generic error: {exception_error}")
+            raise ExceptionError() from exception_error
 
         # No connection errors, we can start scraping registers
         decoder = BinaryPayloadDecoder.fromRegisters(

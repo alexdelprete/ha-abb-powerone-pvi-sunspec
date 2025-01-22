@@ -8,6 +8,7 @@ import socket
 import threading
 
 from homeassistant.core import HomeAssistant
+from pymodbus import ExceptionResponse
 from pymodbus.client import ModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException, ModbusException
@@ -288,6 +289,12 @@ class ABBPowerOneFimerAPI:
                 read_model_160_data = self.read_holding_registers(
                     slave=self._slave_id, address=(self._base_addr + offset), count=1
                 )
+                if isinstance(read_model_160_data, ExceptionResponse):
+                    # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
+                    _LOGGER.debug(
+                        f"(find_m160) Received Modbus library exception: {read_model_160_data}"
+                    )
+                    raise ModbusError()
                 decoder = BinaryPayloadDecoder.fromRegisters(
                     read_model_160_data.registers, byteorder=Endian.BIG
                 )
@@ -332,6 +339,12 @@ class ABBPowerOneFimerAPI:
             read_model_1_data = self.read_holding_registers(
                 slave=self._slave_id, address=(self._base_addr + 4), count=64
             )
+            if isinstance(read_model_1_data, ExceptionResponse):
+                # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
+                _LOGGER.debug(
+                    f"(read_rt_1) Received Modbus library exception: {read_model_1_data}"
+                )
+                raise ModbusError()
             _LOGGER.debug(f"(read_rt_1) Slave ID: {self._slave_id}")
             _LOGGER.debug(f"(read_rt_1) Base Address: {self._base_addr}")
         except ModbusException as modbus_error:
@@ -411,6 +424,12 @@ class ABBPowerOneFimerAPI:
             read_model_101_103_data = self.read_holding_registers(
                 slave=self._slave_id, address=(self._base_addr + 70), count=40
             )
+            if isinstance(read_model_101_103_data, ExceptionResponse):
+                # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
+                _LOGGER.debug(
+                    f"(read_rt_101_103) Received Modbus library exception: {read_model_101_103_data}"
+                )
+                raise ModbusError()
             _LOGGER.debug(f"(read_rt_101_103) Slave ID: {self._slave_id}")
             _LOGGER.debug(f"(read_rt_101_103) Base Address: {self._base_addr}")
         except ModbusException as modbus_error:
@@ -629,6 +648,12 @@ class ABBPowerOneFimerAPI:
             read_model_160_data = self.read_holding_registers(
                 slave=self._slave_id, address=(self._base_addr + offset), count=42
             )
+            if isinstance(read_model_160_data, ExceptionResponse):
+                # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
+                _LOGGER.debug(
+                    f"(read_model_160_data) Received Modbus library exception: {read_model_160_data}"
+                )
+                raise ModbusError()
         except ModbusException as modbus_error:
             _LOGGER.debug(f"(read_rt_160) Read M160 modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error

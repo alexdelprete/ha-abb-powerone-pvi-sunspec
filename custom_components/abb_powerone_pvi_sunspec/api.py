@@ -294,11 +294,11 @@ class ABBPowerOneFimerAPI:
                     _LOGGER.debug(
                         f"(find_m160) Received Modbus library exception: {read_model_160_data}"
                     )
-                    raise ModbusError()
-                decoder = BinaryPayloadDecoder.fromRegisters(
-                    read_model_160_data.registers, byteorder=Endian.BIG
-                )
-                multi_mppt_id = decoder.decode_16bit_uint()
+                else:
+                    decoder = BinaryPayloadDecoder.fromRegisters(
+                        read_model_160_data.registers, byteorder=Endian.BIG
+                    )
+                    multi_mppt_id = decoder.decode_16bit_uint()
                 if multi_mppt_id != SUNSPEC_MODEL_160_ID:
                     _LOGGER.debug(
                         f"(find_m160) Model is not 160 - offset: {offset} - multi_mppt_id: {multi_mppt_id}"

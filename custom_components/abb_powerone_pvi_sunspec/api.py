@@ -192,12 +192,14 @@ class ABBPowerOneFimerAPI:
             _LOGGER.debug("Inverter not ready for Modbus TCP connection")
             raise ConnectionError(f"Inverter not active on {self._host}:{self._port}")
 
-    def read_holding_registers(self, slave, address, count):
+    def read_holding_registers(self, address, count):
         """Read holding registers."""
-        kwargs = {"slave": slave} if slave else {}
+
         try:
             with self._lock:
-                return self._client.read_holding_registers(address, count, **kwargs)
+                return self._client.read_holding_registers(
+                    address=address, count=count, slave=self._slave_id
+                )
         except ConnectionException as connect_error:
             _LOGGER.debug(f"Read Holding Registers connect_error: {connect_error}")
             raise ConnectionError() from connect_error
@@ -251,15 +253,19 @@ class ABBPowerOneFimerAPI:
             result = True
             _LOGGER.debug(f"read_sunspec_modbus: success {result}")
         except ModbusException as modbus_error:
-            _LOGGER.debug(f"(find_m160) Find M160 modbus_error: {modbus_error}")
+            _LOGGER.debug(
+                f"(read_sunspec_modbus) Find M160 modbus_error: {modbus_error}"
+            )
             result = False
             raise ModbusError() from modbus_error
         except ConnectionException as connect_error:
-            _LOGGER.debug(f"(find_m160) Connection connect_error: {connect_error}")
+            _LOGGER.debug(
+                f"(read_sunspec_modbus) Connection connect_error: {connect_error}"
+            )
             result = False
             raise ConnectionError() from connect_error
         except Exception as exception_error:
-            _LOGGER.debug(f"(find_m160) Generic error: {exception_error}")
+            _LOGGER.debug(f"(read_sunspec_modbus) Generic error: {exception_error}")
             result = False
             raise ExceptionError() from exception_error
         return result
@@ -287,7 +293,7 @@ class ABBPowerOneFimerAPI:
                     f"(find_m160) Find M160 for model: {invmodel} at offset: {offset}"
                 )
                 read_model_160_data = self.read_holding_registers(
-                    slave=self._slave_id, address=(self._base_addr + offset), count=1
+                    address=(self._base_addr + offset), count=1
                 )
                 if isinstance(read_model_160_data, ExceptionResponse):
                     # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
@@ -337,7 +343,7 @@ class ABBPowerOneFimerAPI:
         # Start address 72 read 92 registers to read (M101 or M103)+M160 (Realtime Power/Energy Data) in 1-pass
         try:
             read_model_1_data = self.read_holding_registers(
-                slave=self._slave_id, address=(self._base_addr + 4), count=64
+                address=(self._base_addr + 4), count=64
             )
             if isinstance(read_model_1_data, ExceptionResponse):
                 # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
@@ -422,7 +428,7 @@ class ABBPowerOneFimerAPI:
         #   - Sweep 3 (M160): Start address 124 read 40 registers to read M1 (Common Inverter Info)
         try:
             read_model_101_103_data = self.read_holding_registers(
-                slave=self._slave_id, address=(self._base_addr + 70), count=40
+                address=(self._base_addr + 70), count=40
             )
             if isinstance(read_model_101_103_data, ExceptionResponse):
                 # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
@@ -646,7 +652,7 @@ class ABBPowerOneFimerAPI:
             _LOGGER.debug(f"(read_rt_160) Base Address: {self._base_addr}")
             _LOGGER.debug(f"(read_rt_160) Offset: {offset}")
             read_model_160_data = self.read_holding_registers(
-                slave=self._slave_id, address=(self._base_addr + offset), count=42
+                address=(self._base_addr + offset), count=42
             )
             if isinstance(read_model_160_data, ExceptionResponse):
                 # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message

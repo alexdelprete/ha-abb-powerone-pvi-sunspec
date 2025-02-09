@@ -1,0 +1,36 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configuração da Ligação do Inversor",
+        "description": "Se precisar de ajuda com a configuração, vá para: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
+        "data": {
+          "name": "Nome Personalizado do Inversor (usado para o prefixo dos sensores)",
+          "host": "IP ou nome de anfitrião",
+          "port": "Porta TCP",
+          "slave_id": "Endereço Modbus Slave do inversor",
+          "base_addr": "Endereço Base do Mapa de Registos Modbus",
+          "scan_interval": "Período de Polling (mín: 30s máx: 600s)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Dispositivo já configurado"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opções de Ligação do Inversor",
+        "description": "Definir Opções de Ligação",
+        "data": {
+          "host": "IP ou nome de anfitrião",
+          "port": "Porta TCP",
+          "slave_id": "Endereço Modbus Slave do inversor",
+          "base_addr": "Endereço Base do Mapa de Registos Modbus",
+          "scan_interval": "Período de Polling (mín: 30s máx: 600s)"
+        }
+      }
+    }
+  }
+}

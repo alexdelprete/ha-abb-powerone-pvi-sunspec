@@ -12,7 +12,6 @@ from pymodbus import ExceptionResponse
 from pymodbus.client import ModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException, ModbusException
-from pymodbus.payload import BinaryPayloadDecoder
 
 from .const import (
     DEVICE_GLOBAL_STATUS,
@@ -22,6 +21,9 @@ from .const import (
     SUNSPEC_M160_OFFSETS,
     SUNSPEC_MODEL_160_ID,
 )
+
+# from pymodbus.payload import BinaryPayloadDecoder
+from .modbuspayload import BinaryPayloadDecoder
 
 _LOGGER = logging.getLogger(__name__)
 

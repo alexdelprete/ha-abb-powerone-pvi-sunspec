@@ -127,32 +127,33 @@ async def async_unload_entry(
     _LOGGER.debug("Unload config_entry: started")
 
     # Unload platforms and cleanup resources
-    if unload_ok := await hass.config_entries.async_unload_platforms(
+    unload_ok = await hass.config_entries.async_unload_platforms(
         config_entry, PLATFORMS
-    ):
-        try:
-            # Close API connection if exists
-            # coordinator = getattr(config_entry.runtime_data, 'coordinator', None)
-            coordinator = config_entry.runtime_data.coordinator
-            if coordinator.api:
-                coordinator.api.close()
-                _LOGGER.debug("Closed API connection")
+    )
+    _LOGGER.debug("Unload platforms: %s", unload_ok)
 
-            # Remove update listener if exists
-            if config_entry.entry_id in hass.data[DOMAIN]:
-                update_listener = config_entry.runtime_data.update_listener
-                if update_listener:
-                    update_listener()
-                _LOGGER.debug("Removed update listener")
-
-                # Remove config entry from hass data
-                hass.data[DOMAIN].pop(config_entry.entry_id)
-                _LOGGER.debug("Removed config entry from hass data")
-        except Exception as ex:
-            _LOGGER.error(f"Error during unload: {str(ex)}")
-            return False
+    # check if this is the last loaded instance of the integration
+    # Note: compatibility with HA < 2025.3.0
+    # ref.: https://developers.home-assistant.io/blog/2025/02/19/new-config-entry-states/
+    other_loaded_entries = [
+        _entry
+        for _entry in hass.config_entries.async_loaded_entries(DOMAIN)
+        if _entry.entry_id != config_entry.entry_id
+    ]
+    # If this is the last loaded instance of the integration, release resources
+    if not other_loaded_entries:
+        _LOGGER.debug("Last loaded entry, releasing resources")
+        # Close API connection
+        config_entry.runtime_data.coordinator.api.close()
+        _LOGGER.debug("Closed API connection")
+        # Remove update listener if it exists
+        config_entry.runtime_data.update_listener()
+        _LOGGER.debug("Removed update listener")
+        # Remove config entry from hass data
+        hass.data[DOMAIN].pop(config_entry.entry_id)
+        _LOGGER.debug("Removed config entry from hass data")
     else:
-        _LOGGER.debug("Failed to unload platforms")
+        _LOGGER.debug("There are other loaded entries, not releasing resources")
 
     _LOGGER.debug("Unload config_entry: completed")
     return unload_ok

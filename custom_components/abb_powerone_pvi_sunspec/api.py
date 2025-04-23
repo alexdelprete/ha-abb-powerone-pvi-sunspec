@@ -255,20 +255,23 @@ class ABBPowerOneFimerAPI:
             result = True
             _LOGGER.debug(f"read_sunspec_modbus: success {result}")
         except ModbusException as modbus_error:
+            result = False
+            _LOGGER.debug(f"read_sunspec_modbus: success {result}")
             _LOGGER.debug(
                 f"(read_sunspec_modbus) Find M160 modbus_error: {modbus_error}"
             )
-            result = False
             raise ModbusError() from modbus_error
         except ConnectionException as connect_error:
+            result = False
+            _LOGGER.debug(f"read_sunspec_modbus: success {result}")
             _LOGGER.debug(
                 f"(read_sunspec_modbus) Connection connect_error: {connect_error}"
             )
-            result = False
             raise ConnectionError() from connect_error
         except Exception as exception_error:
-            _LOGGER.debug(f"(read_sunspec_modbus) Generic error: {exception_error}")
             result = False
+            _LOGGER.debug(f"read_sunspec_modbus: success {result}")
+            _LOGGER.debug(f"(read_sunspec_modbus) Generic error: {exception_error}")
             raise ExceptionError() from exception_error
         return result
 

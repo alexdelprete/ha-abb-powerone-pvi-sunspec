@@ -255,7 +255,7 @@ class ABBPowerOneFimerAPI:
             if self.data["m160_offset"] == 0:
                 # look for M160 offset only if not already found the first time
                 _LOGGER.debug(
-                    f"read_sunspec_modbus: M160 offset unknown, will look for it"
+                    f"read_sunspec_modbus: M160 offset unknown for model: {self.data['comm_model']}, will look for it"
                 )
                 if offset := self.find_sunspec_modbus_m160_offset():
                     # M160 found, read and save offset in data dict for next cycle

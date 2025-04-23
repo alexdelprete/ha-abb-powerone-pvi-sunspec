@@ -121,6 +121,8 @@ class ABBPowerOneFimerAPI:
         self.data["totalenergy"] = 1
         self.data["tempcab"] = 1
         self.data["tempoth"] = 1
+        # this is not modbus data, but we need it to store the offset
+        self.data["m160_offset"] = 0
 
     @property
     def name(self):
@@ -250,8 +252,32 @@ class ABBPowerOneFimerAPI:
             self.read_sunspec_modbus_model_1()
             self.read_sunspec_modbus_model_101_103()
             # Find SunSpec Model 160 Offset and read data only if found
-            if offset := self.find_sunspec_modbus_m160_offset():
-                self.read_sunspec_modbus_model_160(offset)
+            if self.data["m160_offset"] == 0:
+                # look for M160 offset only if not already found the first time
+                _LOGGER.debug(
+                    f"read_sunspec_modbus: M160 offset unknown, will look for it"
+                )
+                if offset := self.find_sunspec_modbus_m160_offset():
+                    # M160 found, read and save offset in data dict for next cycle
+                    self.read_sunspec_modbus_model_160(offset)
+                    self.data["m160_offset"] = offset
+                    _LOGGER.debug(
+                        f"read_sunspec_modbus: M160 found at offset: {self.data['m160_offset']}"
+                    )
+                else:
+                    # M160 not found, set offset to 1 so next cycle we skip the search
+                    self.data["m160_offset"] = 1
+                    _LOGGER.debug(
+                        f"read_sunspec_modbus: M160 not found for model: {self.data['comm_model']}"
+                    )
+            elif self.data["m160_offset"] == 1:
+                # M160 offset has already been searched and wasn't found
+                _LOGGER.debug(
+                    f"read_sunspec_modbus: M160 not present for model: {self.data['comm_model']}"
+                )
+            else:
+                # M160 offset not 0/1, use the saved offset to read
+                self.read_sunspec_modbus_model_160(self.data["m160_offset"])
             result = True
             _LOGGER.debug(f"read_sunspec_modbus: success {result}")
         except ModbusException as modbus_error:

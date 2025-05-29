@@ -1,5 +1,5 @@
 colorlog==6.9.0
 homeassistant==2024.3.3
 pip>=21.0,<25.1
-ruff==0.11.11
+ruff==0.11.12
 pymodbus>=3.5

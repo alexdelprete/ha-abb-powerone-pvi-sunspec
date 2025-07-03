@@ -23,10 +23,27 @@ from struct import pack, unpack
 from pymodbus.constants import Endian
 from pymodbus.exceptions import ParameterException
 from pymodbus.logging import Log
-from pymodbus.utilities import (
-    pack_bitstring,
-    unpack_bitstring,
-)
+
+
+def pack_bitstring(bits: list[bool]) -> bytes:
+    """Packs a list of bits into bytes (8 bits per byte, LSB first)."""
+    result = []
+    for i in range(0, len(bits), 8):
+        byte = 0
+        for bit_index, bit in enumerate(bits[i : i + 8]):
+            if bit:
+                byte |= 1 << bit_index
+        result.append(byte)
+    return bytes(result)
+
+
+def unpack_bitstring(data: bytes) -> list[bool]:
+    """Unpacks a byte array into a list of bits (LSB first)."""
+    bits = []
+    for byte in data:
+        for i in range(8):
+            bits.append(bool((byte >> i) & 0x01))
+    return bits
 
 
 class BinaryPayloadBuilder:

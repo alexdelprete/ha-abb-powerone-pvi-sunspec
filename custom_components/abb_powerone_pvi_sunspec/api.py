@@ -3,13 +3,13 @@
 https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 """
 
+import asyncio
 import logging
 import socket
-import threading
 
 from homeassistant.core import HomeAssistant
 from pymodbus import ExceptionResponse
-from pymodbus.client import ModbusTcpClient
+from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.constants import Endian
 from pymodbus.exceptions import ConnectionException, ModbusException
 
@@ -81,10 +81,10 @@ class ABBPowerOneFimerAPI:
         # Ensure ModBus Timeout is 1s less than scan_interval
         # https://github.com/binsentsu/home-assistant-solaredge-modbus/pull/183
         self._timeout = self._update_interval - 1
-        self._client = ModbusTcpClient(
+        self._client = AsyncModbusTcpClient(
             host=self._host, port=self._port, timeout=self._timeout
         )
-        self._lock = threading.Lock()
+        self._lock = asyncio.Lock()
         self._sensors = []
         self.data = {}
         # Initialize ModBus data structure before first read
@@ -134,9 +134,9 @@ class ABBPowerOneFimerAPI:
         """Return the device name."""
         return self._host
 
-    def check_port(self) -> bool:
+    async def check_port(self) -> bool:
         """Check if port is available."""
-        with self._lock:
+        async with self._lock:
             sock_timeout = float(3)
             _LOGGER.debug(
                 f"Check_Port: opening socket on {self._host}:{self._port} with a {sock_timeout}s timeout."
@@ -157,12 +157,12 @@ class ABBPowerOneFimerAPI:
             sock.close()
         return is_open
 
-    def close(self):
+    async def close(self):
         """Disconnect client."""
         try:
-            if self._client.is_socket_open():
+            if self._client.connected:
                 _LOGGER.debug("Closing Modbus TCP connection")
-                with self._lock:
+                async with self._lock:
                     self._client.close()
                     return True
             else:
@@ -171,16 +171,16 @@ class ABBPowerOneFimerAPI:
             _LOGGER.debug(f"Close Connection connect_error: {connect_error}")
             raise ConnectionError() from connect_error
 
-    def connect(self):
+    async def connect(self):
         """Connect client."""
         _LOGGER.debug(
             f"API Client connect to IP: {self._host} port: {self._port} slave id: {self._slave_id} timeout: {self._timeout}"
         )
-        if self.check_port():
+        if await self.check_port():
             _LOGGER.debug("Inverter ready for Modbus TCP connection")
             try:
-                with self._lock:
-                    self._client.connect()
+                async with self._lock:
+                    await self._client.connect()
                 if not self._client.connected:
                     raise ConnectionError(
                         f"Failed to connect to {self._host}:{self._port} slave id {self._slave_id} timeout: {self._timeout}"
@@ -196,12 +196,12 @@ class ABBPowerOneFimerAPI:
             _LOGGER.debug("Inverter not ready for Modbus TCP connection")
             raise ConnectionError(f"Inverter not active on {self._host}:{self._port}")
 
-    def read_holding_registers(self, address, count):
+    async def read_holding_registers(self, address, count):
         """Read holding registers."""
 
         try:
-            with self._lock:
-                return self._client.read_holding_registers(
+            async with self._lock:
+                return await self._client.read_holding_registers(
                     address=address, count=count, slave=self._slave_id
                 )
         except ConnectionException as connect_error:
@@ -211,24 +211,22 @@ class ABBPowerOneFimerAPI:
             _LOGGER.debug(f"Read Holding Registers modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
 
-    def calculate_value(self, value, scalefactor):
-        """Apply Scale Factor."""
-        return value * 10**scalefactor
+    def calculate_value(self, value, sf):
+        """Apply Scale Factor and round the result."""
+        return round(value * 10**sf, max(0, -sf))
 
     async def async_get_data(self):
         """Read Data Function."""
 
         try:
-            if self.connect():
+            if await self.connect():
                 _LOGGER.debug(
                     f"Start Get data (Slave ID: {self._slave_id} - Base Address: {self._base_addr})"
                 )
                 # HA way to call a sync function from async function
                 # https://developers.home-assistant.io/docs/asyncio_working_with_async?#calling-sync-functions-from-async
-                result = await self._hass.async_add_executor_job(
-                    self.read_sunspec_modbus
-                )
-                self.close()
+                result = await self.read_sunspec_modbus()
+                await self.close()
                 _LOGGER.debug("End Get data")
                 if result:
                     _LOGGER.debug("Get Data Result: valid")
@@ -246,20 +244,20 @@ class ABBPowerOneFimerAPI:
             _LOGGER.debug(f"Async Get Data modbus_error: {modbus_error}")
             raise ModbusError() from modbus_error
 
-    def read_sunspec_modbus(self) -> bool:
+    async def read_sunspec_modbus(self) -> bool:
         """Read Modbus Data Function."""
         try:
-            self.read_sunspec_modbus_model_1()
-            self.read_sunspec_modbus_model_101_103()
+            await self.read_sunspec_modbus_model_1()
+            await self.read_sunspec_modbus_model_101_103()
             # Find SunSpec Model 160 Offset and read data only if found
             if self.data["m160_offset"] == 0:
                 # look for M160 offset only if not already found the first time
                 _LOGGER.debug(
                     f"(read_sunspec_modbus): M160 offset unknown for model: {self.data['comm_model']}, will look for it"
                 )
-                if offset := self.find_sunspec_modbus_m160_offset():
+                if offset := await self.find_sunspec_modbus_m160_offset():
                     # M160 found, read and save offset in data dict for next cycle
-                    self.read_sunspec_modbus_model_160(offset)
+                    await self.read_sunspec_modbus_model_160(offset)
                     self.data["m160_offset"] = offset
                     _LOGGER.debug(
                         f"(read_sunspec_modbus): M160 found at offset: {self.data['m160_offset']}"
@@ -280,7 +278,7 @@ class ABBPowerOneFimerAPI:
                 _LOGGER.debug(
                     f"(read_sunspec_modbus): M160 previously found for model: {self.data['comm_model']} at offset {self.data['m160_offset']}"
                 )
-                self.read_sunspec_modbus_model_160(self.data["m160_offset"])
+                await self.read_sunspec_modbus_model_160(self.data["m160_offset"])
             result = True
             _LOGGER.debug(f"(read_sunspec_modbus): success {result}")
         except ConnectionException as connect_error:
@@ -304,7 +302,7 @@ class ABBPowerOneFimerAPI:
             raise ExceptionError() from exception_error
         return result
 
-    def find_sunspec_modbus_m160_offset(self) -> int:
+    async def find_sunspec_modbus_m160_offset(self) -> int:
         """Find SunSpec Model 160 Offset.
 
         This function attempts to find the offset for SunSpec Model 160 by trying different offsets.
@@ -326,7 +324,7 @@ class ABBPowerOneFimerAPI:
                 _LOGGER.debug(
                     f"(find_m160) Find M160 for model: {invmodel} at offset: {offset}"
                 )
-                read_model_160_data = self.read_holding_registers(
+                read_model_160_data = await self.read_holding_registers(
                     address=(self._base_addr + offset), count=1
                 )
                 if isinstance(read_model_160_data, ExceptionResponse):
@@ -367,7 +365,7 @@ class ABBPowerOneFimerAPI:
             raise ExceptionError() from exception_error
         return found_offset
 
-    def read_sunspec_modbus_model_1(self):
+    async def read_sunspec_modbus_model_1(self):
         """Read SunSpec Model 1 Data."""
         # A single register is 2 bytes. Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
@@ -379,7 +377,7 @@ class ABBPowerOneFimerAPI:
         try:
             _LOGGER.debug(f"(read_rt_1) Slave ID: {self._slave_id}")
             _LOGGER.debug(f"(read_rt_1) Base Address: {self._base_addr}")
-            read_model_1_data = self.read_holding_registers(
+            read_model_1_data = await self.read_holding_registers(
                 address=(self._base_addr + 4), count=64
             )
             if isinstance(read_model_1_data, ExceptionResponse):
@@ -451,7 +449,7 @@ class ABBPowerOneFimerAPI:
 
         return True
 
-    def read_sunspec_modbus_model_101_103(self):
+    async def read_sunspec_modbus_model_101_103(self):
         """Read SunSpec Model 101/103 Data."""
 
         # Max number of registers in one read for Modbus/TCP is 123
@@ -465,7 +463,7 @@ class ABBPowerOneFimerAPI:
         try:
             _LOGGER.debug(f"(read_rt_101_103) Slave ID: {self._slave_id}")
             _LOGGER.debug(f"(read_rt_101_103) Base Address: {self._base_addr}")
-            read_model_101_103_data = self.read_holding_registers(
+            read_model_101_103_data = await self.read_holding_registers(
                 address=(self._base_addr + 70), count=40
             )
             if isinstance(read_model_101_103_data, ExceptionResponse):
@@ -525,15 +523,15 @@ class ABBPowerOneFimerAPI:
 
         accurrentsf = decoder.decode_16bit_int()
         accurrent = self.calculate_value(accurrent, accurrentsf)
-        self.data["accurrent"] = round(accurrent, abs(accurrentsf))
+        self.data["accurrent"] = accurrent
 
         if invtype == 103:
             accurrenta = self.calculate_value(accurrenta, accurrentsf)
             accurrentb = self.calculate_value(accurrentb, accurrentsf)
             accurrentc = self.calculate_value(accurrentc, accurrentsf)
-            self.data["accurrenta"] = round(accurrenta, abs(accurrentsf))
-            self.data["accurrentb"] = round(accurrentb, abs(accurrentsf))
-            self.data["accurrentc"] = round(accurrentc, abs(accurrentsf))
+            self.data["accurrenta"] = accurrenta
+            self.data["accurrentb"] = accurrentb
+            self.data["accurrentc"] = accurrentc
 
         # registers 77 to 83
         if invtype == 103:
@@ -554,7 +552,7 @@ class ABBPowerOneFimerAPI:
         acvoltagesf = decoder.decode_16bit_int()
 
         acvoltagean = self.calculate_value(acvoltagean, acvoltagesf)
-        self.data["acvoltagean"] = round(acvoltagean, abs(acvoltagesf))
+        self.data["acvoltagean"] = acvoltagean
 
         if invtype == 103:
             acvoltageab = self.calculate_value(acvoltageab, acvoltagesf)
@@ -562,23 +560,23 @@ class ABBPowerOneFimerAPI:
             acvoltageca = self.calculate_value(acvoltageca, acvoltagesf)
             acvoltagebn = self.calculate_value(acvoltagebn, acvoltagesf)
             acvoltagecn = self.calculate_value(acvoltagecn, acvoltagesf)
-            self.data["acvoltageab"] = round(acvoltageab, abs(acvoltagesf))
-            self.data["acvoltagebc"] = round(acvoltagebc, abs(acvoltagesf))
-            self.data["acvoltageca"] = round(acvoltageca, abs(acvoltagesf))
-            self.data["acvoltagebn"] = round(acvoltagebn, abs(acvoltagesf))
-            self.data["acvoltagecn"] = round(acvoltagecn, abs(acvoltagesf))
+            self.data["acvoltageab"] = acvoltageab
+            self.data["acvoltagebc"] = acvoltagebc
+            self.data["acvoltageca"] = acvoltageca
+            self.data["acvoltagebn"] = acvoltagebn
+            self.data["acvoltagecn"] = acvoltagecn
 
         # registers 84 to 85
         acpower = decoder.decode_16bit_int()
         acpowersf = decoder.decode_16bit_int()
         acpower = self.calculate_value(acpower, acpowersf)
-        self.data["acpower"] = round(acpower, abs(acpowersf))
+        self.data["acpower"] = acpower
 
         # registers 86 to 87
         acfreq = decoder.decode_16bit_uint()
         acfreqsf = decoder.decode_16bit_int()
         acfreq = self.calculate_value(acfreq, acfreqsf)
-        self.data["acfreq"] = round(acfreq, abs(acfreqsf))
+        self.data["acfreq"] = acfreq
 
         # skip register 88-93
         decoder.skip_bytes(12)
@@ -607,8 +605,8 @@ class ABBPowerOneFimerAPI:
             dcvoltsf = decoder.decode_16bit_int()
             dccurr = self.calculate_value(dccurr, dccurrsf)
             dcvolt = self.calculate_value(dcvolt, dcvoltsf)
-            self.data["dccurr"] = round(dccurr, abs(dccurrsf))
-            self.data["dcvolt"] = round(dcvolt, abs(dcvoltsf))
+            self.data["dccurr"] = dccurr
+            self.data["dcvolt"] = dcvolt
             _LOGGER.debug(
                 f"(read_rt_101_103) DC Current Value read: {self.data['dccurr']}"
             )
@@ -622,7 +620,7 @@ class ABBPowerOneFimerAPI:
         dcpower = decoder.decode_16bit_int()
         dcpowersf = decoder.decode_16bit_int()
         dcpower = self.calculate_value(dcpower, dcpowersf)
-        self.data["dcpower"] = round(dcpower, abs(dcpowersf))
+        self.data["dcpower"] = dcpower
         _LOGGER.debug(f"(read_rt_101_103) DC Power Value read: {self.data['dcpower']}")
         # register 103
         tempcab = decoder.decode_16bit_int()
@@ -637,8 +635,8 @@ class ABBPowerOneFimerAPI:
         if tempcab > 50:
             tempcab = self.calculate_value(tempcab_fix, -2)
         tempoth = self.calculate_value(tempoth, tempsf)
-        self.data["tempoth"] = round(tempoth, abs(tempsf))
-        self.data["tempcab"] = round(tempcab, abs(tempsf))
+        self.data["tempoth"] = tempoth
+        self.data["tempcab"] = tempcab
         _LOGGER.debug(f"(read_rt_101_103) Temp Oth Value read: {self.data['tempoth']}")
         _LOGGER.debug(f"(read_rt_101_103) Temp Cab Value read: {self.data['tempcab']}")
         # register 108
@@ -667,7 +665,7 @@ class ABBPowerOneFimerAPI:
         _LOGGER.debug("(read_rt_101_103) Completed")
         return True
 
-    def read_sunspec_modbus_model_160(self, offset=122):
+    async def read_sunspec_modbus_model_160(self, offset=122):
         """Read SunSpec Model 160 Data."""
         # Max number of registers in one read for Modbus/TCP is 123
         # https://control.com/forums/threads/maximum-amount-of-holding-registers-per-request.9904/post-86251
@@ -685,7 +683,7 @@ class ABBPowerOneFimerAPI:
             _LOGGER.debug(f"(read_rt_160) Slave ID: {self._slave_id}")
             _LOGGER.debug(f"(read_rt_160) Base Address: {self._base_addr}")
             _LOGGER.debug(f"(read_rt_160) Offset: {offset}")
-            read_model_160_data = self.read_holding_registers(
+            read_model_160_data = await self.read_holding_registers(
                 address=(self._base_addr + offset), count=42
             )
             if isinstance(read_model_160_data, ExceptionResponse):
@@ -736,13 +734,13 @@ class ABBPowerOneFimerAPI:
             dc1volt = decoder.decode_16bit_uint()
             dc1power = decoder.decode_16bit_uint()
             dc1curr = self.calculate_value(dc1curr, dcasf)
-            self.data["dc1curr"] = round(dc1curr, abs(dcasf))
+            self.data["dc1curr"] = dc1curr
             dc1volt = self.calculate_value(dc1volt, dcvsf)
-            self.data["dc1volt"] = round(dc1volt, abs(dcvsf))
+            self.data["dc1volt"] = dc1volt
             # this fixes dcvolt -0.0 for UNO-DM/REACT2 models
-            self.data["dcvolt"] = round(dc1volt, abs(dcvsf))
+            self.data["dcvolt"] = dc1volt
             dc1power = self.calculate_value(dc1power, dcwsf)
-            self.data["dc1power"] = round(dc1power, abs(dcwsf))
+            self.data["dc1power"] = dc1power
             _LOGGER.debug(
                 f"(read_rt_160) dc1curr: {dc1curr} Round: {self.data['dc1curr']} SF: {dcasf}"
             )
@@ -759,11 +757,11 @@ class ABBPowerOneFimerAPI:
             dc2volt = decoder.decode_16bit_uint()
             dc2power = decoder.decode_16bit_uint()
             dc2curr = self.calculate_value(dc2curr, dcasf)
-            self.data["dc2curr"] = round(dc2curr, abs(dcasf))
+            self.data["dc2curr"] = dc2curr
             dc2volt = self.calculate_value(dc2volt, dcvsf)
-            self.data["dc2volt"] = round(dc2volt, abs(dcvsf))
+            self.data["dc2volt"] = dc2volt
             dc2power = self.calculate_value(dc2power, dcwsf)
-            self.data["dc2power"] = round(dc2power, abs(dcwsf))
+            self.data["dc2power"] = dc2power
             _LOGGER.debug(
                 f"(read_rt_160) dc2curr: {dc2curr} Round: {self.data['dc2curr']} SF: {dcasf}"
             )

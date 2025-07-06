@@ -5,7 +5,6 @@ https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 
 import asyncio
 import logging
-import socket
 
 from homeassistant.core import HomeAssistant
 from pymodbus import ExceptionResponse
@@ -141,21 +140,23 @@ class ABBPowerOneFimerAPI:
             _LOGGER.debug(
                 f"Check_Port: opening socket on {self._host}:{self._port} with a {sock_timeout}s timeout."
             )
-            socket.setdefaulttimeout(sock_timeout)
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock_res = sock.connect_ex((self._host, self._port))
-            is_open = sock_res == 0  # True if open, False if not
-            if is_open:
-                sock.shutdown(socket.SHUT_RDWR)
+            try:
+                # Use asyncio to check port availability
+                _, writer = await asyncio.wait_for(
+                    asyncio.open_connection(self._host, self._port),
+                    timeout=sock_timeout,
+                )
+                writer.close()
+                await writer.wait_closed()
                 _LOGGER.debug(
                     f"Check_Port (SUCCESS): port open on {self._host}:{self._port}"
                 )
-            else:
+                return True
+            except (asyncio.TimeoutError, OSError) as e:  # noqa: UP041
                 _LOGGER.debug(
-                    f"Check_Port (ERROR): port not available on {self._host}:{self._port} - error: {sock_res}"
+                    f"Check_Port (ERROR): port not available on {self._host}:{self._port} - error: {e}"
                 )
-            sock.close()
-        return is_open
+                return False
 
     async def close(self):
         """Disconnect client."""

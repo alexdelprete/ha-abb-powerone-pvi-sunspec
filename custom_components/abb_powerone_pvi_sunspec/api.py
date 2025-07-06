@@ -203,7 +203,7 @@ class ABBPowerOneFimerAPI:
             async with self._lock:
                 return await self._client.read_holding_registers(
                     address=address, count=count, slave=self._slave_id
-                )
+                )  # type: ignore (pylance thinks )
         except ConnectionException as connect_error:
             _LOGGER.debug(f"Read Holding Registers connect_error: {connect_error}")
             raise ConnectionError() from connect_error

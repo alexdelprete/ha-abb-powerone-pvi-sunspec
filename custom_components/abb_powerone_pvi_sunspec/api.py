@@ -204,7 +204,7 @@ class ABBPowerOneFimerAPI:
             async with self._lock:
                 return await self._client.read_holding_registers(
                     address=address, count=count, slave=self._slave_id
-                )  # type: ignore (pylance thinks )
+                )  # type: ignore (pylance thinks this is not awaitable)
         except ConnectionException as connect_error:
             _LOGGER.debug(f"Read Holding Registers connect_error: {connect_error}")
             raise ConnectionError() from connect_error
@@ -335,7 +335,7 @@ class ABBPowerOneFimerAPI:
                     )
                 else:
                     decoder = BinaryPayloadDecoder.fromRegisters(
-                        read_model_160_data.registers,  # type: ignore
+                        read_model_160_data.registers,
                         byteorder=Endian.BIG,
                     )
                     multi_mppt_id = decoder.decode_16bit_uint()
@@ -390,7 +390,7 @@ class ABBPowerOneFimerAPI:
             else:
                 # No connection errors, we can start scraping registers
                 decoder = BinaryPayloadDecoder.fromRegisters(
-                    read_model_1_data.registers,  # type: ignore
+                    read_model_1_data.registers,
                     byteorder=Endian.BIG,
                 )
         except ConnectionException as connect_error:
@@ -476,7 +476,7 @@ class ABBPowerOneFimerAPI:
             else:
                 # No connection errors, we can start scraping registers
                 decoder = BinaryPayloadDecoder.fromRegisters(
-                    read_model_101_103_data.registers,  # type: ignore
+                    read_model_101_103_data.registers,
                     byteorder=Endian.BIG,
                 )
         except ConnectionException as connect_error:
@@ -696,7 +696,7 @@ class ABBPowerOneFimerAPI:
             else:
                 # No connection errors, we can start scraping registers
                 decoder = BinaryPayloadDecoder.fromRegisters(
-                    read_model_160_data.registers,  # type: ignore
+                    read_model_160_data.registers,
                     byteorder=Endian.BIG,
                 )
         except ConnectionException as connect_error:

@@ -42,14 +42,14 @@ class BinaryPayloadBuilder:
         payload = builder.build()
     """
 
-    @classmethod
-    def deprecate(cls):
-        """Log warning."""
-        Log.warning(
-            "BinaryPayloadBuilder is deprecated and will be removed in v3.9.0 !\n"
-            'Please use "client.convert_from_registers()" or "client.convert_to_registers"\n'
-            'See documentation: "https://pymodbus.readthedocs.io/en/latest/source/client.html#pymodbus.client.mixin.ModbusClientMixin.convert_from_registers"'
-        )
+    # @classmethod
+    # def deprecate(cls):
+    #     """Log warning."""
+    #     Log.warning(
+    #         "BinaryPayloadBuilder is deprecated and will be removed in v3.9.0 !\n"
+    #         'Please use "client.convert_from_registers()" or "client.convert_to_registers"\n'
+    #         'See documentation: "https://pymodbus.readthedocs.io/en/latest/source/client.html#pymodbus.client.mixin.ModbusClientMixin.convert_from_registers"'
+    #     )
 
     def __init__(
         self, payload=None, byteorder=Endian.LITTLE, wordorder=Endian.BIG, repack=False
@@ -290,14 +290,16 @@ class BinaryPayloadDecoder:
         second  = decoder.decode_16bit_uint()
     """
 
-    @classmethod
-    def deprecate(cls):
-        """Log warning."""
-        Log.warning(
-            "BinaryPayloadDecoder is deprecated and will be removed in v3.9.0 !\n"
-            'Please use "client.convert_from_registers()" or "client.convert_to_registers"\n'
-            'See documentation: "https://pymodbus.readthedocs.io/en/latest/source/client.html#pymodbus.client.mixin.ModbusClientMixin.convert_from_registers"'
-        )
+    # Remove the deprecation warning to avoid issues with HA log
+    #
+    # @classmethod
+    # def deprecate(cls):
+    #     """Log warning."""
+    #     Log.warning(
+    #         "BinaryPayloadDecoder is deprecated and will be removed in v3.9.0 !\n"
+    #         'Please use "client.convert_from_registers()" or "client.convert_to_registers"\n'
+    #         'See documentation: "https://pymodbus.readthedocs.io/en/latest/source/client.html#pymodbus.client.mixin.ModbusClientMixin.convert_from_registers"'
+    #     )
 
     def __init__(self, payload, byteorder=Endian.LITTLE, wordorder=Endian.BIG):
         """Initialize a new payload decoder.
@@ -333,7 +335,7 @@ class BinaryPayloadDecoder:
         :returns: An initialized PayloadDecoder
         :raises ParameterException:
         """
-        cls.deprecate()
+        # cls.deprecate()
         Log.debug("{}", registers)
         if isinstance(registers, list):  # repack into flat binary
             payload = pack(f"!{len(registers)}H", *registers)
@@ -343,7 +345,7 @@ class BinaryPayloadDecoder:
     @classmethod
     def bit_chunks(cls, coils, size=8):
         """Return bit chunks."""
-        cls.deprecate()
+        # cls.deprecate()
         chunks = [coils[i : i + size] for i in range(0, len(coils), size)]
         return chunks
 
@@ -355,7 +357,7 @@ class BinaryPayloadDecoder:
         _wordorder=Endian.BIG,
     ):
         """Initialize a payload decoder with the result of reading of coils."""
-        cls.deprecate()
+        # cls.deprecate()
         if isinstance(coils, list):
             payload = b""
             if padding := len(coils) % 8:  # Pad zeros

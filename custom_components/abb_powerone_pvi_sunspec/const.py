@@ -52,6 +52,40 @@ If you have any issues with this you need to open an issue here:
 -------------------------------------------------------------------
 """
 
+# Constants for data initialization
+DEFAULT_CURRENT_VALUE = 1
+DEFAULT_VOLTAGE_VALUE = 1
+DEFAULT_POWER_VALUE = 1
+DEFAULT_FREQUENCY_VALUE = 1
+DEFAULT_ENERGY_VALUE = 1
+DEFAULT_TEMPERATURE_VALUE = 1
+DEFAULT_MPPT_COUNT = 1
+DEFAULT_STRING_VALUE = ""
+DEFAULT_M160_OFFSET_UNKNOWN = 0
+
+# Temperature processing constants
+TEMP_THRESHOLD_CELSIUS = 50
+TEMP_SCALE_FACTOR_CORRECTION = -2
+
+# Connection constants
+DEFAULT_SOCKET_TIMEOUT = 3.0
+MIN_TIMEOUT_BUFFER = 1
+
+# Hex parsing constants
+HEX_PREFIX = "0x"
+HEX_MODEL_SLICE_END = 4
+HEX_BASE = 16
+
+# Configuration validation constants
+MIN_PORT = 1
+MAX_PORT = 65535
+MIN_SLAVE_ID = 1
+MAX_SLAVE_ID = 247
+MIN_BASE_ADDR = 1
+MAX_BASE_ADDR = 65535
+MIN_SCAN_INTERVAL = 5
+MAX_SCAN_INTERVAL = 3600
+
 # Sensors for all inverters
 SENSOR_TYPES_COMMON = {
     "Manufacturer": [

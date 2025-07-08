@@ -41,7 +41,7 @@ from .const import (
     MIN_BASE_ADDR,
     MAX_BASE_ADDR,
     MIN_SCAN_INTERVAL,
-    MAX_SCAN_INTERVAL
+    MAX_SCAN_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -193,11 +193,16 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_BASE_ADDR,
                         default=DEFAULT_BASE_ADDR,
-                    ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR)),
+                    ): vol.All(
+                        vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR)
+                    ),
                     vol.Required(
                         CONF_SCAN_INTERVAL,
                         default=DEFAULT_SCAN_INTERVAL,
-                    ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL)),
+                    ): vol.All(
+                        vol.Coerce(int),
+                        vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL),
+                    ),
                 },
             ),
             errors=errors,
@@ -237,11 +242,16 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
                 vol.Required(
                     CONF_BASE_ADDR,
                     default=config_entry.data.get(CONF_BASE_ADDR),
-                ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR)),
+                ): vol.All(
+                    vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR)
+                ),
                 vol.Required(
                     CONF_SCAN_INTERVAL,
                     default=config_entry.data.get(CONF_SCAN_INTERVAL),
-                ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL)),
+                ): vol.All(
+                    vol.Coerce(int),
+                    vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL),
+                ),
             }
         )
 

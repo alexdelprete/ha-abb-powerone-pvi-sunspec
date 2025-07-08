@@ -34,6 +34,14 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_SLAVE_ID,
     DOMAIN,
+    MIN_PORT,
+    MAX_PORT,
+    MIN_SLAVE_ID,
+    MAX_SLAVE_ID,
+    MIN_BASE_ADDR,
+    MAX_BASE_ADDR,
+    MIN_SCAN_INTERVAL,
+    MAX_SCAN_INTERVAL
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -168,15 +176,15 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_PORT,
                         default=DEFAULT_PORT,
-                    ): vol.All(vol.Coerce(int), vol.Clamp(min=0, max=65535)),
+                    ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_PORT, max=MAX_PORT)),
                     vol.Required(
                         CONF_SLAVE_ID,
                         default=DEFAULT_SLAVE_ID,
                     ): selector(
                         {
                             "number": {
-                                "min": 1,
-                                "max": 247,
+                                "min": MIN_SLAVE_ID,
+                                "max": MAX_SLAVE_ID,
                                 "step": 1,
                                 "mode": "box",
                             }
@@ -185,11 +193,11 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_BASE_ADDR,
                         default=DEFAULT_BASE_ADDR,
-                    ): vol.All(vol.Coerce(int), vol.Clamp(min=0, max=65535)),
+                    ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR)),
                     vol.Required(
                         CONF_SCAN_INTERVAL,
                         default=DEFAULT_SCAN_INTERVAL,
-                    ): vol.All(vol.Coerce(int), vol.Clamp(min=30, max=600)),
+                    ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL)),
                 },
             ),
             errors=errors,
@@ -212,15 +220,15 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
                 vol.Required(
                     CONF_PORT,
                     default=config_entry.data.get(CONF_PORT),
-                ): vol.All(vol.Coerce(int), vol.Clamp(min=0, max=65535)),
+                ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_PORT, max=MAX_PORT)),
                 vol.Required(
                     CONF_SLAVE_ID,
                     default=config_entry.data.get(CONF_SLAVE_ID),
                 ): selector(
                     {
                         "number": {
-                            "min": 1,
-                            "max": 247,
+                            "min": MIN_SLAVE_ID,
+                            "max": MAX_SLAVE_ID,
                             "step": 1,
                             "mode": "box",
                         }
@@ -229,11 +237,11 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
                 vol.Required(
                     CONF_BASE_ADDR,
                     default=config_entry.data.get(CONF_BASE_ADDR),
-                ): vol.All(vol.Coerce(int), vol.Clamp(min=0, max=65535)),
+                ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR)),
                 vol.Required(
                     CONF_SCAN_INTERVAL,
                     default=config_entry.data.get(CONF_SCAN_INTERVAL),
-                ): vol.All(vol.Coerce(int), vol.Clamp(min=30, max=600)),
+                ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL)),
             }
         )
 

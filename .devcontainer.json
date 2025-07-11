@@ -1,7 +1,9 @@
 {
-    "name": "ABB/P1/FIMER Modbus integration development",
-    "image": "mcr.microsoft.com/devcontainers/python:3.11-bullseye",
-    "postCreateCommand": "scripts/setup",
+    "name": "Home Assistant + Claude Code Development",
+    "image": "ghcr.io/home-assistant/devcontainer:dev",
+    "appPort": [
+        "8123:8123"
+    ],
     "forwardPorts": [
         8123
     ],
@@ -11,45 +13,96 @@
             "onAutoForward": "notify"
         }
     },
+    "otherPortsAttributes": {
+        "onAutoForward": "silent"
+    },
+    "runArgs": [
+        "--privileged",
+        "--cap-add=NET_ADMIN",
+        "--cap-add=NET_RAW"
+    ],
+    "remoteEnv": {
+        "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}",
+        "DEVCONTAINER": "true"
+    },
+    "containerEnv": {
+        "WORKSPACE_DIRECTORY": "${containerWorkspaceFolder}",
+        "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
+        "TZ": "${localEnv:TZ:Europe/Rome}"
+    },
+    "mounts": [
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+        "source=claude-code-bashhistory,target=/commandhistory,type=volume"
+    ],
+    "postCreateCommand": "container install",
+    "postStartCommand": "bash -c 'if [ -f /workspace/.devcontainer/init-firewall.sh ]; then sudo /workspace/.devcontainer/init-firewall.sh; fi'",
+    "shutdownAction": "stopContainer",
     "customizations": {
         "vscode": {
             "extensions": [
                 "ms-python.python",
-                "github.vscode-pull-request-github",
-                "ryanluker.vscode-coverage-gutters",
                 "ms-python.vscode-pylance",
-                "charliermarsh.ruff",
+                "ms-python.flake8",
                 "ms-python.black-formatter",
-                "esbenp.prettier-vscode"
+                "ms-python.isort",
+                "ms-python.mypy-type-checker",
+                "charliermarsh.ruff",
+                "tamasfe.even-better-toml",
+                "redhat.vscode-yaml",
+                "esbenp.prettier-vscode",
+                "bradlc.vscode-tailwindcss",
+                "ms-vscode.vscode-json",
+                "dbaeumer.vscode-eslint",
+                "eamodio.gitlens",
+                "ryanluker.vscode-coverage-gutters"
             ],
             "settings": {
-                "files.eol": "\n",
-                "files.trimTrailingWhitespace": true,
-                "editor.tabSize": 4,
-                "editor.formatOnPaste": false,
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.linting.enabled": true,
+                "python.linting.pylintEnabled": false,
+                "python.linting.flake8Enabled": true,
+                "python.formatting.provider": "black",
+                "python.sortImports.args": [
+                    "--profile",
+                    "black"
+                ],
                 "editor.formatOnSave": true,
-                "editor.formatOnType": true,
-                "editor.defaultFormatter": "esbenp.prettier-vscode",
-                // Ruff config
-                "notebook.formatOnSave.enabled": false,
-                "notebook.codeActionsOnSave": {
-                    "notebook.source.fixAll": false,
-                    "notebook.source.organizeImports": false
+                "editor.defaultFormatter": "charliermarsh.ruff",
+                "editor.codeActionsOnSave": {
+                    "source.organizeImports": "explicit",
+                    "source.fixAll.eslint": "explicit"
                 },
-                "[python]": {
-                    "editor.formatOnSave": true,
-                    "editor.codeActionsOnSave": {
-                        "source.fixAll": true,
-                        "source.organizeImports": true
+                "files.trimTrailingWhitespace": true,
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "terminal.integrated.profiles.linux": {
+                    "bash": {
+                        "path": "bash",
+                        "icon": "terminal-bash"
                     },
-                    "editor.defaultFormatter": "charliermarsh.ruff"
-                }
-                // End Ruff config
+                    "zsh": {
+                        "path": "zsh"
+                    }
+                },
+                "python.testing.pytestEnabled": true,
+                "python.testing.unittestEnabled": false,
+                "python.testing.pytestArgs": [
+                    "tests"
+                ]
             }
         }
     },
-    "remoteUser": "vscode",
     "features": {
-        "ghcr.io/devcontainers/features/rust:1": {}
+        "ghcr.io/anthropics/devcontainer-features/claude-code:1": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/github-cli:1": {
+            "version": "latest"
+        }
     }
 }

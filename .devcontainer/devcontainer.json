@@ -51,7 +51,13 @@
         "ms-python.vscode-pylance",
         "visualstudioexptteam.vscodeintellicode",
         "redhat.vscode-yaml",
+        "remcohaszing.schemastore",
+        "oderwat.indent-rainbow",
+        "donjayamanne.githistory",
+        "mhutchie.git-graph",
+        "johnguo.columnpaste",
         "esbenp.prettier-vscode",
+        "andrepimenta.claude-code-chat",
         "GitHub.vscode-pull-request-github",
         "GitHub.copilot"
       ],

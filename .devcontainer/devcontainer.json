@@ -1,0 +1,112 @@
+{
+    "name": "Home Assistant Integration + Claude Code Development",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "appPort": [
+        "8123:8123",
+        "5683:5683/udp"
+    ],
+    "forwardPorts": [8123, 5683],
+    "portsAttributes": {
+        "8123": {
+            "label": "Home Assistant",
+            "onAutoForward": "notify"
+        },
+        "5683": {
+            "label": "CoAP (Shelly)",
+            "onAutoForward": "silent"
+        }
+    },
+    "otherPortsAttributes": {
+        "onAutoForward": "silent"
+    },
+    "runArgs": [
+        "-e",
+        "GIT_EDITOR=code --wait",
+        "--security-opt",
+        "label=disable",
+        "--cap-add=NET_ADMIN",
+        "--cap-add=NET_RAW"
+    ],
+    "remoteEnv": {
+        "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}",
+        "DEVCONTAINER": "true"
+    },
+    "containerEnv": {
+        "WORKSPACE_DIRECTORY": "${containerWorkspaceFolder}",
+        "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
+        "TZ": "${localEnv:TZ:Europe/Rome}",
+        "PYTHONASYNCIODEBUG": "1"
+    },
+    "mounts": [
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+        "source=claude-code-bashhistory,target=/commandhistory,type=volume"
+    ],
+    "postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+    "postStartCommand": "if [ -f /workspace/.devcontainer/init-firewall.sh ]; then sudo /workspace/.devcontainer/init-firewall.sh; fi",
+    "shutdownAction": "stopContainer",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "charliermarsh.ruff",
+                "ms-python.pylint",
+                "ms-python.vscode-pylance",
+                "visualstudioexptteam.vscodeintellicode",
+                "redhat.vscode-yaml",
+                "esbenp.prettier-vscode",
+                "GitHub.vscode-pull-request-github",
+                "GitHub.copilot"
+            ],
+            "settings": {
+                "python.experiments.optOutFrom": ["pythonTestAdapter"],
+                "python.defaultInterpreterPath": "/home/vscode/.local/ha-venv/bin/python",
+                "python.pythonPath": "/home/vscode/.local/ha-venv/bin/python",
+                "python.terminal.activateEnvInCurrentTerminal": true,
+                "python.testing.pytestArgs": ["--no-cov"],
+                "pylint.importStrategy": "fromEnvironment",
+                "editor.formatOnPaste": false,
+                "editor.formatOnSave": true,
+                "editor.formatOnType": true,
+                "files.trimTrailingWhitespace": true,
+                "terminal.integrated.profiles.linux": {
+                    "zsh": {
+                        "path": "/usr/bin/zsh"
+                    }
+                },
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "yaml.customTags": [
+                    "!input scalar",
+                    "!secret scalar",
+                    "!include_dir_named scalar",
+                    "!include_dir_list scalar",
+                    "!include_dir_merge_list scalar",
+                    "!include_dir_merge_named scalar"
+                ],
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff"
+                },
+                "json.schemas": [
+                    {
+                        "fileMatch": ["custom_components/*/manifest.json"],
+                        "url": "https://raw.githubusercontent.com/home-assistant/core/dev/script/json_schemas/manifest_schema.json"
+                    }
+                ]
+            }
+        }
+    },
+    "features": {
+        "ghcr.io/anthropics/devcontainer-features/claude-code:1": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/github-cli:1": {
+            "version": "latest"
+        }
+    }
+}

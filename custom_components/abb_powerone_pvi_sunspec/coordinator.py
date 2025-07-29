@@ -21,6 +21,7 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     MIN_SCAN_INTERVAL,
+    MAX_SCAN_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -43,9 +44,11 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
             config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
         )
 
-        # enforce scan_interval lower bound
+        # enforce scan_interval bounds
         if self.scan_interval < MIN_SCAN_INTERVAL:
             self.scan_interval = MIN_SCAN_INTERVAL
+        elif self.scan_interval > MAX_SCAN_INTERVAL:
+            self.scan_interval = MAX_SCAN_INTERVAL
         # set coordinator update interval
         self.update_interval = timedelta(seconds=self.scan_interval)
         _LOGGER.debug(

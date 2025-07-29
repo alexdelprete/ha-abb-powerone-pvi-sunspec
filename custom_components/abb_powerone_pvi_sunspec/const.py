@@ -26,7 +26,7 @@ ICON = "mdi:format-quote-close"
 # Device classes
 BINARY_SENSOR_DEVICE_CLASS = "connectivity"
 
-# Configuration and options
+# Configuration and options defaults
 CONF_NAME = "name"
 CONF_HOST = "host"
 CONF_PORT = "port"
@@ -38,7 +38,6 @@ DEFAULT_PORT = 502
 DEFAULT_SLAVE_ID = 2
 DEFAULT_BASE_ADDR = 0
 DEFAULT_SCAN_INTERVAL = 60
-MIN_SCAN_INTERVAL = 30
 SUNSPEC_M160_OFFSETS = [122, 1104, 208]
 SUNSPEC_MODEL_160_ID = 160
 STARTUP_MESSAGE = f"""

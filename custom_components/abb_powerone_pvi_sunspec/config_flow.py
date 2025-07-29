@@ -34,14 +34,14 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_SLAVE_ID,
     DOMAIN,
-    MIN_PORT,
+    MAX_BASE_ADDR,
     MAX_PORT,
-    MIN_SLAVE_ID,
+    MAX_SCAN_INTERVAL,
     MAX_SLAVE_ID,
     MIN_BASE_ADDR,
-    MAX_BASE_ADDR,
+    MIN_PORT,
     MIN_SCAN_INTERVAL,
-    MAX_SCAN_INTERVAL,
+    MIN_SLAVE_ID,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -66,10 +66,11 @@ def get_host_from_config(hass: HomeAssistant):
     }
 
 
-class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
+class ABBPowerOneFimerConfigFlow(ConfigFlow):
     """ABB Power-One PVI SunSpec config flow."""
 
     VERSION = 1
+    DOMAIN = DOMAIN
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     @staticmethod
@@ -157,10 +158,8 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                     return self.async_create_entry(
                         title=user_input[CONF_NAME], data=user_input
                     )
-                else:
-                    errors[CONF_HOST] = (
-                        "Connection to device failed (S/N not retreived)"
-                    )
+
+                errors[CONF_HOST] = "Connection to device failed (S/N not retreived)"
 
         return self.async_show_form(
             step_id="user",

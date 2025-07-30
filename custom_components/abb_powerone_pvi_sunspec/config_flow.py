@@ -66,11 +66,10 @@ def get_host_from_config(hass: HomeAssistant):
     }
 
 
-class ABBPowerOneFimerConfigFlow(ConfigFlow):
+class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
     """ABB Power-One PVI SunSpec config flow."""
 
     VERSION = 1
-    DOMAIN = DOMAIN
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     @staticmethod

@@ -45,7 +45,7 @@ async def async_setup_entry(
     if hass.data.get(DOMAIN) is None:
         hass.data.setdefault(DOMAIN, {})
         _LOGGER.info(STARTUP_MESSAGE)
-    _LOGGER.debug(f"Setup config_entry for {DOMAIN}")
+    _LOGGER.debug(f"Setup config_entry for {DOMAIN}")  # noqa: G004
 
     # Initialise the coordinator that manages data updates from your api.
     # This is defined in coordinator.py

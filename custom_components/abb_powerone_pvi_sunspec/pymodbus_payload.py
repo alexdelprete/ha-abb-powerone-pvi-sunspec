@@ -5,7 +5,7 @@ modbus messages payloads.
 
 Based up on the original of pyModbus https://github.com/pymodbus-dev/pymodbus/blob/v3.9.2/pymodbus/payload.py
 
-Used in ha-abb-powerone-pvi-sunspec since it was deprecated and causing a lot of warnings in HA log.
+Used in ha-sinapsi-alfa since it was deprecated and causing a lot of warnings in HA log.
 """
 
 from __future__ import annotations
@@ -20,13 +20,14 @@ from array import array
 # pylint: disable=missing-type-doc
 from struct import pack, unpack
 
-from pymodbus.constants import Endian
 from pymodbus.exceptions import ParameterException
 from pymodbus.logging import Log
 from pymodbus.pdu.pdu import (
     pack_bitstring,
     unpack_bitstring,
 )
+
+from .pymodbus_constants import Endian
 
 
 class BinaryPayloadBuilder:

@@ -6,6 +6,7 @@ https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 import asyncio
 import datetime
 import logging
+import time
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -204,9 +205,10 @@ class ABBPowerOneFimerAPI:
         self._slave_id = self._validate_slave_id(int(slave_id))
         self._base_addr = self._validate_base_addr(int(base_addr))
         self._update_interval = self._validate_scan_interval(int(scan_interval))
-        # Ensure ModBus Timeout is 1s less than scan_interval
-        # https://github.com/binsentsu/home-assistant-solaredge-modbus/pull/183
-        self._timeout = self._update_interval - MIN_TIMEOUT_BUFFER
+        # Use a reasonable fixed timeout for Modbus operations
+        # The previous logic (scan_interval - 1) caused excessively long timeouts
+        # that interfered with pymodbus retry mechanism
+        self._timeout = min(5.0, self._update_interval / 2)
         self._client = AsyncModbusTcpClient(
             host=self._host, port=self._port, timeout=self._timeout
         )
@@ -445,9 +447,12 @@ class ABBPowerOneFimerAPI:
         )
         if await self.check_port():
             self._log_debug("connect", "Inverter ready for Modbus TCP connection")
+            start_time = time.time()
             try:
                 async with self._lock:
                     await self._client.connect()
+                connect_duration = time.time() - start_time
+                _LOGGER.debug(f"Connection attempt took {connect_duration:.3f}s")
                 if not self._client.connected:
                     raise ConnectionError(
                         "Failed to establish connection",
@@ -477,9 +482,17 @@ class ABBPowerOneFimerAPI:
 
         try:
             async with self._lock:
-                return await self._client.read_holding_registers(
+                result = await self._client.read_holding_registers(
                     address=address, count=count, slave=self._slave_id
                 )  # type: ignore (pylance thinks this is not awaitable)
+            if result.isError():
+                _LOGGER.debug(f"Modbus error response: {result}")
+                raise ModbusException(
+                    f"Device reported error: {result}",
+                    address=address,
+                    operation="read_holding_registers"
+                )
+            return result
         except ConnectionException as connect_error:
             self._log_debug(
                 "read_holding_registers", f"Connection error: {connect_error}"

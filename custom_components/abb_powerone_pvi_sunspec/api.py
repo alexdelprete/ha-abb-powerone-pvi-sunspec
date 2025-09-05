@@ -483,7 +483,7 @@ class ABBPowerOneFimerAPI:
         try:
             async with self._lock:
                 result = await self._client.read_holding_registers(
-                    address=address, count=count, slave=self._slave_id
+                    address=address, count=count, device_id=self._slave_id
                 )  # type: ignore (pylance thinks this is not awaitable)
             if result.isError():
                 _LOGGER.debug(f"Modbus error response: {result}")

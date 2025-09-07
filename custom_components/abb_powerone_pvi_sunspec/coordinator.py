@@ -38,7 +38,8 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
         self.name = str(config_entry.data.get(CONF_NAME))
         self.host = str(config_entry.data.get(CONF_HOST))
         self.port = int(config_entry.data.get(CONF_PORT))
-        self.device_id = int(config_entry.data.get(CONF_DEVICE_ID))
+        # Handle backward compatibility: try new key first, fallback to old key
+        self.device_id = int(config_entry.data.get(CONF_DEVICE_ID) or config_entry.data.get("slave_id"))
         self.base_addr = int(config_entry.data.get(CONF_BASE_ADDR))
         self.scan_interval = int(
             config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)

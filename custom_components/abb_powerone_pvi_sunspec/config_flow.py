@@ -69,7 +69,7 @@ def get_host_from_config(hass: HomeAssistant):
 class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
     """ABB Power-One PVI SunSpec config flow."""
 
-    VERSION = 1
+    VERSION = 2
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     @staticmethod
@@ -210,7 +210,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
 class ABBPowerOneFimerOptionsFlow(OptionsFlow):
     """Config flow options handler."""
 
-    VERSION = 1
+    VERSION = 2
 
     def __init__(self, config_entry: ConfigEntry) -> None:
         """Initialize option flow instance."""
@@ -226,7 +226,7 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
                 ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_PORT, max=MAX_PORT)),
                 vol.Required(
                     CONF_DEVICE_ID,
-                    default=config_entry.data.get(CONF_DEVICE_ID),
+                    default=config_entry.data.get(CONF_DEVICE_ID) or config_entry.data.get("slave_id"),
                 ): selector(
                     {
                         "number": {

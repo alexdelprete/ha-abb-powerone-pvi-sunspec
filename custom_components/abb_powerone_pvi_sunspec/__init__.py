@@ -166,6 +166,30 @@ async def async_reload_entry(
     await hass.config_entries.async_schedule_reload(config_entry.entry_id)
 
 
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
+    """Migrate old config entries."""
+    _LOGGER.debug("Migrating config entry from version %s", config_entry.version)
+    
+    if config_entry.version == 1:
+        # Version 1 -> 2: Migrate slave_id to device_id
+        new_data = {**config_entry.data}
+        
+        # If slave_id exists but device_id doesn't, migrate it
+        if "slave_id" in new_data and "device_id" not in new_data:
+            new_data["device_id"] = new_data.pop("slave_id")
+            _LOGGER.info("Migrated slave_id to device_id in config entry")
+        
+        # Update the config entry
+        hass.config_entries.async_update_entry(
+            config_entry, 
+            data=new_data,
+            version=2
+        )
+        _LOGGER.debug("Migration to version 2 complete")
+    
+    return True
+
+
 # Sample migration code in case it's needed
 # async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 #     """Migrate an old config_entry."""

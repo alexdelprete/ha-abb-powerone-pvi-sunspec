@@ -8,7 +8,7 @@
           "name": "Custom Name of the inverter (used for sensors' prefix)",
           "host": "IP or hostname",
           "port": "TCP port",
-          "slave_id": "Modbus Slave address of the inverter",
+          "device_id": "Modbus Device address of the inverter",
           "base_addr": "Modbus Register Map Base Address",
           "scan_interval": "Polling Period (min: 30s max: 600s)"
         }
@@ -26,7 +26,7 @@
         "data": {
           "host": "IP or hostname",
           "port": "TCP port",
-          "slave_id": "Modbus Slave address of the inverter",
+          "device_id": "Modbus Device address of the inverter",
           "base_addr": "Modbus Register Map Base Address",
           "scan_interval": "Polling Period (min: 30s max: 600s)"
         }

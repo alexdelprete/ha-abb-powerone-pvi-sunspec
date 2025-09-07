@@ -20,7 +20,7 @@ Register address map has been implemented following the vendor's specification d
 - Installation/Configuration through Config Flow UI
 - Separate sensor per register
 - Configurable TCP modbus port, also at runtime (no restart needed)
-- Configurable modbus slave address, also at runtime (no restart needed)
+- Configurable modbus device address, also at runtime (no restart needed)
 - Configurable register map base address, also at runtime (no restart needed)
 - Configurable polling interval, also at runtime (no restart needed)
 - Supports SunSpec models M1, M103, M160
@@ -46,7 +46,7 @@ Download the source code archive from the release page. Unpack the archive and c
 
 # Enabling Modbus TCP on the inverter
 
-Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Slave ID) of the inverter (depends on the model, default on some models is 2 on others is 247) and during the configuration of the component, use the appropriate Slave address. Another important parameter is the registers map base address, default is 40000 but it may vary. All these parameters can be reconfigured after installation, clicking CONFIGURE on the integration.
+Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Device ID) of the inverter (depends on the model, default on some models is 2 on others is 247) and during the configuration of the component, use the appropriate Device address. Another important parameter is the registers map base address, default is 40000 but it may vary. All these parameters can be reconfigured after installation, clicking CONFIGURE on the integration.
 
 # Configuration
 
@@ -57,7 +57,7 @@ Configuration is done via config flow right after adding the integration. After 
 - **custom name**: custom name for the inverter, that will be used as prefix for sensors created by the component
 - **ip/hostname**: IP/hostname of the inverter - this is used as unique_id, if you change it and reinstall you will lose historical data, that's why I advice to use hostname, so you can change IP without losing historical data
 - **tcp port**: TCP port of the datalogger
-- **slave id**: the unit id of the inverter in the chain: default is 254, if using VS300/VS700 it's usually 2
+- **device id**: the unit id of the inverter in the chain: default is 254, if using VS300/VS700 it's usually 2
 - **register map base address**: the base address from where the register map starts, usually it's 40000, but for ABB VSN300/VSN700 dataloggers it's 0
 - **polling period**: frequency, in seconds, to read the registers and update the sensors
 

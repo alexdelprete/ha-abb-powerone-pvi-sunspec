@@ -30,12 +30,12 @@ BINARY_SENSOR_DEVICE_CLASS = "connectivity"
 CONF_NAME = "name"
 CONF_HOST = "host"
 CONF_PORT = "port"
-CONF_SLAVE_ID = "slave_id"
+CONF_DEVICE_ID = "device_id"
 CONF_BASE_ADDR = "base_addr"
 CONF_SCAN_INTERVAL = "scan_interval"
 DEFAULT_NAME = "ABB Inverter"
 DEFAULT_PORT = 502
-DEFAULT_SLAVE_ID = 2
+DEFAULT_DEVICE_ID = 2
 DEFAULT_BASE_ADDR = 0
 DEFAULT_SCAN_INTERVAL = 60
 SUNSPEC_M160_OFFSETS = [122, 1104, 208]
@@ -68,7 +68,6 @@ TEMP_SCALE_FACTOR_CORRECTION = -2
 
 # Connection constants
 DEFAULT_SOCKET_TIMEOUT = 3.0
-MIN_TIMEOUT_BUFFER = 1
 
 # Hex parsing constants
 HEX_PREFIX = "0x"
@@ -78,8 +77,8 @@ HEX_BASE = 16
 # Configuration validation constants
 MIN_PORT = 1
 MAX_PORT = 65535
-MIN_SLAVE_ID = 1
-MAX_SLAVE_ID = 247
+MIN_DEVICE_ID = 1
+MAX_DEVICE_ID = 247
 MIN_BASE_ADDR = 0
 MAX_BASE_ADDR = 65535
 MIN_SCAN_INTERVAL = 30
@@ -382,7 +381,7 @@ DEVICE_GLOBAL_STATUS = {
     31: "Temperature Fault",
     32: "Fan Staucked",
     33: "Int. Com. Fault",
-    34: "Slave Insertion",
+    34: "Device Insertion",
     35: "DC Switch Open",
     36: "TRAS Switch Open",
     37: "MASTER Exclusion",

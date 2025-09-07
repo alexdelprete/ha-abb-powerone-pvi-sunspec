@@ -35,12 +35,11 @@ from .const import (
     MAX_BASE_ADDR,
     MAX_PORT,
     MAX_SCAN_INTERVAL,
-    MAX_SLAVE_ID,
+    MAX_DEVICE_ID,
     MIN_BASE_ADDR,
     MIN_PORT,
     MIN_SCAN_INTERVAL,
-    MIN_SLAVE_ID,
-    MIN_TIMEOUT_BUFFER,
+    MIN_DEVICE_ID,
     SUNSPEC_M160_OFFSETS,
     SUNSPEC_MODEL_160_ID,
     TEMP_SCALE_FACTOR_CORRECTION,
@@ -62,7 +61,7 @@ class ConnectionError(Exception):
         message: Human readable error message
         host: The inverter's IP address or hostname
         port: The Modbus TCP port number
-        slave_id: The Modbus slave ID
+        device_id: The Modbus device ID
         timeout: Connection timeout in seconds
 
     """
@@ -72,13 +71,13 @@ class ConnectionError(Exception):
         message: str = "Connection failed",
         host: str | None = None,
         port: int | None = None,
-        slave_id: int | None = None,
-        timeout: int | None = None,
+        device_id: int | None = None,
+        timeout: float | None = None,
     ):
         """Initialize ConnectionError exception."""
         self.host = host
         self.port = port
-        self.slave_id = slave_id
+        self.device_id = device_id
         self.timeout = timeout
         if host and port:
             message = f"{message} (host: {host}, port: {port})"
@@ -163,7 +162,7 @@ class ABBPowerOneFimerAPI:
             name="Inverter 1",
             host="192.168.1.100",
             port=502,
-            slave_id=1,
+            device_id=1,
             base_addr=40000,
             scan_interval=30
         )
@@ -180,7 +179,7 @@ class ABBPowerOneFimerAPI:
         name: str,
         host: str,
         port: int,
-        slave_id: int,
+        device_id: int,
         base_addr: int,
         scan_interval: int,
     ) -> None:
@@ -191,7 +190,7 @@ class ABBPowerOneFimerAPI:
             name: Device name
             host: Device IP address
             port: Modbus TCP port
-            slave_id: Modbus slave ID (1-247)
+            device_id: Modbus device ID (1-247)
             base_addr: Base address for register reads
             scan_interval: Update interval in seconds
 
@@ -202,7 +201,7 @@ class ABBPowerOneFimerAPI:
 
         # Validate and set configuration parameters
         self._port = self._validate_port(int(port))
-        self._slave_id = self._validate_slave_id(int(slave_id))
+        self._device_id = self._validate_device_id(int(device_id))
         self._base_addr = self._validate_base_addr(int(base_addr))
         self._update_interval = self._validate_scan_interval(int(scan_interval))
         # Use a reasonable fixed timeout for Modbus operations
@@ -295,24 +294,24 @@ class ABBPowerOneFimerAPI:
             )
         return port
 
-    def _validate_slave_id(self, slave_id: int) -> int:
-        """Validate Modbus slave ID.
+    def _validate_device_id(self, device_id: int) -> int:
+        """Validate Modbus device ID.
 
         Args:
-            slave_id: Slave ID to validate
+            device_id: Device ID to validate
 
         Returns:
-            int: Validated slave ID
+            int: Validated device ID
 
         Raises:
-            ValueError: If slave ID is out of valid range
+            ValueError: If device ID is out of valid range
 
         """
-        if not (MIN_SLAVE_ID <= slave_id <= MAX_SLAVE_ID):
+        if not (MIN_DEVICE_ID <= device_id <= MAX_DEVICE_ID):
             raise ValueError(
-                f"Slave ID must be between {MIN_SLAVE_ID} and {MAX_SLAVE_ID}, got {slave_id}"
+                f"Device ID must be between {MIN_DEVICE_ID} and {MAX_DEVICE_ID}, got {device_id}"
             )
-        return slave_id
+        return device_id
 
     def _validate_base_addr(self, base_addr: int) -> int:
         """Validate base address.
@@ -432,7 +431,7 @@ class ABBPowerOneFimerAPI:
                 "Failed to close connection",
                 host=self._host,
                 port=self._port,
-                slave_id=self._slave_id,
+                device_id=self._device_id,
             ) from connect_error
 
     async def connect(self) -> bool:
@@ -442,7 +441,7 @@ class ABBPowerOneFimerAPI:
             "API Client connecting",
             host=self._host,
             port=self._port,
-            slave_id=self._slave_id,
+            device_id=self._device_id,
             timeout=self._timeout,
         )
         if await self.check_port():
@@ -458,7 +457,7 @@ class ABBPowerOneFimerAPI:
                         "Failed to establish connection",
                         host=self._host,
                         port=self._port,
-                        slave_id=self._slave_id,
+                        device_id=self._device_id,
                         timeout=self._timeout,
                     )
                 self._log_debug("connect", "Modbus TCP Client connected")
@@ -468,7 +467,7 @@ class ABBPowerOneFimerAPI:
                     "Modbus connection failed",
                     host=self._host,
                     port=self._port,
-                    slave_id=self._slave_id,
+                    device_id=self._device_id,
                     timeout=self._timeout,
                 ) from modbus_error
         else:
@@ -483,7 +482,7 @@ class ABBPowerOneFimerAPI:
         try:
             async with self._lock:
                 result = await self._client.read_holding_registers(
-                    address=address, count=count, slave=self._slave_id
+                    address=address, count=count, device_id=self._device_id
                 )  # type: ignore (pylance thinks this is not awaitable)
             if result.isError():
                 _LOGGER.debug(f"Modbus error response: {result}")
@@ -501,7 +500,7 @@ class ABBPowerOneFimerAPI:
                 "Connection lost during register read",
                 host=self._host,
                 port=self._port,
-                slave_id=self._slave_id,
+                device_id=self._device_id,
             ) from connect_error
         except ModbusException as modbus_error:
             self._log_debug("read_holding_registers", f"Modbus error: {modbus_error}")
@@ -693,7 +692,7 @@ class ABBPowerOneFimerAPI:
                 self._log_debug(
                     "async_get_data",
                     "Starting data collection",
-                    slave_id=self._slave_id,
+                    device_id=self._device_id,
                     base_addr=self._base_addr,
                 )
                 # HA way to call a sync function from async function
@@ -891,7 +890,7 @@ class ABBPowerOneFimerAPI:
             self._log_debug(
                 "read_sunspec_modbus_model_1",
                 "Starting Model 1 read",
-                slave_id=self._slave_id,
+                device_id=self._device_id,
                 base_addr=self._base_addr,
             )
             read_model_1_data = await self.read_holding_registers(
@@ -998,7 +997,7 @@ class ABBPowerOneFimerAPI:
             self._log_debug(
                 "read_sunspec_modbus_model_101_103",
                 "Starting Model 101/103 read",
-                slave_id=self._slave_id,
+                device_id=self._device_id,
                 base_addr=self._base_addr,
             )
             read_model_101_103_data = await self.read_holding_registers(
@@ -1247,7 +1246,7 @@ class ABBPowerOneFimerAPI:
                 "read_sunspec_modbus_model_160",
                 "Starting Model 160 read",
                 model=invmodel,
-                slave_id=self._slave_id,
+                device_id=self._device_id,
                 base_addr=self._base_addr,
                 offset=offset,
             )

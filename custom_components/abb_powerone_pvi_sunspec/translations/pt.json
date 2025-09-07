@@ -8,7 +8,7 @@
           "name": "Nome Personalizado do Inversor (usado para o prefixo dos sensores)",
           "host": "IP ou nome de anfitrião",
           "port": "Porta TCP",
-          "slave_id": "Endereço Modbus Slave do inversor",
+          "device_id": "Endereço Modbus Device do inversor",
           "base_addr": "Endereço Base do Mapa de Registos Modbus",
           "scan_interval": "Período de Polling (mín: 30s máx: 600s)"
         }
@@ -26,7 +26,7 @@
         "data": {
           "host": "IP ou nome de anfitrião",
           "port": "Porta TCP",
-          "slave_id": "Endereço Modbus Slave do inversor",
+          "device_id": "Endereço Modbus Device do inversor",
           "base_addr": "Endereço Base do Mapa de Registos Modbus",
           "scan_interval": "Período de Polling (mín: 30s máx: 600s)"
         }

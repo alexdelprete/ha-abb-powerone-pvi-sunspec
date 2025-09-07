@@ -27,21 +27,21 @@ from .const import (
     CONF_NAME,
     CONF_PORT,
     CONF_SCAN_INTERVAL,
-    CONF_SLAVE_ID,
+    CONF_DEVICE_ID,
     DEFAULT_BASE_ADDR,
     DEFAULT_NAME,
     DEFAULT_PORT,
     DEFAULT_SCAN_INTERVAL,
-    DEFAULT_SLAVE_ID,
+    DEFAULT_DEVICE_ID,
     DOMAIN,
     MAX_BASE_ADDR,
     MAX_PORT,
     MAX_SCAN_INTERVAL,
-    MAX_SLAVE_ID,
+    MAX_DEVICE_ID,
     MIN_BASE_ADDR,
     MIN_PORT,
     MIN_SCAN_INTERVAL,
-    MIN_SLAVE_ID,
+    MIN_DEVICE_ID,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -89,7 +89,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
         name: str,
         host: str,
         port: int,
-        slave_id: int,
+        device_id: int,
         base_addr: int,
         scan_interval: int,
     ):
@@ -97,12 +97,12 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
         self._name = str(name)
         self._host = str(host)
         self._port = int(port)
-        self._slave_id = int(slave_id)
+        self._device_id = int(device_id)
         self._base_addr = int(base_addr)
         self._scan_interval = int(scan_interval)
 
         _LOGGER.debug(
-            f"Test connection to {self._host}:{self._port} slave id {self._slave_id}"
+            f"Test connection to {self._host}:{self._port} device id {self._device_id}"
         )
         try:
             _LOGGER.debug("Creating API Client")
@@ -111,7 +111,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                 self._name,
                 self._host,
                 self._port,
-                self._slave_id,
+                self._device_id,
                 self._base_addr,
                 self._scan_interval,
             )
@@ -122,7 +122,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.api.data["comm_sernum"]
         except ConnectionException as connerr:
             _LOGGER.error(
-                f"Failed to connect to host: {self._host}:{self._port} - slave id: {self._slave_id} - Exception: {connerr}"
+                f"Failed to connect to host: {self._host}:{self._port} - device id: {self._device_id} - Exception: {connerr}"
             )
             return False
 
@@ -134,7 +134,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
             name = str(user_input[CONF_NAME])
             host = str(user_input[CONF_HOST])
             port = int(user_input[CONF_PORT])
-            slave_id = int(user_input[CONF_SLAVE_ID])
+            device_id = int(user_input[CONF_DEVICE_ID])
             base_addr = int(user_input[CONF_BASE_ADDR])
             scan_interval = int(user_input[CONF_SCAN_INTERVAL])
 
@@ -144,7 +144,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors[CONF_HOST] = "invalid Host IP"
             else:
                 uid = await self.get_unique_id(
-                    name, host, port, slave_id, base_addr, scan_interval
+                    name, host, port, device_id, base_addr, scan_interval
                 )
                 if uid is not False:
                     _LOGGER.debug(f"Device unique id: {uid}")
@@ -176,13 +176,13 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                         default=DEFAULT_PORT,
                     ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_PORT, max=MAX_PORT)),
                     vol.Required(
-                        CONF_SLAVE_ID,
-                        default=DEFAULT_SLAVE_ID,
+                        CONF_DEVICE_ID,
+                        default=DEFAULT_DEVICE_ID,
                     ): selector(
                         {
                             "number": {
-                                "min": MIN_SLAVE_ID,
-                                "max": MAX_SLAVE_ID,
+                                "min": MIN_DEVICE_ID,
+                                "max": MAX_DEVICE_ID,
                                 "step": 1,
                                 "mode": "box",
                             }
@@ -225,13 +225,13 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
                     default=config_entry.data.get(CONF_PORT),
                 ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_PORT, max=MAX_PORT)),
                 vol.Required(
-                    CONF_SLAVE_ID,
-                    default=config_entry.data.get(CONF_SLAVE_ID),
+                    CONF_DEVICE_ID,
+                    default=config_entry.data.get(CONF_DEVICE_ID),
                 ): selector(
                     {
                         "number": {
-                            "min": MIN_SLAVE_ID,
-                            "max": MAX_SLAVE_ID,
+                            "min": MIN_DEVICE_ID,
+                            "max": MAX_DEVICE_ID,
                             "step": 1,
                             "mode": "box",
                         }

@@ -3,9 +3,7 @@
 https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 """
 
-import ipaddress
 import logging
-import re
 
 import voluptuous as vol
 from homeassistant import config_entries
@@ -23,38 +21,29 @@ from pymodbus.exceptions import ConnectionException
 from .api import ABBPowerOneFimerAPI
 from .const import (
     CONF_BASE_ADDR,
+    CONF_DEVICE_ID,
     CONF_HOST,
     CONF_NAME,
     CONF_PORT,
     CONF_SCAN_INTERVAL,
-    CONF_DEVICE_ID,
     DEFAULT_BASE_ADDR,
+    DEFAULT_DEVICE_ID,
     DEFAULT_NAME,
     DEFAULT_PORT,
     DEFAULT_SCAN_INTERVAL,
-    DEFAULT_DEVICE_ID,
     DOMAIN,
     MAX_BASE_ADDR,
+    MAX_DEVICE_ID,
     MAX_PORT,
     MAX_SCAN_INTERVAL,
-    MAX_DEVICE_ID,
     MIN_BASE_ADDR,
+    MIN_DEVICE_ID,
     MIN_PORT,
     MIN_SCAN_INTERVAL,
-    MIN_DEVICE_ID,
 )
+from .helpers import host_valid, log_debug, log_error
 
 _LOGGER = logging.getLogger(__name__)
-
-
-def host_valid(host):
-    """Return True if hostname or IP address is valid."""
-    try:
-        if ipaddress.ip_address(host).version == (4 or 6):
-            return True
-    except ValueError:
-        disallowed = re.compile(r"[^a-zA-Z\d\-]")
-        return all(x and not disallowed.search(x) for x in host.split("."))
 
 
 @callback
@@ -66,7 +55,7 @@ def get_host_from_config(hass: HomeAssistant):
     }
 
 
-class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
+class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
     """ABB Power-One PVI SunSpec config flow."""
 
     VERSION = 2
@@ -101,11 +90,16 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
         self._base_addr = int(base_addr)
         self._scan_interval = int(scan_interval)
 
-        _LOGGER.debug(
-            f"Test connection to {self._host}:{self._port} device id {self._device_id}"
+        log_debug(
+            _LOGGER,
+            "get_unique_id",
+            "Test connection",
+            host=self._host,
+            port=self._port,
+            device_id=self._device_id,
         )
         try:
-            _LOGGER.debug("Creating API Client")
+            log_debug(_LOGGER, "get_unique_id", "Creating API Client")
             self.api = ABBPowerOneFimerAPI(
                 self.hass,
                 self._name,
@@ -115,14 +109,20 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                 self._base_addr,
                 self._scan_interval,
             )
-            _LOGGER.debug("API Client created: calling get data")
+            log_debug(_LOGGER, "get_unique_id", "API Client created: calling get data")
             self.api_data = await self.api.async_get_data()
-            _LOGGER.debug("API Client: get data")
-            _LOGGER.debug(f"API Client Data: {self.api_data}")
+            log_debug(_LOGGER, "get_unique_id", "API Client: get data")
+            log_debug(_LOGGER, "get_unique_id", "API Client Data", data=self.api_data)
             return self.api.data["comm_sernum"]
         except ConnectionException as connerr:
-            _LOGGER.error(
-                f"Failed to connect to host: {self._host}:{self._port} - device id: {self._device_id} - Exception: {connerr}"
+            log_error(
+                _LOGGER,
+                "get_unique_id",
+                "Failed to connect",
+                host=self._host,
+                port=self._port,
+                device_id=self._device_id,
+                error=connerr,
             )
             return False
 
@@ -147,7 +147,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):
                     name, host, port, device_id, base_addr, scan_interval
                 )
                 if uid is not False:
-                    _LOGGER.debug(f"Device unique id: {uid}")
+                    log_debug(_LOGGER, "async_step_user", "Device unique id", uid=uid)
                     # Assign a unique ID to the flow and abort the flow
                     # if another flow with the same unique ID is in progress
                     await self.async_set_unique_id(uid)
@@ -226,7 +226,8 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
                 ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_PORT, max=MAX_PORT)),
                 vol.Required(
                     CONF_DEVICE_ID,
-                    default=config_entry.data.get(CONF_DEVICE_ID) or config_entry.data.get("slave_id"),
+                    default=config_entry.data.get(CONF_DEVICE_ID)
+                    or config_entry.data.get("slave_id"),
                 ): selector(
                     {
                         "number": {

@@ -23,6 +23,7 @@ from .const import (
     SENSOR_TYPES_THREE_PHASE,
 )
 from .coordinator import ABBPowerOneFimerCoordinator
+from .helpers import log_debug
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -55,13 +56,39 @@ async def async_setup_entry(
     # Get handler to coordinator from config
     coordinator: ABBPowerOneFimerCoordinator = config_entry.runtime_data.coordinator
 
-    _LOGGER.debug(f"(sensor) Name: {config_entry.data.get(CONF_NAME)}")
-    _LOGGER.debug(f"(sensor) Manufacturer: {coordinator.api.data['comm_manufact']}")
-    _LOGGER.debug(f"(sensor) Model: {coordinator.api.data['comm_model']}")
-    _LOGGER.debug(f"(sensor) SW Version: {coordinator.api.data['comm_version']}")
-    _LOGGER.debug(f"(sensor) Inverter Type (str): {coordinator.api.data['invtype']}")
-    _LOGGER.debug(f"(sensor) MPPT #: {coordinator.api.data['mppt_nr']}")
-    _LOGGER.debug(f"(sensor) Serial#: {coordinator.api.data['comm_sernum']}")
+    log_debug(
+        _LOGGER, "async_setup_entry", "Name", name=config_entry.data.get(CONF_NAME)
+    )
+    log_debug(
+        _LOGGER,
+        "async_setup_entry",
+        "Manufacturer",
+        manufacturer=coordinator.api.data["comm_manufact"],
+    )
+    log_debug(
+        _LOGGER, "async_setup_entry", "Model", model=coordinator.api.data["comm_model"]
+    )
+    log_debug(
+        _LOGGER,
+        "async_setup_entry",
+        "SW Version",
+        version=coordinator.api.data["comm_version"],
+    )
+    log_debug(
+        _LOGGER,
+        "async_setup_entry",
+        "Inverter Type",
+        type=coordinator.api.data["invtype"],
+    )
+    log_debug(
+        _LOGGER, "async_setup_entry", "MPPT count", mppt=coordinator.api.data["mppt_nr"]
+    )
+    log_debug(
+        _LOGGER,
+        "async_setup_entry",
+        "Serial number",
+        serial=coordinator.api.data["comm_sernum"],
+    )
 
     sensor_list = []
     add_sensor_defs(coordinator, config_entry, sensor_list, SENSOR_TYPES_COMMON)
@@ -75,8 +102,13 @@ async def async_setup_entry(
             coordinator, config_entry, sensor_list, SENSOR_TYPES_THREE_PHASE
         )
 
-    _LOGGER.debug(
-        f"(sensor) DC Voltages : single={coordinator.api.data['dcvolt']} dc1={coordinator.api.data['dc1volt']} dc2={coordinator.api.data['dc2volt']}"
+    log_debug(
+        _LOGGER,
+        "async_setup_entry",
+        "DC Voltages",
+        single=coordinator.api.data["dcvolt"],
+        dc1=coordinator.api.data["dc1volt"],
+        dc2=coordinator.api.data["dc2volt"],
     )
     if coordinator.api.data["mppt_nr"] == 1:
         add_sensor_defs(
@@ -118,8 +150,10 @@ class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
         self.async_write_ha_state()
         # write debug log only on first sensor to avoid spamming the log
         if self.name == "Manufacturer":
-            _LOGGER.debug(
-                "_handle_coordinator_update: sensors state written to state machine"
+            log_debug(
+                _LOGGER,
+                "_handle_coordinator_update",
+                "Sensors state written to state machine",
             )
 
     # when has_entity_name is True, the resulting entity name will be: {device_name}_{self._name}
@@ -158,16 +192,14 @@ class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
         """Return the sensor entity_category."""
         if self._state_class is None:
             return EntityCategory.DIAGNOSTIC
-        else:
-            return None
+        return None
 
     @property
     def native_value(self):
         """Return the state of the sensor."""
         if self._key in self._coordinator.api.data:
             return self._coordinator.api.data[self._key]
-        else:
-            return None
+        return None
 
     @property
     def state_attributes(self) -> dict[str, Any] | None:

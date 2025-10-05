@@ -11,7 +11,10 @@
       "Bash(gh release create:*)",
       "Bash(grep:*)",
       "Bash(gh release list:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(ruff check:*)",
+      "Bash(cat:*)",
+      "Bash(python -m ruff:*)"
     ],
     "deny": [],
     "ask": []

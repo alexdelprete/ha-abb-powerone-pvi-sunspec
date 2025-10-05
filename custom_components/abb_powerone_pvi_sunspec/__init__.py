@@ -21,6 +21,7 @@ from .const import (
     STARTUP_MESSAGE,
 )
 from .coordinator import ABBPowerOneFimerCoordinator
+from .helpers import log_debug, log_error, log_info
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,8 +45,8 @@ async def async_setup_entry(
     """Set up this integration using UI."""
     if hass.data.get(DOMAIN) is None:
         hass.data.setdefault(DOMAIN, {})
-        _LOGGER.info(STARTUP_MESSAGE)
-    _LOGGER.debug(f"Setup config_entry for {DOMAIN}")  # noqa: G004
+        log_info(_LOGGER, "async_setup_entry", STARTUP_MESSAGE)
+    log_debug(_LOGGER, "async_setup_entry", "Setup config_entry", domain=DOMAIN)
 
     # Initialise the coordinator that manages data updates from your api.
     # This is defined in coordinator.py
@@ -110,8 +111,10 @@ async def async_remove_config_entry_device(
 ) -> bool:
     """Delete device if not entities."""
     if DOMAIN in device_entry.identifiers:
-        _LOGGER.error(
-            "You cannot delete the device using device delete. Remove the integration instead."
+        log_error(
+            _LOGGER,
+            "async_remove_config_entry_device",
+            "You cannot delete the device using device delete. Remove the integration instead.",
         )
         return False
     return True
@@ -124,13 +127,13 @@ async def async_unload_entry(
     # This is called when you remove your integration or shutdown HA.
     # If you have created any custom services, they need to be removed here too.
 
-    _LOGGER.debug("Unload config_entry: started")
+    log_debug(_LOGGER, "async_unload_entry", "Unload config_entry: started")
 
     # Unload platforms and cleanup resources
     unload_ok = await hass.config_entries.async_unload_platforms(
         config_entry, PLATFORMS
     )
-    _LOGGER.debug("Unload platforms: %s", unload_ok)
+    log_debug(_LOGGER, "async_unload_entry", "Unload platforms", unload_ok=unload_ok)
 
     # check if this is the last loaded instance of the integration
     # Note: compatibility with HA < 2025.3.0
@@ -142,20 +145,26 @@ async def async_unload_entry(
     ]
     # If this is the last loaded instance of the integration, release resources
     if not other_loaded_entries:
-        _LOGGER.debug("Last loaded entry, releasing resources")
+        log_debug(
+            _LOGGER, "async_unload_entry", "Last loaded entry, releasing resources"
+        )
         # Close API connection
         config_entry.runtime_data.coordinator.api.close()
-        _LOGGER.debug("Closed API connection")
+        log_debug(_LOGGER, "async_unload_entry", "Closed API connection")
         # Remove update listener if it exists
         config_entry.runtime_data.update_listener()
-        _LOGGER.debug("Removed update listener")
+        log_debug(_LOGGER, "async_unload_entry", "Removed update listener")
         # Remove config entry from hass data
         hass.data[DOMAIN].pop(config_entry.entry_id)
-        _LOGGER.debug("Removed config entry from hass data")
+        log_debug(_LOGGER, "async_unload_entry", "Removed config entry from hass data")
     else:
-        _LOGGER.debug("There are other loaded entries, not releasing resources")
+        log_debug(
+            _LOGGER,
+            "async_unload_entry",
+            "There are other loaded entries, not releasing resources",
+        )
 
-    _LOGGER.debug("Unload config_entry: completed")
+    log_debug(_LOGGER, "async_unload_entry", "Unload config_entry: completed")
     return unload_ok
 
 
@@ -168,46 +177,28 @@ async def async_reload_entry(
 
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Migrate old config entries."""
-    _LOGGER.debug("Migrating config entry from version %s", config_entry.version)
-    
+    log_debug(
+        _LOGGER,
+        "async_migrate_entry",
+        "Migrating config entry",
+        version=config_entry.version,
+    )
+
     if config_entry.version == 1:
         # Version 1 -> 2: Migrate slave_id to device_id
         new_data = {**config_entry.data}
-        
+
         # If slave_id exists but device_id doesn't, migrate it
         if "slave_id" in new_data and "device_id" not in new_data:
             new_data["device_id"] = new_data.pop("slave_id")
-            _LOGGER.info("Migrated slave_id to device_id in config entry")
-        
+            log_info(
+                _LOGGER,
+                "async_migrate_entry",
+                "Migrated slave_id to device_id in config entry",
+            )
+
         # Update the config entry
-        hass.config_entries.async_update_entry(
-            config_entry, 
-            data=new_data,
-            version=2
-        )
-        _LOGGER.debug("Migration to version 2 complete")
-    
+        hass.config_entries.async_update_entry(config_entry, data=new_data, version=2)
+        log_debug(_LOGGER, "async_migrate_entry", "Migration to version 2 complete")
+
     return True
-
-
-# Sample migration code in case it's needed
-# async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
-#     """Migrate an old config_entry."""
-#     version = config_entry.version
-
-#     # 1-> 2: Migration format
-#     if version == 1:
-#         # Get handler to coordinator from config
-#         coordinator = hass.data[DOMAIN][config_entry.entry_id][DATA]
-#         _LOGGER.debug("Migrating from version %s", version)
-#         old_uid = config_entry.unique_id
-#         new_uid = coordinator.api.data["comm_sernum"]
-#         if old_uid != new_uid:
-#             hass.config_entries.async_update_entry(
-#                 config_entry, unique_id=new_uid
-#             )
-#             _LOGGER.debug("Migration to version %s complete: OLD_UID: %s - NEW_UID: %s", config_entry.version, old_uid, new_uid)
-#         if config_entry.unique_id == new_uid:
-#             config_entry.version = 2
-#             _LOGGER.debug("Migration to version %s complete: NEW_UID: %s", config_entry.version, config_entry.unique_id)
-#     return True

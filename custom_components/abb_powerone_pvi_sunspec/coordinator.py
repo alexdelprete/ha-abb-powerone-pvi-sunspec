@@ -13,16 +13,17 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .api import ABBPowerOneFimerAPI
 from .const import (
     CONF_BASE_ADDR,
+    CONF_DEVICE_ID,
     CONF_HOST,
     CONF_NAME,
     CONF_PORT,
     CONF_SCAN_INTERVAL,
-    CONF_DEVICE_ID,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     MAX_SCAN_INTERVAL,
     MIN_SCAN_INTERVAL,
 )
+from .helpers import log_debug
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,7 +40,9 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
         self.host = str(config_entry.data.get(CONF_HOST))
         self.port = int(config_entry.data.get(CONF_PORT))
         # Handle backward compatibility: try new key first, fallback to old key
-        self.device_id = int(config_entry.data.get(CONF_DEVICE_ID) or config_entry.data.get("slave_id"))
+        self.device_id = int(
+            config_entry.data.get(CONF_DEVICE_ID) or config_entry.data.get("slave_id")
+        )
         self.base_addr = int(config_entry.data.get(CONF_BASE_ADDR))
         self.scan_interval = int(
             config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
@@ -52,8 +55,12 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
             self.scan_interval = MAX_SCAN_INTERVAL
         # set coordinator update interval
         self.update_interval = timedelta(seconds=self.scan_interval)
-        _LOGGER.debug(
-            f"Scan Interval: scan_interval={self.scan_interval} update_interval={self.update_interval}"
+        log_debug(
+            _LOGGER,
+            "__init__",
+            "Scan Interval configured",
+            scan_interval=self.scan_interval,
+            update_interval=self.update_interval,
         )
 
         # set update method and interval for coordinator
@@ -78,22 +85,40 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
             self.scan_interval,
         )
 
-        _LOGGER.debug(f"Coordinator Config Data: {config_entry.data}")
-        _LOGGER.debug(
-            f"Coordinator init - Host: {self.host} Port: {self.port} ID: {self.device_id} Base Addr.: {self.base_addr} ScanInterval: {self.scan_interval}"
+        log_debug(
+            _LOGGER, "__init__", "Coordinator Config Data", data=config_entry.data
+        )
+        log_debug(
+            _LOGGER,
+            "__init__",
+            "Coordinator initialized",
+            host=self.host,
+            port=self.port,
+            device_id=self.device_id,
+            base_addr=self.base_addr,
+            scan_interval=self.scan_interval,
         )
 
     async def async_update_data(self):
         """Update data method."""
-        _LOGGER.debug(f"Data Coordinator: Update started at {datetime.now()}")
+        log_debug(_LOGGER, "async_update_data", "Update started", time=datetime.now())
         try:
             self.last_update_status = await self.api.async_get_data()
             self.last_update_time = datetime.now()
-            _LOGGER.debug(
-                f"Data Coordinator: Update completed at {self.last_update_time}"
+            log_debug(
+                _LOGGER,
+                "async_update_data",
+                "Update completed",
+                time=self.last_update_time,
             )
-            return self.last_update_status
         except Exception as ex:
             self.last_update_status = False
-            _LOGGER.debug(f"Coordinator Update Error: {ex} at {self.last_update_time}")
-            raise UpdateFailed() from ex
+            log_debug(
+                _LOGGER,
+                "async_update_data",
+                "Update error",
+                error=ex,
+                time=self.last_update_time,
+            )
+            raise UpdateFailed from ex
+        return self.last_update_status

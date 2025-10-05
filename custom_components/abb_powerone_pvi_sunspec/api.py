@@ -33,25 +33,26 @@ from .const import (
     HEX_PREFIX,
     INVERTER_TYPE,
     MAX_BASE_ADDR,
+    MAX_DEVICE_ID,
     MAX_PORT,
     MAX_SCAN_INTERVAL,
-    MAX_DEVICE_ID,
     MIN_BASE_ADDR,
+    MIN_DEVICE_ID,
     MIN_PORT,
     MIN_SCAN_INTERVAL,
-    MIN_DEVICE_ID,
     SUNSPEC_M160_OFFSETS,
     SUNSPEC_MODEL_160_ID,
     TEMP_SCALE_FACTOR_CORRECTION,
     TEMP_THRESHOLD_CELSIUS,
 )
+from .helpers import log_debug, log_error, log_warning
 from .pymodbus_constants import Endian
 from .pymodbus_payload import BinaryPayloadDecoder
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class ConnectionError(Exception):
+class VSNConnectionError(Exception):
     """Exception raised when connection to the inverter fails.
 
     This exception is raised when the client cannot establish or maintain
@@ -66,6 +67,11 @@ class ConnectionError(Exception):
 
     """
 
+    host: str | None
+    port: int | None
+    device_id: int | None
+    timeout: float | None
+
     def __init__(
         self,
         message: str = "Connection failed",
@@ -74,7 +80,7 @@ class ConnectionError(Exception):
         device_id: int | None = None,
         timeout: float | None = None,
     ):
-        """Initialize ConnectionError exception."""
+        """Initialize VSNConnectionError exception."""
         self.host = host
         self.port = port
         self.device_id = device_id
@@ -98,6 +104,10 @@ class ModbusError(Exception):
         register_count: Number of registers involved
 
     """
+
+    function_code: int | None
+    register_address: int | None
+    register_count: int | None
 
     def __init__(
         self,
@@ -126,6 +136,8 @@ class ExceptionError(Exception):
         operation: The operation that was being performed when the error occurred
 
     """
+
+    operation: str | None
 
     def __init__(
         self, message: str = "Unexpected error occurred", operation: str | None = None
@@ -172,6 +184,22 @@ class ABBPowerOneFimerAPI:
             energy = api.data['totalenergy']
 
     """
+
+    _hass: HomeAssistant
+    _name: str
+    _host: str
+    _port: int
+    _device_id: int
+    _base_addr: int
+    _update_interval: int
+    _timeout: float
+    _client: AsyncModbusTcpClient
+    _lock: asyncio.Lock
+    _sensors: list[Any]
+    data: dict[str, Any]
+    _connection_healthy: bool
+    _last_successful_read: datetime.datetime | None
+    _device_info_cached: bool
 
     def __init__(
         self,
@@ -374,7 +402,8 @@ class ABBPowerOneFimerAPI:
         """
         async with self._lock:
             sock_timeout = DEFAULT_SOCKET_TIMEOUT
-            self._log_debug(
+            log_debug(
+                _LOGGER,
                 "check_port",
                 f"Opening socket with {sock_timeout}s timeout",
                 host=self._host,
@@ -388,21 +417,23 @@ class ABBPowerOneFimerAPI:
                 )
                 writer.close()
                 await writer.wait_closed()
-                self._log_debug(
+                log_debug(
+                    _LOGGER,
                     "check_port",
                     "Port connection successful",
                     host=self._host,
                     port=self._port,
                 )
-                return True
             except (asyncio.TimeoutError, OSError) as e:  # noqa: UP041
-                self._log_debug(
+                log_debug(
+                    _LOGGER,
                     "check_port",
                     f"Port not available - {e}",
                     host=self._host,
                     port=self._port,
                 )
                 return False
+            return True
 
     async def close(self) -> bool | None:
         """Safely disconnect the Modbus client.
@@ -414,20 +445,20 @@ class ABBPowerOneFimerAPI:
             Optional[bool]: True if successfully closed, None if already closed
 
         Raises:
-            ConnectionError: If there's an error during the close operation
+            VSNConnectionError: If there's an error during the close operation
 
         """
         try:
             if self._client.connected:
-                self._log_debug("close", "Closing Modbus TCP connection")
+                log_debug(_LOGGER, "close", "Closing Modbus TCP connection")
                 async with self._lock:
                     self._client.close()
                     return True
             else:
-                self._log_debug("close", "Modbus TCP connection already closed")
+                log_debug(_LOGGER, "close", "Modbus TCP connection already closed")
         except ConnectionException as connect_error:
-            self._log_debug("close", f"Connection error: {connect_error}")
-            raise ConnectionError(
+            log_debug(_LOGGER, "close", "Connection error", error=connect_error)
+            raise VSNConnectionError(
                 "Failed to close connection",
                 host=self._host,
                 port=self._port,
@@ -436,7 +467,8 @@ class ABBPowerOneFimerAPI:
 
     async def connect(self) -> bool:
         """Connect client."""
-        self._log_debug(
+        log_debug(
+            _LOGGER,
             "connect",
             "API Client connecting",
             host=self._host,
@@ -445,36 +477,38 @@ class ABBPowerOneFimerAPI:
             timeout=self._timeout,
         )
         if await self.check_port():
-            self._log_debug("connect", "Inverter ready for Modbus TCP connection")
+            log_debug(_LOGGER, "connect", "Inverter ready for Modbus TCP connection")
             start_time = time.time()
             try:
                 async with self._lock:
                     await self._client.connect()
                 connect_duration = time.time() - start_time
-                _LOGGER.debug(f"Connection attempt took {connect_duration:.3f}s")
+                log_debug(
+                    _LOGGER,
+                    "connect",
+                    "Connection attempt completed",
+                    duration=f"{connect_duration:.3f}s",
+                )
                 if not self._client.connected:
-                    raise ConnectionError(
+                    raise VSNConnectionError(
                         "Failed to establish connection",
                         host=self._host,
                         port=self._port,
                         device_id=self._device_id,
                         timeout=self._timeout,
                     )
-                self._log_debug("connect", "Modbus TCP Client connected")
-                return True
             except ModbusException as modbus_error:
-                raise ConnectionError(
+                raise VSNConnectionError(
                     "Modbus connection failed",
                     host=self._host,
                     port=self._port,
                     device_id=self._device_id,
                     timeout=self._timeout,
                 ) from modbus_error
-        else:
-            self._log_debug("connect", "Inverter not ready for Modbus TCP connection")
-            raise ConnectionError(
-                "Inverter not responding", host=self._host, port=self._port
-            )
+            log_debug(_LOGGER, "connect", "Modbus TCP Client connected")
+            return True
+        log_debug(_LOGGER, "connect", "Inverter not ready for Modbus TCP connection")
+        return False
 
     async def read_holding_registers(self, address: int, count: int) -> Any:
         """Read holding registers."""
@@ -484,35 +518,103 @@ class ABBPowerOneFimerAPI:
                 result = await self._client.read_holding_registers(
                     address=address, count=count, device_id=self._device_id
                 )  # type: ignore (pylance thinks this is not awaitable)
-            if result.isError():
-                _LOGGER.debug(f"Modbus error response: {result}")
-                raise ModbusException(
-                    f"Device reported error: {result}",
-                    address=address,
-                    operation="read_holding_registers"
-                )
-            return result
         except ConnectionException as connect_error:
-            self._log_debug(
-                "read_holding_registers", f"Connection error: {connect_error}"
+            log_debug(
+                _LOGGER, "read_holding_registers", f"Connection error: {connect_error}"
             )
-            raise ConnectionError(
+            raise VSNConnectionError(
                 "Connection lost during register read",
                 host=self._host,
                 port=self._port,
                 device_id=self._device_id,
             ) from connect_error
         except ModbusException as modbus_error:
-            self._log_debug("read_holding_registers", f"Modbus error: {modbus_error}")
+            log_debug(
+                _LOGGER, "read_holding_registers", "Modbus error", error=modbus_error
+            )
             raise ModbusError(
                 "Failed to read registers",
                 register_address=address,
                 register_count=count,
             ) from modbus_error
 
+        if result.isError():
+            log_debug(
+                _LOGGER,
+                "read_holding_registers",
+                "Modbus error response received",
+                result=result,
+            )
+        return result
+
     def calculate_value(self, value: float, sf: int) -> float:
         """Apply Scale Factor and round the result."""
         return round(value * 10**sf, max(0, -sf))
+
+    def _check_modbus_exception_response(self, result: Any, method: str) -> None:
+        """Check if result is a Modbus ExceptionResponse and raise if so.
+
+        Args:
+            result: The result from read_holding_registers
+            method: The calling method name for logging
+
+        Raises:
+            ModbusError: If result is an ExceptionResponse
+
+        """
+        if isinstance(result, ExceptionResponse):
+            # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
+            log_debug(
+                _LOGGER,
+                method,
+                "Received Modbus exception response",
+                result=result,
+            )
+            raise ModbusError
+
+    def _handle_connection_exception(
+        self, method: str, error: ConnectionException
+    ) -> None:
+        """Handle ConnectionException and raise VSNConnectionError.
+
+        Args:
+            method: The calling method name for logging
+            error: The ConnectionException that was caught
+
+        Raises:
+            VSNConnectionError: Always raises with connection details
+
+        """
+        log_debug(_LOGGER, method, "Connection error", error=error)
+        raise VSNConnectionError from error
+
+    def _handle_modbus_exception(
+        self,
+        method: str,
+        error: ModbusException,
+        address: int | None = None,
+        count: int | None = None,
+    ) -> None:
+        """Handle ModbusException and raise ModbusError.
+
+        Args:
+            method: The calling method name for logging
+            error: The ModbusException that was caught
+            address: Optional register address for context
+            count: Optional register count for context
+
+        Raises:
+            ModbusError: Always raises with register details if provided
+
+        """
+        log_debug(_LOGGER, method, "Modbus error", error=error)
+        if address is not None:
+            raise ModbusError(
+                "Failed to read registers",
+                register_address=address,
+                register_count=count,
+            ) from error
+        raise ModbusError from error
 
     def _clean_string(self, raw_string: str) -> str:
         """Clean and process string values from Modbus registers.
@@ -535,15 +637,19 @@ class ABBPowerOneFimerAPI:
             # Strip whitespace and common control characters
             cleaned = raw_string.strip()
             # Remove null bytes and other control characters
-            cleaned = cleaned.rstrip(" \t\r\n\0\u0000")
-            return cleaned
+            cleaned = cleaned.rstrip(" \t\r\n\0")
         except (AttributeError, UnicodeError) as e:
-            self._log_warning(
-                "_clean_string", f"Failed to clean string: {e}", raw_string=raw_string
+            log_warning(
+                _LOGGER,
+                "_clean_string",
+                "Failed to clean string",
+                error=e,
+                raw_string=raw_string,
             )
             raise ExceptionError(
                 f"String processing failed: {e}", operation="string_cleaning"
             ) from e
+        return cleaned
 
     def _parse_model_options(self, options_string: str) -> int:
         """Parse model options string to extract model integer.
@@ -557,7 +663,8 @@ class ABBPowerOneFimerAPI:
         """
         if options_string.startswith(HEX_PREFIX):
             opt_model_int = int(options_string[0:HEX_MODEL_SLICE_END], HEX_BASE)
-            self._log_debug(
+            log_debug(
+                _LOGGER,
                 "_parse_model_options",
                 "Non-printable option model",
                 options_string=options_string,
@@ -565,7 +672,8 @@ class ABBPowerOneFimerAPI:
             )
         else:
             opt_model_int = ord(options_string[0])
-            self._log_debug(
+            log_debug(
+                _LOGGER,
                 "_parse_model_options",
                 "Printable option model",
                 options_string=options_string,
@@ -592,51 +700,6 @@ class ABBPowerOneFimerAPI:
                 temp_value, TEMP_SCALE_FACTOR_CORRECTION
             )
         return temp_corrected
-
-    def _log_debug(self, method: str, message: str, **kwargs) -> None:
-        """Standardized debug logging with method context.
-
-        Args:
-            method: The method name for context
-            message: The log message
-            **kwargs: Additional context data to include
-
-        """
-        context_str = f"({method})"
-        if kwargs:
-            context_parts = [f"{k}={v}" for k, v in kwargs.items()]
-            context_str += f" [{', '.join(context_parts)}]"
-        _LOGGER.debug(f"{context_str}: {message}")
-
-    def _log_warning(self, method: str, message: str, **kwargs) -> None:
-        """Standardized warning logging with method context.
-
-        Args:
-            method: The method name for context
-            message: The warning message
-            **kwargs: Additional context data to include
-
-        """
-        context_str = f"({method})"
-        if kwargs:
-            context_parts = [f"{k}={v}" for k, v in kwargs.items()]
-            context_str += f" [{', '.join(context_parts)}]"
-        _LOGGER.warning(f"{context_str}: {message}")
-
-    def _log_error(self, method: str, message: str, **kwargs) -> None:
-        """Standardized error logging with method context.
-
-        Args:
-            method: The method name for context
-            message: The error message
-            **kwargs: Additional context data to include
-
-        """
-        context_str = f"({method})"
-        if kwargs:
-            context_parts = [f"{k}={v}" for k, v in kwargs.items()]
-            context_str += f" [{', '.join(context_parts)}]"
-        _LOGGER.error(f"{context_str}: {message}")
 
     def is_connection_healthy(self) -> bool:
         """Check if the connection is healthy.
@@ -682,14 +745,15 @@ class ABBPowerOneFimerAPI:
             bool: True if data collection was successful, False otherwise
 
         Raises:
-            ConnectionError: If connection to inverter fails
+            VSNConnectionError: If connection to inverter fails
             ModbusError: If Modbus protocol errors occur
 
         """
 
         try:
             if await self.connect():
-                self._log_debug(
+                log_debug(
+                    _LOGGER,
                     "async_get_data",
                     "Starting data collection",
                     device_id=self._device_id,
@@ -699,23 +763,27 @@ class ABBPowerOneFimerAPI:
                 # https://developers.home-assistant.io/docs/asyncio_working_with_async?#calling-sync-functions-from-async
                 result = await self.read_sunspec_modbus()
                 await self.close()
-                self._log_debug("async_get_data", "Data read completed")
+                log_debug(_LOGGER, "async_get_data", "Data read completed")
                 if result:
                     self._mark_connection_healthy()
-                    self._log_debug("async_get_data", "Data read successful")
+                    log_debug(_LOGGER, "async_get_data", "Data read successful")
                     return True
                 self._mark_connection_unhealthy()
-                self._log_debug("async_get_data", "Data read failed")
+                log_debug(_LOGGER, "async_get_data", "Data read failed")
                 return False
-            self._log_debug("async_get_data", "Get Data failed: client not connected")
-            return False
+            log_debug(
+                _LOGGER, "async_get_data", "Get Data failed: client not connected"
+            )
+            return False  # noqa: TRY300
         except ConnectionException as connect_error:
             self._mark_connection_unhealthy()
-            self._log_debug("async_get_data", f"Connection error: {connect_error}")
-            raise ConnectionError from connect_error
+            log_debug(
+                _LOGGER, "async_get_data", "Connection error", error=connect_error
+            )
+            raise VSNConnectionError from connect_error
         except ModbusException as modbus_error:
             self._mark_connection_unhealthy()
-            self._log_debug("async_get_data", f"Modbus error: {modbus_error}")
+            log_debug(_LOGGER, "async_get_data", "Modbus error", error=modbus_error)
             raise ModbusError from modbus_error
 
     async def read_sunspec_modbus(self) -> bool:
@@ -731,7 +799,8 @@ class ABBPowerOneFimerAPI:
             # Find SunSpec Model 160 Offset and read data only if found
             if self.data["m160_offset"] == 0:
                 # look for M160 offset only if not already found the first time
-                self._log_debug(
+                log_debug(
+                    _LOGGER,
                     "read_sunspec_modbus",
                     "M160 offset unknown, searching",
                     model=self.data["comm_model"],
@@ -740,7 +809,8 @@ class ABBPowerOneFimerAPI:
                     # M160 found, read and save offset in data dict for next cycle
                     await self.read_sunspec_modbus_model_160(offset)
                     self.data["m160_offset"] = offset
-                    self._log_debug(
+                    log_debug(
+                        _LOGGER,
                         "read_sunspec_modbus",
                         "M160 found",
                         offset=self.data["m160_offset"],
@@ -748,21 +818,24 @@ class ABBPowerOneFimerAPI:
                 else:
                     # M160 not found, set offset to 1 so next cycle we skip the search
                     self.data["m160_offset"] = 1
-                    self._log_debug(
+                    log_debug(
+                        _LOGGER,
                         "read_sunspec_modbus",
                         "M160 not found",
                         model=self.data["comm_model"],
                     )
             elif self.data["m160_offset"] == 1:
                 # M160 offset has already been searched and wasn't found
-                self._log_debug(
+                log_debug(
+                    _LOGGER,
                     "read_sunspec_modbus",
                     "M160 not present",
                     model=self.data["comm_model"],
                 )
             else:
                 # M160 offset not 0/1, use the saved offset to read
-                self._log_debug(
+                log_debug(
+                    _LOGGER,
                     "read_sunspec_modbus",
                     "Using previously found M160",
                     model=self.data["comm_model"],
@@ -770,28 +843,31 @@ class ABBPowerOneFimerAPI:
                 )
                 await self.read_sunspec_modbus_model_160(self.data["m160_offset"])
             result = True
-            self._log_debug("read_sunspec_modbus", "Completed", success=result)
+            log_debug(_LOGGER, "read_sunspec_modbus", "Completed", success=result)
         except ConnectionException as connect_error:
             result = False
-            self._log_debug(
-                "read_sunspec_modbus", "Completed with connection error", success=result
+            log_debug(
+                _LOGGER,
+                "read_sunspec_modbus",
+                "Completed with connection error",
+                success=result,
             )
-            self._log_debug("read_sunspec_modbus", f"Connection error: {connect_error}")
-            raise ConnectionError from connect_error
+            log_debug(
+                _LOGGER, "read_sunspec_modbus", "Connection error", error=connect_error
+            )
+            raise VSNConnectionError from connect_error
         except ModbusException as modbus_error:
             result = False
-            self._log_debug(
-                "read_sunspec_modbus", "Completed with modbus error", success=result
+            log_debug(
+                _LOGGER,
+                "read_sunspec_modbus",
+                "Completed with modbus error",
+                success=result,
             )
-            self._log_debug("read_sunspec_modbus", f"Modbus error: {modbus_error}")
+            log_debug(
+                _LOGGER, "read_sunspec_modbus", "Modbus error", error=modbus_error
+            )
             raise ModbusError from modbus_error
-        except Exception as exception_error:
-            result = False
-            self._log_debug(
-                "read_sunspec_modbus", "Completed with generic error", success=result
-            )
-            self._log_debug("read_sunspec_modbus", f"Generic error: {exception_error}")
-            raise ExceptionError from exception_error
         return result
 
     async def find_sunspec_modbus_m160_offset(self) -> int:
@@ -813,7 +889,8 @@ class ABBPowerOneFimerAPI:
             found_offset = 0
             multi_mppt_id = 0
             for offset in SUNSPEC_M160_OFFSETS:
-                self._log_debug(
+                log_debug(
+                    _LOGGER,
                     "find_sunspec_modbus_m160_offset",
                     f"Searching M160 for model: {invmodel}",
                     offset=offset,
@@ -823,7 +900,8 @@ class ABBPowerOneFimerAPI:
                 )
                 if isinstance(read_model_160_data, ExceptionResponse):
                     # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
-                    self._log_debug(
+                    log_debug(
+                        _LOGGER,
                         "find_sunspec_modbus_m160_offset",
                         f"Received Modbus exception: {read_model_160_data}",
                     )
@@ -834,14 +912,16 @@ class ABBPowerOneFimerAPI:
                     )
                     multi_mppt_id = decoder.decode_16bit_uint()
                 if multi_mppt_id != SUNSPEC_MODEL_160_ID:
-                    self._log_debug(
+                    log_debug(
+                        _LOGGER,
                         "find_sunspec_modbus_m160_offset",
                         "Model is not 160",
                         offset=offset,
                         multi_mppt_id=multi_mppt_id,
                     )
                 else:
-                    self._log_debug(
+                    log_debug(
+                        _LOGGER,
                         "find_sunspec_modbus_m160_offset",
                         "Model is 160",
                         offset=offset,
@@ -850,31 +930,32 @@ class ABBPowerOneFimerAPI:
                     found_offset = offset
                     break
             if found_offset != 0:
-                self._log_debug(
+                log_debug(
+                    _LOGGER,
                     "find_sunspec_modbus_m160_offset",
                     f"Found M160 for model: {invmodel}",
                     offset=found_offset,
                 )
             else:
-                self._log_debug(
+                log_debug(
+                    _LOGGER,
                     "find_sunspec_modbus_m160_offset",
                     f"M160 not found for model: {invmodel}",
                 )
         except ConnectionException as connect_error:
-            self._log_debug(
-                "find_sunspec_modbus_m160_offset", f"Connection error: {connect_error}"
+            log_debug(
+                _LOGGER,
+                "find_sunspec_modbus_m160_offset",
+                f"Connection error: {connect_error}",
             )
-            raise ConnectionError from connect_error
+            raise VSNConnectionError from connect_error
         except ModbusException as modbus_error:
-            self._log_debug(
-                "find_sunspec_modbus_m160_offset", f"Modbus error: {modbus_error}"
+            log_debug(
+                _LOGGER,
+                "find_sunspec_modbus_m160_offset",
+                f"Modbus error: {modbus_error}",
             )
             raise ModbusError from modbus_error
-        except Exception as exception_error:
-            self._log_debug(
-                "find_sunspec_modbus_m160_offset", f"Generic error: {exception_error}"
-            )
-            raise ExceptionError from exception_error
         return found_offset
 
     async def read_sunspec_modbus_model_1(self) -> bool:
@@ -887,7 +968,8 @@ class ABBPowerOneFimerAPI:
         # Start address 4 read 64 registers to read M1 (Common Inverter Info) in 1-pass
         # Start address 72 read 92 registers to read (M101 or M103)+M160 (Realtime Power/Energy Data) in 1-pass
         try:
-            self._log_debug(
+            log_debug(
+                _LOGGER,
                 "read_sunspec_modbus_model_1",
                 "Starting Model 1 read",
                 device_id=self._device_id,
@@ -896,33 +978,21 @@ class ABBPowerOneFimerAPI:
             read_model_1_data = await self.read_holding_registers(
                 address=(self._base_addr + 4), count=64
             )
-            if isinstance(read_model_1_data, ExceptionResponse):
-                # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
-                self._log_debug(
-                    "read_sunspec_modbus_model_1",
-                    f"Received Modbus exception: {read_model_1_data}",
-                )
-                raise ModbusError
-            # No connection errors, we can start scraping registers
-            decoder = BinaryPayloadDecoder.fromRegisters(
-                read_model_1_data.registers,
-                byteorder=Endian.BIG,
-            )
         except ConnectionException as connect_error:
-            self._log_debug(
-                "read_sunspec_modbus_model_1", f"Connection error: {connect_error}"
+            self._handle_connection_exception(
+                "read_sunspec_modbus_model_1", connect_error
             )
-            raise ConnectionError from connect_error
         except ModbusException as modbus_error:
-            self._log_debug(
-                "read_sunspec_modbus_model_1", f"Modbus error: {modbus_error}"
-            )
-            raise ModbusError from modbus_error
-        except Exception as exception_error:
-            self._log_debug(
-                "read_sunspec_modbus_model_1", f"Generic error: {exception_error}"
-            )
-            raise ExceptionError from exception_error
+            self._handle_modbus_exception("read_sunspec_modbus_model_1", modbus_error)
+
+        self._check_modbus_exception_response(
+            read_model_1_data, "read_sunspec_modbus_model_1"
+        )
+        # No connection errors, we can start scraping registers
+        decoder = BinaryPayloadDecoder.fromRegisters(
+            read_model_1_data.registers,
+            byteorder=Endian.BIG,
+        )
 
         # registers 4 to 43
         comm_manufact = decoder.decode_string(size=32).decode("ascii")
@@ -931,7 +1001,8 @@ class ABBPowerOneFimerAPI:
         self.data["comm_manufact"] = self._clean_string(comm_manufact)
         self.data["comm_model"] = self._clean_string(comm_model)
         self.data["comm_options"] = self._clean_string(comm_options)
-        self._log_debug(
+        log_debug(
+            _LOGGER,
             "read_sunspec_modbus_model_1",
             "Device info read",
             manufacturer=self.data["comm_manufact"],
@@ -948,13 +1019,15 @@ class ABBPowerOneFimerAPI:
         opt_model_int = self._parse_model_options(opt_model)
         if opt_model_int in DEVICE_MODEL:
             self.data["comm_model"] = DEVICE_MODEL[opt_model_int]
-            self._log_debug(
+            log_debug(
+                _LOGGER,
                 "read_sunspec_modbus_model_1",
                 "Model from options",
                 model=self.data["comm_model"],
             )
         else:
-            self._log_error(
+            log_error(
+                _LOGGER,
                 "read_sunspec_modbus_model_1",
                 "Model unknown, report to @alexdelprete on the forum the following data",
                 manufacturer=self.data["comm_manufact"],
@@ -969,12 +1042,14 @@ class ABBPowerOneFimerAPI:
         comm_sernum = decoder.decode_string(size=32).decode("ascii")
         self.data["comm_version"] = self._clean_string(comm_version)
         self.data["comm_sernum"] = self._clean_string(comm_sernum)
-        self._log_debug(
+        log_debug(
+            _LOGGER,
             "read_sunspec_modbus_model_1",
             "Version read",
             version=self.data["comm_version"],
         )
-        self._log_debug(
+        log_debug(
+            _LOGGER,
             "read_sunspec_modbus_model_1",
             "Serial number read",
             serial=self.data["comm_sernum"],
@@ -994,7 +1069,8 @@ class ABBPowerOneFimerAPI:
         #   - Sweep 2 (M103): Start address 70 read 40 registers to read M103+M160 (Realtime Power/Energy Data)
         #   - Sweep 3 (M160): Start address 124 read 40 registers to read M1 (Common Inverter Info)
         try:
-            self._log_debug(
+            log_debug(
+                _LOGGER,
                 "read_sunspec_modbus_model_101_103",
                 "Starting Model 101/103 read",
                 device_id=self._device_id,
@@ -1003,38 +1079,28 @@ class ABBPowerOneFimerAPI:
             read_model_101_103_data = await self.read_holding_registers(
                 address=(self._base_addr + 70), count=40
             )
-            if isinstance(read_model_101_103_data, ExceptionResponse):
-                # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
-                self._log_debug(
-                    "read_sunspec_modbus_model_101_103",
-                    f"Received Modbus exception: {read_model_101_103_data}",
-                )
-                raise ModbusError
-            # No connection errors, we can start scraping registers
-            decoder = BinaryPayloadDecoder.fromRegisters(
-                read_model_101_103_data.registers,
-                byteorder=Endian.BIG,
-            )
         except ConnectionException as connect_error:
-            self._log_debug(
-                "read_sunspec_modbus_model_101_103",
-                f"Connection error: {connect_error}",
+            self._handle_connection_exception(
+                "read_sunspec_modbus_model_101_103", connect_error
             )
-            raise ConnectionError from connect_error
         except ModbusException as modbus_error:
-            self._log_debug(
-                "read_sunspec_modbus_model_101_103", f"Modbus error: {modbus_error}"
+            self._handle_modbus_exception(
+                "read_sunspec_modbus_model_101_103", modbus_error
             )
-            raise ModbusError from modbus_error
-        except Exception as exception_error:
-            self._log_debug(
-                "read_sunspec_modbus_model_101_103", f"Generic error: {exception_error}"
-            )
-            raise ExceptionError from exception_error
+
+        self._check_modbus_exception_response(
+            read_model_101_103_data, "read_sunspec_modbus_model_101_103"
+        )
+        # No connection errors, we can start scraping registers
+        decoder = BinaryPayloadDecoder.fromRegisters(
+            read_model_101_103_data.registers,
+            byteorder=Endian.BIG,
+        )
 
         # register 70
         invtype = decoder.decode_16bit_uint()
-        self._log_debug(
+        log_debug(
+            _LOGGER,
             "read_sunspec_modbus_model_101_103",
             "Inverter type read",
             invtype_int=invtype,
@@ -1044,7 +1110,8 @@ class ABBPowerOneFimerAPI:
         # make sure the value is in the known status list
         if invtype not in INVERTER_TYPE:
             invtype = 999
-            self._log_debug(
+            log_debug(
+                _LOGGER,
                 "read_sunspec_modbus_model_101_103",
                 "Inverter type unknown",
                 invtype_int=invtype,
@@ -1130,14 +1197,16 @@ class ABBPowerOneFimerAPI:
         totalenergysf = decoder.decode_16bit_uint()
         totalenergy = self.calculate_value(totalenergy, totalenergysf)
         # ensure that totalenergy is always an increasing value (total_increasing)
-        self._log_debug(
+        log_debug(
+            _LOGGER,
             "read_sunspec_modbus_model_101_103",
             "Total energy read",
             total_energy=totalenergy,
             previous_energy=self.data["totalenergy"],
         )
         if totalenergy < self.data["totalenergy"]:
-            self._log_error(
+            log_error(
+                _LOGGER,
                 "read_sunspec_modbus_model_101_103",
                 "Total Energy less than previous value!",
                 value_read=totalenergy,
@@ -1156,7 +1225,8 @@ class ABBPowerOneFimerAPI:
             dcvolt = self.calculate_value(dcvolt, dcvoltsf)
             self.data["dccurr"] = dccurr
             self.data["dcvolt"] = dcvolt
-            self._log_debug(
+            log_debug(
+                _LOGGER,
                 "read_sunspec_modbus_model_101_103",
                 "DC values read",
                 dc_current=self.data["dccurr"],
@@ -1170,7 +1240,8 @@ class ABBPowerOneFimerAPI:
         dcpowersf = decoder.decode_16bit_int()
         dcpower = self.calculate_value(dcpower, dcpowersf)
         self.data["dcpower"] = dcpower
-        self._log_debug(
+        log_debug(
+            _LOGGER,
             "read_sunspec_modbus_model_101_103",
             "DC power read",
             dc_power=self.data["dcpower"],
@@ -1187,7 +1258,8 @@ class ABBPowerOneFimerAPI:
         tempoth = self.calculate_value(tempoth, tempsf)
         self.data["tempoth"] = tempoth
         self.data["tempcab"] = tempcab
-        self._log_debug(
+        log_debug(
+            _LOGGER,
             "read_sunspec_modbus_model_101_103",
             "Temperature values read",
             temp_other=self.data["tempoth"],
@@ -1197,13 +1269,15 @@ class ABBPowerOneFimerAPI:
         status = decoder.decode_16bit_int()
         # make sure the value is in the known status list
         if status not in DEVICE_STATUS:
-            self._log_debug(
+            log_debug(
+                _LOGGER,
                 "read_sunspec_modbus_model_101_103",
                 f"Unknown Operating State: {status}",
             )
             status = 999
         self.data["status"] = DEVICE_STATUS[status]
-        self._log_debug(
+        log_debug(
+            _LOGGER,
             "read_sunspec_modbus_model_101_103",
             "Device status read",
             status=self.data["status"],
@@ -1213,19 +1287,21 @@ class ABBPowerOneFimerAPI:
         statusvendor = decoder.decode_16bit_int()
         # make sure the value is in the known status list
         if statusvendor not in DEVICE_GLOBAL_STATUS:
-            self._log_debug(
+            log_debug(
+                _LOGGER,
                 "read_sunspec_modbus_model_101_103",
                 "Unknown vendor operating state",
                 statusvendor=statusvendor,
             )
             statusvendor = 999
         self.data["statusvendor"] = DEVICE_GLOBAL_STATUS[statusvendor]
-        self._log_debug(
+        log_debug(
+            _LOGGER,
             "read_sunspec_modbus_model_101_103",
             "Status vendor read",
             statusvendor=self.data["statusvendor"],
         )
-        self._log_debug("read_sunspec_modbus_model_101_103", "Completed")
+        log_debug(_LOGGER, "read_sunspec_modbus_model_101_103", "Completed")
         return True
 
     async def read_sunspec_modbus_model_160(self, offset: int = 122) -> bool:
@@ -1242,7 +1318,8 @@ class ABBPowerOneFimerAPI:
             # Model 160 default address: 40122 (or base address + 122)
             # For UNO-DM-PLUS/REACT2/TRIO inverters it has different offset
             invmodel = self.data["comm_model"].upper()
-            self._log_debug(
+            log_debug(
+                _LOGGER,
                 "read_sunspec_modbus_model_160",
                 "Starting Model 160 read",
                 model=invmodel,
@@ -1253,33 +1330,21 @@ class ABBPowerOneFimerAPI:
             read_model_160_data = await self.read_holding_registers(
                 address=(self._base_addr + offset), count=42
             )
-            if isinstance(read_model_160_data, ExceptionResponse):
-                # THIS IS NOT A PYTHON EXCEPTION, but a valid modbus message
-                self._log_debug(
-                    "read_sunspec_modbus_model_160",
-                    f"Received Modbus exception: {read_model_160_data}",
-                )
-                raise ModbusError
-            # No connection errors, we can start scraping registers
-            decoder = BinaryPayloadDecoder.fromRegisters(
-                read_model_160_data.registers,
-                byteorder=Endian.BIG,
-            )
         except ConnectionException as connect_error:
-            self._log_debug(
-                "read_sunspec_modbus_model_160", f"Connection error: {connect_error}"
+            self._handle_connection_exception(
+                "read_sunspec_modbus_model_160", connect_error
             )
-            raise ConnectionError from connect_error
         except ModbusException as modbus_error:
-            self._log_debug(
-                "read_sunspec_modbus_model_160", f"Modbus error: {modbus_error}"
-            )
-            raise ModbusError from modbus_error
-        except Exception as exception_error:
-            self._log_debug(
-                "read_sunspec_modbus_model_160", f"Generic error: {exception_error}"
-            )
-            raise ExceptionError from exception_error
+            self._handle_modbus_exception("read_sunspec_modbus_model_160", modbus_error)
+
+        self._check_modbus_exception_response(
+            read_model_160_data, "read_sunspec_modbus_model_160"
+        )
+        # No connection errors, we can start scraping registers
+        decoder = BinaryPayloadDecoder.fromRegisters(
+            read_model_160_data.registers,
+            byteorder=Endian.BIG,
+        )
 
         # skip registers 122-123
         decoder.skip_bytes(4)
@@ -1295,8 +1360,11 @@ class ABBPowerOneFimerAPI:
         # register 130 (# of DC modules)
         multi_mppt_nr = decoder.decode_16bit_int()
         self.data["mppt_nr"] = multi_mppt_nr
-        self._log_debug(
-            "read_sunspec_modbus_model_160", "MPPT count read", mppt_count=multi_mppt_nr
+        log_debug(
+            _LOGGER,
+            "read_sunspec_modbus_model_160",
+            "MPPT count read",
+            mppt_count=multi_mppt_nr,
         )
 
         # if we have at least one DC module
@@ -1316,7 +1384,8 @@ class ABBPowerOneFimerAPI:
             self.data["dcvolt"] = dc1volt
             dc1power = self.calculate_value(dc1power, dcwsf)
             self.data["dc1power"] = dc1power
-            self._log_debug(
+            log_debug(
+                _LOGGER,
                 "read_sunspec_modbus_model_160",
                 "DC1 values read",
                 dc1_current=self.data["dc1curr"],
@@ -1340,7 +1409,8 @@ class ABBPowerOneFimerAPI:
             self.data["dc2volt"] = dc2volt
             dc2power = self.calculate_value(dc2power, dcwsf)
             self.data["dc2power"] = dc2power
-            self._log_debug(
+            log_debug(
+                _LOGGER,
                 "read_sunspec_modbus_model_160",
                 "DC2 values read",
                 dc2_current=self.data["dc2curr"],
@@ -1349,5 +1419,5 @@ class ABBPowerOneFimerAPI:
                 scale_factor=dcasf,
             )
 
-        self._log_debug("read_sunspec_modbus_model_160", "Completed")
+        log_debug(_LOGGER, "read_sunspec_modbus_model_160", "Completed")
         return True

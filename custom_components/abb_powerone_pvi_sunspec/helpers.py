@@ -66,9 +66,7 @@ def log_debug(
     logger.debug("%s: %s", context_str, message)
 
 
-def log_info(
-    logger: logging.Logger, context: str, message: str, **kwargs: Any
-) -> None:
+def log_info(logger: logging.Logger, context: str, message: str, **kwargs: Any) -> None:
     """Standardized info logging with context.
 
     Provides consistent info logging format across the integration with

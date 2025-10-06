@@ -55,6 +55,10 @@ This release focuses on code quality improvements, fixing all ruff warnings, and
   - Added `# type: ignore[call-arg]` comment for domain parameter
   - Suppresses false positive from type checker (code is correct per HA standards)
 - ✅ Improved code structure following Python best practices and ruff recommendations
+- ✅ Fixed PIE796 warnings by converting duplicate enum values to aliases:
+  - pymodbus_constants.py - Made `OFF` alias of `READY` (all represent value 0)
+- ✅ Removed unnecessary variable assignments before return statements:
+  - pymodbus_payload.py - Simplified `to_coils()` by returning list comprehension directly
 
 ### Technical Details
 

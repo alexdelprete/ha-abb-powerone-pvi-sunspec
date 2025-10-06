@@ -45,9 +45,7 @@ class ModbusStatus(int, enum.Enum):
     WAITING = 0xFFFF
     READY = 0x0000
     ON = 0xFF00
-    OFF = 0x0000
-    SLAVE_ON = 0xFF
-    SLAVE_OFF = 0x00
+    OFF = READY  # Alias for 0x0000 so linter doesn't complain
 
 
 class Endian(str, enum.Enum):
@@ -135,11 +133,11 @@ class MoreData(int, enum.Enum):
 
     attribute:: NOTHING
 
-       This indicates that no more objects are going to be returned.
+    This indicates that no more objects are going to be returned.
 
     attribute:: KEEP_READING
 
-       This indicates that there are more objects to be returned.
+    This indicates that there are more objects to be returned.
     """
 
     NOTHING = 0x00

@@ -132,8 +132,7 @@ class BinaryPayloadBuilder:
         """
         # self.deprecate()
         payload = self.to_registers()
-        coils = [bool(int(bit)) for reg in payload for bit in format(reg, "016b")]
-        return coils
+        return [bool(int(bit)) for reg in payload for bit in format(reg, "016b")]
 
     def build(self) -> list[bytes]:
         """Return the payload buffer as a list.
@@ -347,8 +346,7 @@ class BinaryPayloadDecoder:
     def bit_chunks(cls, coils, size=8):
         """Return bit chunks."""
         # cls.deprecate()
-        chunks = [coils[i : i + size] for i in range(0, len(coils), size)]
-        return chunks
+        return [coils[i : i + size] for i in range(0, len(coils), size)]
 
     @classmethod
     def fromCoils(

@@ -149,14 +149,11 @@ async def async_unload_entry(
             _LOGGER, "async_unload_entry", "Last loaded entry, releasing resources"
         )
         # Close API connection
-        config_entry.runtime_data.coordinator.api.close()
+        await config_entry.runtime_data.coordinator.api.close()
         log_debug(_LOGGER, "async_unload_entry", "Closed API connection")
         # Remove update listener if it exists
         config_entry.runtime_data.update_listener()
         log_debug(_LOGGER, "async_unload_entry", "Removed update listener")
-        # Remove config entry from hass data
-        hass.data[DOMAIN].pop(config_entry.entry_id)
-        log_debug(_LOGGER, "async_unload_entry", "Removed config entry from hass data")
     else:
         log_debug(
             _LOGGER,

@@ -66,9 +66,7 @@ async def async_setup_entry(
     # Register an update listener for config flow options changes
     # Listener is attached when entry loads and automatically detached at unload
     # ref.: https://developers.home-assistant.io/docs/config_entries_options_flow_handler/#signal-updates
-    config_entry.async_on_unload(
-        config_entry.add_update_listener(async_reload_entry)
-    )
+    config_entry.async_on_unload(config_entry.add_update_listener(async_reload_entry))
 
     # Setup platforms
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)

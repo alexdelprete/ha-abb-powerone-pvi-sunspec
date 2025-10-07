@@ -65,12 +65,10 @@ async def async_setup_entry(
         )
 
     # Initialise a listener for config flow options changes.
-    # See config_flow for defining an options setting that shows up as configure on the integration.
-    update_listener = config_entry.add_update_listener(async_reload_entry)
-
     # Register an update listener to the config entry that will be called when the entry is updated
     # ref.: https://developers.home-assistant.io/docs/config_entries_options_flow_handler/#signal-updates
-    config_entry.async_on_unload(update_listener)
+    # See config_flow for defining an options setting that shows up as configure on the integration.
+    update_listener = config_entry.add_update_listener(async_reload_entry)
 
     # Add coordinator and listener to hass data to make it accessible throughout the integration.
     # Note: this will change on HA2024.6 to save on the config entry.

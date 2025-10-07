@@ -4,7 +4,6 @@ https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 """
 
 import logging
-from collections.abc import Callable
 from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
@@ -36,16 +35,13 @@ class RuntimeData:
     """Class to hold your data."""
 
     coordinator: DataUpdateCoordinator
-    update_listener: Callable
 
 
 async def async_setup_entry(
     hass: HomeAssistant, config_entry: ABBPowerOneFimerConfigEntry
 ):
     """Set up this integration using UI."""
-    if hass.data.get(DOMAIN) is None:
-        hass.data.setdefault(DOMAIN, {})
-        log_info(_LOGGER, "async_setup_entry", STARTUP_MESSAGE)
+    log_info(_LOGGER, "async_setup_entry", STARTUP_MESSAGE)
     log_debug(_LOGGER, "async_setup_entry", "Setup config_entry", domain=DOMAIN)
 
     # Initialise the coordinator that manages data updates from your api.
@@ -64,15 +60,15 @@ async def async_setup_entry(
             f"Timeout connecting to {config_entry.data.get(CONF_NAME)}"
         )
 
-    # Initialise a listener for config flow options changes.
-    # Register an update listener to the config entry that will be called when the entry is updated
-    # ref.: https://developers.home-assistant.io/docs/config_entries_options_flow_handler/#signal-updates
-    # See config_flow for defining an options setting that shows up as configure on the integration.
-    update_listener = config_entry.add_update_listener(async_reload_entry)
+    # Store coordinator in runtime_data to make it accessible throughout the integration
+    config_entry.runtime_data = RuntimeData(coordinator)
 
-    # Add coordinator and listener to hass data to make it accessible throughout the integration.
-    # Note: this will change on HA2024.6 to save on the config entry.
-    config_entry.runtime_data = RuntimeData(coordinator, update_listener)
+    # Register an update listener for config flow options changes
+    # Listener is attached when entry loads and automatically detached at unload
+    # ref.: https://developers.home-assistant.io/docs/config_entries_options_flow_handler/#signal-updates
+    config_entry.async_on_unload(
+        config_entry.add_update_listener(async_reload_entry)
+    )
 
     # Setup platforms
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
@@ -133,19 +129,9 @@ async def async_unload_entry(
         # Cleanup per-entry resources only if unload succeeded
         await config_entry.runtime_data.coordinator.api.close()
         log_debug(_LOGGER, "async_unload_entry", "Closed API connection")
-        config_entry.runtime_data.update_listener()
-        log_debug(_LOGGER, "async_unload_entry", "Removed update listener")
     else:
         log_debug(
             _LOGGER, "async_unload_entry", "Platform unload failed, skipping cleanup"
-        )
-
-    # Cleanup shared resources if this is the last loaded entry
-    if not hass.config_entries.async_loaded_entries(DOMAIN):
-        log_debug(
-            _LOGGER,
-            "async_unload_entry",
-            "Last loaded entry, no shared resources to clean",
         )
 
     log_debug(

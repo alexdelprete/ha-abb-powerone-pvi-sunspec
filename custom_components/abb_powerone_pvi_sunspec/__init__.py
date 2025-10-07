@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -141,11 +141,12 @@ async def async_unload_entry(
     return unload_ok
 
 
-async def async_reload_entry(
+@callback
+def async_reload_entry(
     hass: HomeAssistant, config_entry: ABBPowerOneFimerConfigEntry
-):
+) -> None:
     """Reload the config entry."""
-    await hass.config_entries.async_schedule_reload(config_entry.entry_id)
+    hass.config_entries.async_schedule_reload(config_entry.entry_id)
 
 
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):

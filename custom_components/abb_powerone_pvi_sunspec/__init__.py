@@ -124,44 +124,29 @@ async def async_unload_entry(
     hass: HomeAssistant, config_entry: ABBPowerOneFimerConfigEntry
 ) -> bool:
     """Unload a config entry."""
-    # This is called when you remove your integration or shutdown HA.
-    # If you have created any custom services, they need to be removed here too.
-
     log_debug(_LOGGER, "async_unload_entry", "Unload config_entry: started")
 
-    # Unload platforms and cleanup resources
-    unload_ok = await hass.config_entries.async_unload_platforms(
-        config_entry, PLATFORMS
-    )
-    log_debug(_LOGGER, "async_unload_entry", "Unload platforms", unload_ok=unload_ok)
-
-    # check if this is the last loaded instance of the integration
-    # Note: compatibility with HA < 2025.3.0
+    # Unload platforms - only cleanup runtime_data if successful
     # ref.: https://developers.home-assistant.io/blog/2025/02/19/new-config-entry-states/
-    other_loaded_entries = [
-        _entry
-        for _entry in hass.config_entries.async_loaded_entries(DOMAIN)
-        if _entry.entry_id != config_entry.entry_id
-    ]
-    # If this is the last loaded instance of the integration, release resources
-    if not other_loaded_entries:
-        log_debug(
-            _LOGGER, "async_unload_entry", "Last loaded entry, releasing resources"
-        )
-        # Close API connection
+    if unload_ok := await hass.config_entries.async_unload_platforms(
+        config_entry, PLATFORMS
+    ):
+        log_debug(_LOGGER, "async_unload_entry", "Platforms unloaded successfully")
+        # Cleanup per-entry resources only if unload succeeded
         await config_entry.runtime_data.coordinator.api.close()
         log_debug(_LOGGER, "async_unload_entry", "Closed API connection")
-        # Remove update listener if it exists
         config_entry.runtime_data.update_listener()
         log_debug(_LOGGER, "async_unload_entry", "Removed update listener")
     else:
+        log_debug(_LOGGER, "async_unload_entry", "Platform unload failed, skipping cleanup")
+
+    # Cleanup shared resources if this is the last loaded entry
+    if not hass.config_entries.async_loaded_entries(DOMAIN):
         log_debug(
-            _LOGGER,
-            "async_unload_entry",
-            "There are other loaded entries, not releasing resources",
+            _LOGGER, "async_unload_entry", "Last loaded entry, no shared resources to clean"
         )
 
-    log_debug(_LOGGER, "async_unload_entry", "Unload config_entry: completed")
+    log_debug(_LOGGER, "async_unload_entry", "Unload config_entry: completed", unload_ok=unload_ok)
     return unload_ok
 
 

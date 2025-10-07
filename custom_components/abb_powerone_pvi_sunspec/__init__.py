@@ -138,15 +138,24 @@ async def async_unload_entry(
         config_entry.runtime_data.update_listener()
         log_debug(_LOGGER, "async_unload_entry", "Removed update listener")
     else:
-        log_debug(_LOGGER, "async_unload_entry", "Platform unload failed, skipping cleanup")
+        log_debug(
+            _LOGGER, "async_unload_entry", "Platform unload failed, skipping cleanup"
+        )
 
     # Cleanup shared resources if this is the last loaded entry
     if not hass.config_entries.async_loaded_entries(DOMAIN):
         log_debug(
-            _LOGGER, "async_unload_entry", "Last loaded entry, no shared resources to clean"
+            _LOGGER,
+            "async_unload_entry",
+            "Last loaded entry, no shared resources to clean",
         )
 
-    log_debug(_LOGGER, "async_unload_entry", "Unload config_entry: completed", unload_ok=unload_ok)
+    log_debug(
+        _LOGGER,
+        "async_unload_entry",
+        "Unload config_entry: completed",
+        unload_ok=unload_ok,
+    )
     return unload_ok
 
 

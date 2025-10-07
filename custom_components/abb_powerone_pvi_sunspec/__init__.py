@@ -71,16 +71,17 @@ async def async_setup_entry(
     # Setup platforms
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
 
-    # Regiser device
-    await async_update_device_registry(hass, config_entry)
+    # Register device
+    async_update_device_registry(hass, config_entry)
 
     # Return true to denote a successful setup.
     return True
 
 
-async def async_update_device_registry(
+@callback
+def async_update_device_registry(
     hass: HomeAssistant, config_entry: ABBPowerOneFimerConfigEntry
-):
+) -> None:
     """Manual device registration."""
     coordinator: ABBPowerOneFimerCoordinator = config_entry.runtime_data.coordinator
     device_registry = dr.async_get(hass)

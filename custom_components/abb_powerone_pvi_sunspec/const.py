@@ -16,7 +16,7 @@ from homeassistant.const import (
 # Base component constants
 NAME = "ABB/Power-One/FIMER PVI SunSpec ModBus TCP"
 DOMAIN = "abb_powerone_pvi_sunspec"
-VERSION = "4.1.5-beta.3"
+VERSION = "4.1.5-beta.4"
 ATTRIBUTION = "by @alexdelprete"
 ISSUE_URL = "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues"
 

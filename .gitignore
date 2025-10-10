@@ -9,6 +9,7 @@ __pycache__
 # misc
 .coverage
 .vscode
+.zed
 coverage.xml
 enforce_branch_protection.sh
 settings.local.json

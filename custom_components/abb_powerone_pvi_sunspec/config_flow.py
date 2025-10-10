@@ -18,7 +18,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.selector import selector
 from pymodbus.exceptions import ConnectionException
 
-from .api import ABBPowerOneFimerAPI
+from .api import ABBPowerOneFimerAPI, ModbusError, VSNConnectionError
 from .const import (
     CONF_BASE_ADDR,
     CONF_DEVICE_ID,
@@ -114,7 +114,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[cal
             log_debug(_LOGGER, "get_unique_id", "API Client: get data")
             log_debug(_LOGGER, "get_unique_id", "API Client Data", data=self.api_data)
             return self.api.data["comm_sernum"]
-        except ConnectionException as connerr:
+        except (ConnectionException, VSNConnectionError, ModbusError) as connerr:
             log_error(
                 _LOGGER,
                 "get_unique_id",

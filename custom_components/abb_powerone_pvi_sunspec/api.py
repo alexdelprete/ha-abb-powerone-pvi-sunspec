@@ -179,9 +179,13 @@ class ABBPowerOneFimerAPI:
             scan_interval=30
         )
 
-        if await api.async_get_data():
+        try:
+            await api.async_get_data()
             power = api.data['acpower']
             energy = api.data['totalenergy']
+        except VSNConnectionError:
+            # Handle connection error
+            pass
 
     """
 
@@ -508,7 +512,13 @@ class ABBPowerOneFimerAPI:
             log_debug(_LOGGER, "connect", "Modbus TCP Client connected")
             return True
         log_debug(_LOGGER, "connect", "Inverter not ready for Modbus TCP connection")
-        return False
+        raise VSNConnectionError(
+            "Inverter not reachable - port check failed",
+            host=self._host,
+            port=self._port,
+            device_id=self._device_id,
+            timeout=self._timeout,
+        )
 
     async def read_holding_registers(self, address: int, count: int) -> Any:
         """Read holding registers."""
@@ -742,7 +752,7 @@ class ABBPowerOneFimerAPI:
         5. Properly closes the connection
 
         Returns:
-            bool: True if data collection was successful, False otherwise
+            bool: True if data collection was successful
 
         Raises:
             VSNConnectionError: If connection to inverter fails
@@ -770,11 +780,17 @@ class ABBPowerOneFimerAPI:
                     return True
                 self._mark_connection_unhealthy()
                 log_debug(_LOGGER, "async_get_data", "Data read failed")
-                return False
+                raise ModbusError("Data read failed - no valid response from inverter")
             log_debug(
                 _LOGGER, "async_get_data", "Get Data failed: client not connected"
             )
-            return False  # noqa: TRY300
+            raise VSNConnectionError(
+                "Failed to connect to inverter",
+                host=self._host,
+                port=self._port,
+                device_id=self._device_id,
+                timeout=self._timeout,
+            )
         except ConnectionException as connect_error:
             self._mark_connection_unhealthy()
             log_debug(

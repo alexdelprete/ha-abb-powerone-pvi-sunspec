@@ -1,0 +1,152 @@
+# Release Notes - v4.1.5-beta.6
+
+## What's Changed
+
+### 🐛 Critical Bug Fix: Sensor Availability
+
+This release fixes a critical bug where sensors displayed **stale data** at night instead of becoming **unavailable** when the inverter powered down.
+
+#### The Problem
+
+When the inverter shut down at night (or the VSN card became unreachable):
+- ❌ Sensors kept showing the last values from sunset
+- ❌ Users saw incorrect data (e.g., "Current Power: 1500W" at midnight)
+- ❌ No indication that the inverter was offline
+- ❌ Data appeared current but was actually frozen from hours ago
+
+#### Root Cause
+
+Three locations in `api.py` were returning `False` instead of raising exceptions when connection failed:
+
+1. **`connect()` method (line 511)**: When `check_port()` failed (inverter unreachable)
+2. **`async_get_data()` method (line 779)**: When data read failed
+3. **`async_get_data()` method (line 783)**: When connection failed
+
+Without exceptions, the coordinator never raised `UpdateFailed`, so Home Assistant:
+- Didn't mark entities as unavailable
+- Kept displaying stale `coordinator.data` values
+- Never indicated the integration was offline
+
+#### The Solution
+
+Changed all three failure points to **raise exceptions** instead of returning `False`:
+
+```python
+# Before (Silent Failure):
+if await self.check_port():
+    # connect...
+    return True
+return False  # ❌ Sensors show stale data
+
+# After (Proper Exception):
+if await self.check_port():
+    # connect...
+    return True
+raise VSNConnectionError(...)  # ✅ Sensors become unavailable
+```
+
+#### Changes Made
+
+**api.py (5 changes):**
+- `connect()` line 511: Raise `VSNConnectionError` when port check fails (inverter unreachable)
+- `async_get_data()` line 779: Raise `ModbusError` when data read fails
+- `async_get_data()` line 783: Raise `VSNConnectionError` when connection fails
+- Updated docstring example to use proper exception handling pattern
+- Updated docstring to reflect exception-based error handling
+
+**config_flow.py (2 changes):**
+- Added imports: `VSNConnectionError`, `ModbusError`
+- Updated exception handling to catch custom exceptions during setup validation
+
+#### Expected Behavior After Fix
+
+**Night (Inverter Offline):**
+1. VSN card unreachable → `check_port()` times out ✅
+2. `connect()` raises `VSNConnectionError` ✅
+3. Coordinator catches exception → raises `UpdateFailed` ✅
+4. Home Assistant marks entities as **unavailable** ✅
+5. Sensors display: **"Unavailable"** instead of stale values ✅
+
+**Morning (Inverter Online):**
+6. VSN card responds → connection succeeds ✅
+7. Data read succeeds ✅
+8. Sensors become **available** with fresh data ✅
+9. Coordinator resumes normal updates ✅
+
+### Technical Details
+
+**Why This Bug Occurred:**
+
+The Home Assistant DataUpdateCoordinator has specific behavior:
+- If `async_update_data()` **raises `UpdateFailed`** → Entities become **unavailable** ✅
+- If `async_update_data()` **returns any value** (even `False`) → `coordinator.data` stays **unchanged** → Sensors keep stale values ❌
+
+Our code was returning `False` on connection failures, which triggered the second behavior.
+
+**Flow Comparison:**
+
+```
+Old Flow (Buggy):
+check_port() → timeout
+connect() → return False
+async_get_data() → return False
+coordinator.async_update_data() → return False (no exception!)
+coordinator.data → unchanged (keeps old values)
+sensors → display stale data ❌
+
+New Flow (Fixed):
+check_port() → timeout
+connect() → raise VSNConnectionError
+async_get_data() → propagate exception
+coordinator.async_update_data() → raise UpdateFailed
+coordinator → marks entities unavailable
+sensors → display "Unavailable" ✅
+```
+
+### Other Changes
+
+- **Chore**: Added `.zed` folder to `.gitignore`
+
+### Breaking Changes
+
+None - this is a bug fix that improves existing behavior.
+
+### Testing Recommendations
+
+1. **Test Offline Behavior:**
+   - Disconnect inverter or VSN card from network
+   - Wait for next update cycle (check scan_interval)
+   - Verify all sensors show "Unavailable"
+   - Check logs for `VSNConnectionError`
+
+2. **Test Online Recovery:**
+   - Reconnect inverter/VSN card
+   - Wait for next update cycle
+   - Verify sensors show current values (not stale data)
+   - Verify proper data updates continue
+
+3. **Test Day/Night Cycle:**
+   - Monitor sensors from sunset through night to sunrise
+   - Verify sensors go unavailable when inverter shuts down
+   - Verify sensors restore when inverter starts in morning
+   - Confirm no stale data displayed during night
+
+### Upgrade Notes
+
+This is a **beta release** - please test in a non-production environment first.
+
+- **Highly recommended upgrade** - fixes critical data accuracy issue
+- Safe to upgrade from v4.1.5-beta.5
+- No configuration changes required
+- Will properly show sensor status at night
+
+### Known Issues
+
+None
+
+### Commits Since v4.1.5-beta.5
+
+- `cf4cb3b` - Add .zed folder to .gitignore
+- `5bf495e` - Fix sensor availability: raise exceptions instead of returning False
+
+**Full Changelog**: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5-beta.5...v4.1.5-beta.6

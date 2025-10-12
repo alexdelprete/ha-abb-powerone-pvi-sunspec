@@ -15,7 +15,8 @@
       "Bash(ruff check:*)",
       "Bash(cat:*)",
       "Bash(python -m ruff:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

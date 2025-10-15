@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes at this time.
 
+## [4.1.6] - 2025-10-15
+
+Maintenance release with dependency updates and CI/CD improvements.
+
+### 📦 Dependencies
+
+- Bumped pymodbus from 3.11.1 to 3.11.2
+- Updated Home Assistant requirement to 2025.10.0+
+- Updated development dependencies
+
+### 🔧 CI/CD Improvements
+
+- Fixed lint workflow: upgraded to Python 3.13 for HA 2025.10.2 compatibility
+- Updated GitHub Actions dependencies
+
+### 📚 Documentation
+
+- Restructured release documentation following best practices
+
+**Full Release Notes:** [docs/releases/v4.1.6.md](docs/releases/v4.1.6.md)
+
+**Full Changelog:** https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5...v4.1.6
+
+---
+
 ## [4.1.5] - 2025-10-12
 
 Official stable release with comprehensive code quality improvements, critical bug fixes, and modernization to Home Assistant 2025.3.0+ best practices.
@@ -196,7 +221,8 @@ See GitHub releases for details on v4.1.0 and earlier versions.
 
 ## Links
 
-- [Unreleased]: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5...HEAD
+- [Unreleased]: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.6...HEAD
+- [4.1.6]: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5...v4.1.6
 - [4.1.5]: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.0...v4.1.5
 - [4.1.5-beta.6]: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5-beta.5...v4.1.5-beta.6
 - [4.1.5-beta.5]: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5-beta.4...v4.1.5-beta.5

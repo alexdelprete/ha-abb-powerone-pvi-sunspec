@@ -8,10 +8,16 @@ import ssl
 import sys
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
-from urllib.request import (HTTPBasicAuthHandler, HTTPDigestAuthHandler,
-                            HTTPPasswordMgrWithPriorAuth, build_opener,
-                            install_opener, parse_http_list, parse_keqv_list,
-                            urlopen)
+from urllib.request import (
+    HTTPBasicAuthHandler,
+    HTTPDigestAuthHandler,
+    HTTPPasswordMgrWithPriorAuth,
+    build_opener,
+    install_opener,
+    parse_http_list,
+    parse_keqv_list,
+    urlopen,
+)
 
 
 def make_request(requested_url):
@@ -25,21 +31,20 @@ def make_request(requested_url):
     except TimeoutError:
         print("Request timed out")
 
+
 # Super this because the logger returns non-standard digest header: X-Digest
 class VSN300HTTPDigestAuthHandler(HTTPDigestAuthHandler):
-
     def retry_http_digest_auth(self, req, auth):
-        token, challenge = auth.split(' ', 1)
+        token, challenge = auth.split(" ", 1)
         chal = parse_keqv_list(parse_http_list(challenge))
         auth = self.get_authorization(req, chal)
         if auth:
-            auth_val = 'X-Digest %s' % auth
+            auth_val = "X-Digest %s" % auth
             if req.headers.get(self.auth_header, None) == auth_val:
                 return None
             req.add_unredirected_header(self.auth_header, auth_val)
             resp = urlopen(req, timeout=req.timeout)
             return resp
-
 
     def http_error_auth_reqed(self, auth_header, host, req, headers):
         authreq = headers.get(auth_header, None)
@@ -49,12 +54,14 @@ class VSN300HTTPDigestAuthHandler(HTTPDigestAuthHandler):
             # prompting for the information. Crap. This isn't great
             # but it's better than the current 'repeat until recursion
             # depth exceeded' approach <wink>
-            raise HTTPError(req.get_full_url(), 401, "digest auth failed", headers, None)
+            raise HTTPError(
+                req.get_full_url(), 401, "digest auth failed", headers, None
+            )
         else:
             self.retried += 1
         if authreq:
             scheme = authreq.split()[0]
-            if scheme.lower() == 'x-digest':
+            if scheme.lower() == "x-digest":
                 return self.retry_http_digest_auth(req, authreq)
 
 
@@ -71,18 +78,16 @@ class VSN700HTTPPreemptiveBasicAuthHandler(HTTPBasicAuthHandler):
         user, pw = self.passwd.find_user_password(realm, url)
         if pw:
             raw = "%s:%s" % (user, pw)
-            raw_b64 = base64.standard_b64encode(raw.encode('utf-8'))
-            auth_val = 'Basic %s' % raw_b64.decode('utf-8').strip()
+            raw_b64 = base64.standard_b64encode(raw.encode("utf-8"))
+            auth_val = "Basic %s" % raw_b64.decode("utf-8").strip()
             req.add_unredirected_header(self.auth_header, auth_val)
         return req
 
     https_request = http_request
 
 
-class vsnx00Reader():
-
+class vsnx00Reader:
     def __init__(self, url, user, password):
-
         self.logger = logging.getLogger(__name__)
 
         self.url = url
@@ -104,9 +109,7 @@ class vsnx00Reader():
         self.opener = build_opener(self.handler_vsn700, self.handler_vsn300)
         install_opener(self.opener)
 
-
     def get_vsnx00_status_data(self):
-
         # system data feed
         url_status_data = self.url + "/v1/status"
 
@@ -126,7 +129,6 @@ class vsnx00Reader():
         return parsed_json
 
     def get_vsnx00_live_data(self):
-
         # system data feed
         url_live_data = self.url + "/v1/livedata"
 
@@ -146,7 +148,6 @@ class vsnx00Reader():
         return parsed_json
 
     def get_vsnx00_feeds_data(self):
-
         # system data feed
         url_feeds_data = self.url + "/v1/feeds"
 
@@ -165,27 +166,27 @@ class vsnx00Reader():
 
         return parsed_json
 
-def get_vsnx00_data(config):
 
+def get_vsnx00_data(config):
     logger = logging.getLogger()
 
-    pv_url = config.get('VSNX00', 'url').lower()
-    pv_user = config.get('VSNX00', 'username')
-    pv_password = config.get('VSNX00', 'password')
+    pv_url = config.get("VSNX00", "url").lower()
+    pv_user = config.get("VSNX00", "username")
+    pv_password = config.get("VSNX00", "password")
 
     status_data = dict()
     live_data = dict()
     feeds_data = dict()
     vsnx00_data = dict()
 
-    logger.info('Capturing live data from ABB VSNX00 logger')
+    logger.info("Capturing live data from ABB VSNX00 logger")
     pv_meter = vsnx00Reader(pv_url, pv_user, pv_password)
 
     # VSNx00 status
     logger.debug("Start - get_vsnx00_status_data")
     status_data = pv_meter.get_vsnx00_status_data()
     if status_data is None:
-        logger.warning('No status_data received from VSNX00 logger. Exiting.')
+        logger.warning("No status_data received from VSNX00 logger. Exiting.")
         return None
     else:
         # Append dict
@@ -196,7 +197,7 @@ def get_vsnx00_data(config):
     logger.debug("Start - get_vsnx00_live_data")
     live_data = pv_meter.get_vsnx00_live_data()
     if live_data is None:
-        logger.warning('No live_data received from VSNX00 logger. Exiting.')
+        logger.warning("No live_data received from VSNX00 logger. Exiting.")
         return None
     else:
         # Append dict
@@ -207,7 +208,7 @@ def get_vsnx00_data(config):
     logger.debug("Start - get_vsnx00_feeds_data")
     feeds_data = pv_meter.get_vsnx00_feeds_data()
     if feeds_data is None:
-        logger.warning('No feeds_data received from VSNX00 logger. Exiting.')
+        logger.warning("No feeds_data received from VSNX00 logger. Exiting.")
         return None
     else:
         # Append dict
@@ -219,7 +220,7 @@ def get_vsnx00_data(config):
     logger.debug("======= get_vsnx00_data(): END ===========")
 
     # Write the prettified JSON to a file
-    with open('vsnx00_data.json', 'w') as f:
+    with open("vsnx00_data.json", "w") as f:
         json.dump(vsnx00_data, f, indent=2)
 
     # JSONify and prettify the three merged dicts
@@ -230,36 +231,33 @@ def get_vsnx00_data(config):
 
 
 def write_config(path):
-
     config = configparser.ConfigParser(allow_no_value=True)
 
-    config.add_section('VSNX00')
-    config.set('VSNX00', '# url: URL of the VSN datalogger (including HTTP/HTTPS prefix)')
-    config.set('VSNX00', '# username: guest or admin')
-    config.set('VSNX00', '# password: if user is admin, set the password')
-    config.set('VSNX00', '# ')
-    config.set('VSNX00', 'url', '192.168.1.112')
-    config.set('VSNX00', 'username', 'guest')
-    config.set('VSNX00', 'password', 'pw')
+    config.add_section("VSNX00")
+    config.set(
+        "VSNX00", "# url: URL of the VSN datalogger (including HTTP/HTTPS prefix)"
+    )
+    config.set("VSNX00", "# username: guest or admin")
+    config.set("VSNX00", "# password: if user is admin, set the password")
+    config.set("VSNX00", "# ")
+    config.set("VSNX00", "url", "192.168.1.112")
+    config.set("VSNX00", "username", "guest")
+    config.set("VSNX00", "password", "pw")
 
     path = os.path.expanduser(path)
 
-    with open(path, 'w') \
-            as configfile:
+    with open(path, "w") as configfile:
         config.write(configfile)
 
-        print("Config has been written to: {0}".\
-            format(os.path.expanduser(path)))
+        print("Config has been written to: {0}".format(os.path.expanduser(path)))
 
 
 def read_config(path):
-
     if not os.path.isfile(path):
         print("Config file not found: {0}".format(path))
         exit()
 
     else:
-
         config = configparser.RawConfigParser()
         config.read(path)
 
@@ -267,15 +265,32 @@ def read_config(path):
 
 
 def main():
-
     # Init
     default_cfg = "vsnx00-monitor.cfg"
 
     parser = argparse.ArgumentParser(description="VSNX00 Monitor help")
-    parser.add_argument('-c', '--config', nargs='?', const=default_cfg, help="config file location", metavar="path/file")
-    parser.add_argument('-w', '--writeconfig', nargs='?',const=default_cfg, help="create a default config file", metavar="path/file")
-    parser.add_argument('-v', '--verbose', help='verbose logging', action="store_true", default=False)
-    parser.add_argument('-d', '--debug', help='debug logging', action="store_true", default=False)
+    parser.add_argument(
+        "-c",
+        "--config",
+        nargs="?",
+        const=default_cfg,
+        help="config file location",
+        metavar="path/file",
+    )
+    parser.add_argument(
+        "-w",
+        "--writeconfig",
+        nargs="?",
+        const=default_cfg,
+        help="create a default config file",
+        metavar="path/file",
+    )
+    parser.add_argument(
+        "-v", "--verbose", help="verbose logging", action="store_true", default=False
+    )
+    parser.add_argument(
+        "-d", "--debug", help="debug logging", action="store_true", default=False
+    )
 
     args = parser.parse_args()
 
@@ -294,8 +309,9 @@ def main():
     ch.setLevel(logging.DEBUG)
 
     # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - '
-                                '%(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
 
     # add formatter to ch
     ch.setFormatter(formatter)
@@ -328,6 +344,7 @@ def main():
         logger.info("========= VSNX00 Data =========")
         print("\nData capture complete, file vsnx00_data.json created.\n")
         return vsnx00_data
+
 
 # Begin
 try:

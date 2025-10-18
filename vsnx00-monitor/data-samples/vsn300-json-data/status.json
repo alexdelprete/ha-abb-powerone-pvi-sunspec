@@ -1,0 +1,209 @@
+{
+    "time": 1701270418,
+    "keys": {
+      "mfg.part_number": {
+        "label": "",
+        "sev": "none",
+        "time": 946684802,
+        "value": "-3N16-"
+      },
+      "mfg.serial_number": {
+        "label": "",
+        "sev": "none",
+        "time": 946684802,
+        "value": "111033"
+      },
+      "mfg.week_year": {
+        "label": "",
+        "sev": "none",
+        "time": 946684802,
+        "value": "1421"
+      },
+      "logger.sn": {
+        "label": "",
+        "sev": "none",
+        "time": 946684802,
+        "value": "111033-3N16-1421"
+      },
+      "fw.build_date": {
+        "label": "",
+        "sev": "none",
+        "time": 946684802,
+        "value": "Thu Nov 16 17:04:58 CET 2017"
+      },
+      "fw.release_number": {
+        "label": "",
+        "sev": "none",
+        "time": 946684802,
+        "value": "1.9.2"
+      },
+      "fw.build_number": {
+        "label": "",
+        "sev": "none",
+        "time": 946684802,
+        "value": "r1364-5b9c418"
+      },
+      "fw.revision": {
+        "label": "",
+        "sev": "none",
+        "time": 946684802,
+        "value": "W192"
+      },
+      "logger.board_model": {
+        "label": "",
+        "sev": "none",
+        "time": 946684802,
+        "value": "WIFI LOGGER CARD"
+      },
+      "device.0.devName": {
+        "label": "Device Name",
+        "sev": "none",
+        "time": 946684868,
+        "value": "Supervisor"
+      },
+      "device.0.devType": {
+        "label": "Device type",
+        "sev": "none",
+        "time": 946684868,
+        "value": "Partner"
+      },
+      "device.0.fwVer": {
+        "label": "Fw Version",
+        "sev": "none",
+        "time": 946684868,
+        "value": "C008"
+      },
+      "device.1.devName": {
+        "label": "Device Name",
+        "sev": "none",
+        "time": 946684868,
+        "value": "Booster"
+      },
+      "device.1.devType": {
+        "label": "Device type",
+        "sev": "none",
+        "time": 946684868,
+        "value": "Partner"
+      },
+      "logger.hostname": {
+        "label": "",
+        "sev": "none",
+        "time": 946684868,
+        "value": "ABB-077909-3G82-3112.local"
+      },
+      "device.1.fwVer": {
+        "label": "Firmware Version",
+        "sev": "none",
+        "time": 946684868,
+        "value": "A0AC"
+      },
+      "device.2.devName": {
+        "label": "Device Name",
+        "sev": "none",
+        "time": 946684868,
+        "value": "Inverter"
+      },
+      "device.2.devType": {
+        "label": "Device type",
+        "sev": "none",
+        "time": 946684868,
+        "value": "Partner"
+      },
+      "device.2.fwVer": {
+        "label": "Firmware Version",
+        "sev": "none",
+        "time": 946684868,
+        "value": "B185"
+      },
+      "device.model": {
+        "label": "Model Type",
+        "sev": "none",
+        "time": 946684869,
+        "value": "X"
+      },
+      "device.invID": {
+        "label": "Inverter ID",
+        "sev": "none",
+        "time": 946684869,
+        "value": "077909-3G82-3112"
+      },
+      "device.protocol": {
+        "label": "Communication Protocol",
+        "sev": "none",
+        "time": 946684869,
+        "value": "Aurora Legacy"
+      },
+      "device.modelDesc": {
+        "label": "Model Description",
+        "sev": "none",
+        "time": 946684869,
+        "value": "PVI-10.0-OUTD"
+      },
+      "wlan.fsm_status": {
+        "label": "",
+        "sev": "none",
+        "time": 946684878,
+        "value": "connected"
+      },
+      "wlan.0.status": {
+        "label": "",
+        "sev": "none",
+        "time": 946684878,
+        "value": "connected"
+      },
+      "device.ACType": {
+        "label": "Inverter ID",
+        "sev": "none",
+        "time": 946684880,
+        "value": "Three"
+      },
+      "device.startup_time": {
+        "label": "Inverter Time",
+        "sev": "none",
+        "time": 946684881,
+        "value": "946681200"
+      },
+      "wlan.ap.status": {
+        "label": "",
+        "sev": "none",
+        "time": 1701238279,
+        "value": "off"
+      },
+      "wlan.0.dhcpState": {
+        "label": "",
+        "sev": "none",
+        "time": 1701268848,
+        "value": "acquired"
+      },
+      "wlan.0.ipaddr": {
+        "label": "",
+        "sev": "none",
+        "time": 1701268848,
+        "value": "10.1.10.162"
+      },
+      "wlan.0.netmask": {
+        "label": "",
+        "sev": "none",
+        "time": 1701268848,
+        "value": "255.255.254.0"
+      },
+      "wlan.0.broadcast": {
+        "label": "",
+        "sev": "none",
+        "time": 1701268848,
+        "value": ""
+      },
+      "wlan.0.gateway": {
+        "label": "",
+        "sev": "none",
+        "time": 1701268848,
+        "value": "10.1.10.1"
+      },
+      "wlan.0.dns": {
+        "label": "",
+        "sev": "none",
+        "time": 1701268848,
+        "value": "10.1.10.1"
+      }
+    }
+  }

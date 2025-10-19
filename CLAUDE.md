@@ -1,207 +1,153 @@
 # Claude Code Development Guidelines
 
-## Project Overview
+Project Overview
+- This repository provides a Home Assistant custom integration for ABB/Power-One/FIMER PVI inverters. The integration now targets a universal architecture capable of using either REST (VSN300/VSN700 dataloggers) or SunSpec Modbus/TCP, exposing a normalized device and measurement schema to Home Assistant.
 
-This is a Home Assistant custom integration for ABB/Power-One/FIMER PVI inverters using SunSpec Modbus TCP protocol. The integration communicates with inverters either directly or through VSN300/VSN700 WiFi logger cards.
+Architecture Overview
+- Universal Client Approach
+  - abb-fimer-universal-client: Facade that selects REST or Modbus transports and exposes a unified, async-only API and capability map. All integration code should depend on this facade rather than protocol-specific details.
+  - async-sunspec2: Async SunSpec engine built on ModbusLink using vendored SunSpec JSON models (discovery, parsing, scale factors, repeating groups, invalid sentinels). Builds a stable component tree (inverter, meter, storage, MPPT) with deterministic IDs. Async-only API.
+  - abb-fimer-rest-client: Async aiohttp client for VSN loggers
+    - VSN300: custom auth header
+    - VSN700: bearer token auth
+    - Merges livedata and feeds, strips prefixes, supports multi-device topologies, device identification via device_type, feeds.description URL and MAC address.
 
-## Code Architecture
+Core Components in the HA Integration
+1) __init__.py
+   - async_setup_entry(): Initialize universal client hub + coordinator and forward platforms
+   - async_unload_entry(): Clean shutdown and resource cleanup
+   - async_migrate_entry(): Config migration (Modbus-only → universal client format)
+   - Uses config_entry.runtime_data to store coordinator and update listener
 
-### Core Components
+2) coordinator.py
+   - ABBPowerOneFimerCoordinator consumes the universal client hub
+   - Manages polling cycles, error handling, retry logic
 
-1. **`__init__.py`** - Integration lifecycle management
-   - `async_setup_entry()` - Initialize coordinator and platforms
-   - `async_unload_entry()` - Clean shutdown and resource cleanup
-   - `async_migrate_entry()` - Config migration logic
-   - Uses `runtime_data` for storing coordinator and update listener
-
-2. **`api.py`** - Modbus TCP communication layer
-   - `ABBPowerOneFimerAPI` class handles all Modbus operations
-   - Reads SunSpec model 160 registers
-   - Auto-detects register map base address
-   - Implements connection pooling and timeout handling
-
-3. **`coordinator.py`** - Data update coordination
-   - `ABBPowerOneFimerCoordinator` manages polling cycles
-   - Handles data refresh from API
-   - Error handling and retry logic
-
-4. **`config_flow.py`** - UI configuration
+3) config_flow.py
    - ConfigFlow for initial setup
    - OptionsFlow for runtime reconfiguration
-   - Validates host, port, device_id, base_addr, scan_interval
+   - Protocol selection (REST vs Modbus)
+   - For REST: VSN model/auth; For Modbus: host/port/device_id/base_addr
+   - Migration for existing installs; warnings on capability deltas when switching protocol
 
-5. **`sensor.py`** - Entity platform
-   - Creates sensors from coordinator data
-   - Dynamic sensor creation based on inverter type (single/three-phase)
-   - MPPT configuration detection
+4) sensor.py
+   - Dynamic sensor creation from the normalized devices + measurements schema
+   - Supports both single-phase and three-phase inverters, MPPT groups, meters, and storage where available
 
-## Important Patterns
+Important Patterns
+- Error Handling
+  - Use unified exceptions exposed by the universal client
+  - For low-level mapping, prefer helpers:
+    - _check_modbus_exception_response()
+    - _handle_connection_exception()
+    - _handle_modbus_exception()
+- Logging
+  - Use helpers from helpers.py
+    - log_debug(logger, context, message, **kwargs)
+    - log_info(logger, context, message, **kwargs)
+    - log_warning(logger, context, message, **kwargs)
+    - log_error(logger, context, message, **kwargs)
+  - Never use f-strings in logger calls; use %s formatting and always include the context
+- Async/Await
+  - All I/O must be async. The universal client and both protocol clients are async-only
+  - API close() methods are async — always await them
+- Data Storage
+  - Use config_entry.runtime_data with typed RuntimeData
 
-### Error Handling
+Code Quality Standards
+- Ruff Configuration
+  - Follow .ruff.toml strictly
+  - Key rules: A001, TRY300, TRY301, RET505, G004, SIM222, PIE796
+- Type Hints
+  - Add type hints to all classes and instance variables
+  - Use modern type syntax; alias: type ABBPowerOneFimerConfigEntry = ConfigEntry[RuntimeData]
 
-- Use custom exceptions: `VSNConnectionError`, `ModbusError`, `ExceptionError`
-- Helper functions in `api.py`:
-  - `_check_modbus_exception_response()`
-  - `_handle_connection_exception()`
-  - `_handle_modbus_exception()`
+Testing Approach
+- Unit tests
+  - SunSpec parser: scale factors, repeats, invalid sentinels
+  - REST auth: VSN300 header, VSN700 bearer; livedata+feeds merge
+  - Device ID derivation for components with/without Common models
+  - Capability map correctness
+- Protocol switching
+  - Options migration, entity lifecycle (disable/unavailable/remove per HA guidance)
+- Integration tests
+  - Single-phase and three-phase
+  - MPPT variations
+  - VSN300/VSN700 scenarios
 
-### Logging
+Common Patterns
+- Version Updates
+  1) Update manifest.json version
+  2) Update const.py VERSION
+  3) Create docs/releases/vX.Y.Z.md (full notes)
+  4) Update CHANGELOG.md (summary + links)
+  5) Commit: "Bump version to vX.Y.Z"
+  6) Tag: git tag -a vX.Y.Z -m "Release vX.Y.Z"
+  7) Push: git push && git push --tags
+  8) Create GitHub release (pre-release/latest as appropriate)
+- Release Documentation Structure
+  - CHANGELOG.md (overview)
+  - docs/releases/ (detailed notes per version)
+  - docs/releases/README.md (release directory guide)
 
-- Use centralized logging helpers from `helpers.py`:
-  - `log_debug(logger, context, message, **kwargs)`
-  - `log_info(logger, context, message, **kwargs)`
-  - `log_warning(logger, context, message, **kwargs)`
-  - `log_error(logger, context, message, **kwargs)`
-- Never use f-strings in logger calls (use `%s` formatting)
-- Always include context parameter (function name)
+Configuration Parameters
+- host: IP/hostname (not used for unique_id)
+- port: TCP port (default 502 for Modbus)
+- device_id: Modbus unit ID (default 2, 1–247)
+- base_addr: SunSpec base address (0 or 40000)
+- scan_interval: polling frequency (default 60s, 30–600)
+- protocol: rest or modbus
+- REST options: vsn_model (300 or 700), auth params
 
-### Async/Await
+Entity Unique IDs
+- Device identifier: (DOMAIN, serial_number)
+- Sensors: {serial_number}_{sensor_key}
+- Stable component IDs synthesized when a subcomponent lacks a separate Common model
 
-- All coordinator methods are async
-- API `close()` method is async - always use `await`
-- Config entry methods follow HA conventions:
-  - `add_update_listener()` - sync
-  - `async_on_unload()` - sync (despite the name)
-  - `async_forward_entry_setups()` - async
-  - `async_unload_platforms()` - async
+SunSpec Models
+- Common (M1), Inverter (M101/103), Nameplate (M120+), MPPT (M160)
+- Discovery offsets for M160: 122, 1104, 208
 
-### Data Storage
+Git Workflow
+- Commit Messages
+  - Use conventional commits
+  - Always include Claude attribution block
+- Branch Strategy
+  - Main branch: master
+  - Feature branch for this program of work: feature/abb-fimer-client-library
+  - Create tags for releases; use pre-release flag for betas
 
-- Modern pattern: Use `config_entry.runtime_data` (not `hass.data[DOMAIN][entry_id]`)
-- `runtime_data` is typed with `RuntimeData` dataclass
-- Automatically cleaned up on unload
-
-## Code Quality Standards
-
-### Ruff Configuration
-
-- Follow `.ruff.toml` rules strictly
-- Key rules:
-  - A001: Don't shadow builtins (e.g., use `VSNConnectionError` not `ConnectionError`)
-  - TRY300: Move return/break outside try blocks
-  - TRY301: Abstract raise statements to helpers
-  - RET505: Remove unnecessary else after return
-  - G004: Use `%s` not f-strings in logging
-  - SIM222: Correct boolean logic
-  - PIE796: Use enum aliases for duplicate values
-
-### Type Hints
-
-- Add type hints to all classes and instance variables
-- Use modern type syntax where possible
-- Config entry type alias: `type ABBPowerOneFimerConfigEntry = ConfigEntry[RuntimeData]`
-
-### Testing Approach
-
-- Test with both single-phase and three-phase inverters
-- Test with VSN300/VSN700 dataloggers
-- Verify register base address auto-detection
-- Test reload/unload scenarios
-
-## Common Patterns
-
-### Version Updates
-
-When bumping version:
-
-1. Update `manifest.json` - `"version": "X.Y.Z"`
-2. Update `const.py` - `VERSION = "X.Y.Z"`
-3. Create detailed release notes: `docs/releases/vX.Y.Z.md`
-   - Use existing release notes as template
-   - Include all sections: What's Changed, Bug Fixes, Features, Breaking Changes, etc.
-4. Update `CHANGELOG.md` with version summary
-   - Add new version section at top (below Unreleased)
-   - Include emoji-enhanced section headers
-   - Link to detailed release notes: `[docs/releases/vX.Y.Z.md](docs/releases/vX.Y.Z.md)`
-   - Add comparison link at bottom
-5. Commit: "Bump version to vX.Y.Z"
-6. Tag: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
-7. Push: `git push && git push --tags`
-8. Create GitHub release: `gh release create vX.Y.Z --prerelease/--latest`
-
-### Release Documentation Structure
-
-The project follows industry best practices for release documentation:
-
-- **`CHANGELOG.md`** (root) - Quick overview of all releases
-  - Based on [Keep a Changelog](https://keepachangelog.com/) format
-  - Summarized entries for each version
-  - Links to detailed release notes
-  - Comparison links for GitHub diffs
-
-- **`docs/releases/`** - Detailed release notes
-  - One file per version: `vX.Y.Z.md` or `vX.Y.Z-beta.N.md`
-  - Comprehensive technical details
-  - Upgrade instructions
-  - Testing recommendations
-  - Breaking changes documentation
-
-- **`docs/releases/README.md`** - Release directory guide
-  - Explains structure for users and developers
-  - Documents release workflow
-
-### Configuration Parameters
-
-- `host` - IP/hostname (not used for unique_id, can be changed without losing data)
-- `port` - TCP port (default: 502)
-- `device_id` - Modbus unit ID (default: 2, range: 1-247)
-- `base_addr` - Register map base (default: 0, can be 40000)
-- `scan_interval` - Polling frequency (default: 60s, range: 30-600)
-
-### Entity Unique IDs
-
-- Sensors: `{serial_number}_{sensor_key}` (e.g., "12345678_accurrent")
-- Device identifier: `(DOMAIN, serial_number)`
-- Serial number read from inverter is used for all identifiers
-- Changing host/IP does not affect entity IDs or historical data
-
-### SunSpec Models
-
-- M1 (Common) - Basic inverter info
-- M103 - Three-phase inverter
-- M160 - MPPT data (offset detection: 122, 1104, 208)
-
-## Git Workflow
-
-### Commit Messages
-
-- Use conventional commits style
-- Always include Claude attribution:
-
-  ```
-  <commit message>
-
-  🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-  Co-Authored-By: Claude <noreply@anthropic.com>
-  ```
-
-### Branch Strategy
-
-- Main branch: `master`
-- Create tags for releases
-- Use pre-release flag for beta versions
-
-## Dependencies
-
+Dependencies
 - Home Assistant core
-- `pymodbus>=3.11.1` - Modbus TCP client library
-- Compatible with HA 2025.9.x+
+- ModbusLink (async Modbus client library)
+- aiohttp
+- Vendored SunSpec JSON model files (Apache-2.0). We reuse JSON definitions only; we do not depend on the pysunspec2 runtime
 
-## Key Files to Review
+Key Files to Review
+- .ruff.toml
+- const.py
+- helpers.py
+- coordinator.py, config_flow.py, sensor.py
+- docs/architecture-plan.md (finalized plan and milestones)
+- docs/pysunspec2-analysis.md (decision record)
+- vendor/sunspec_models (model JSON and NOTICE/NAMESPACE) once added
 
-- `.ruff.toml` - Linting configuration
-- `const.py` - Constants and sensor definitions
-- `helpers.py` - Shared utilities
-- `pymodbus_*.py` - Pymodbus compatibility layer
-- `CHANGELOG.md` - Release history overview
-- `docs/releases/` - Detailed release notes
+pysunspec2 Decision
+- Do not use pysunspec2 runtime. Reuse the JSON model definitions only
+- See docs/pysunspec2-analysis.md for full analysis and rationale
 
-## Don't Do
+SunSpec Model JSON Sync Procedure (documented only)
+- Upstream: https://github.com/sunspec/pysunspec2 (sunspec2/models/json)
+- Provide a small sync script (e.g., scripts/sync_sunspec_models.py) that:
+  - Fetches JSON at a pinned ref and copies into vendor/sunspec_models
+  - Writes/refreshes NOTICE (Apache-2.0) and NAMESPACE (origin URL, ref, timestamp)
+  - Validates JSON and produces a manifest with IDs, names, checksums
+- Checklist is in docs/architecture-plan.md
 
-- ❌ Use `hass.data[DOMAIN][entry_id]` - use `runtime_data` instead
-- ❌ Shadow Python builtins (ConnectionError, etc.)
-- ❌ Use f-strings in logging
-- ❌ Forget `await` on async API methods
-- ❌ Mix sync/async patterns incorrectly
-- ❌ Create documentation files without request
+Don't Do
+- Do not use hass.data[DOMAIN][entry_id]; use runtime_data
+- Do not shadow builtins
+- Do not use f-strings in logging
+- Do not forget to await async API methods
+- Do not mix sync/async patterns
+- Do not add a runtime dependency on pysunspec2

@@ -1,0 +1,15 @@
+{
+  "id": 120,
+  "name": "nameplate",
+  "groups": [
+    {
+      "name": "nameplate",
+      "points": [
+        {"name": "DERType", "label": "Inverter Type", "type": "enum16"},
+        {"name": "Pad0", "type": "pad", "size": 1},
+        {"name": "WRtg", "label": "AC Power Rating", "type": "uint16", "sf": "W_SF", "units": "W"},
+        {"name": "W_SF", "label": "W Scale", "type": "sunssf"}
+      ]
+    }
+  ]
+}

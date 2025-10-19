@@ -1,0 +1,47 @@
+{
+  "id": 101,
+  "name": "inverter_single_phase",
+  "groups": [
+    {
+      "name": "ac_block",
+      "points": [
+        {"name": "InvType", "label": "Inverter Type", "type": "uint16"},
+        {"name": "Pad0", "type": "pad"},
+
+        {"name": "A", "label": "AC Current", "type": "uint16", "sf": "A_SF", "units": "A"},
+        {"name": "PadA", "type": "pad", "size": 3},
+        {"name": "A_SF", "label": "A Scale", "type": "sunssf"},
+
+        {"name": "PadVLL", "type": "pad", "size": 3},
+        {"name": "PhVphAN", "label": "AC Voltage AN", "type": "uint16", "sf": "V_SF", "units": "V"},
+        {"name": "PadVLN", "type": "pad", "size": 2},
+        {"name": "V_SF", "label": "V Scale", "type": "sunssf"},
+
+        {"name": "W", "label": "AC Power", "type": "int16", "sf": "W_SF", "units": "W"},
+        {"name": "W_SF", "label": "W Scale", "type": "sunssf"},
+
+        {"name": "Hz", "label": "AC Frequency", "type": "uint16", "sf": "Hz_SF", "units": "Hz"},
+        {"name": "Hz_SF", "label": "Hz Scale", "type": "sunssf"},
+
+        {"name": "Pad1", "type": "pad", "size": 6},
+
+        {"name": "WH", "label": "Total Energy", "type": "acc32", "sf": "WH_SF", "units": "Wh"},
+        {"name": "WH_SF", "label": "WH Scale", "type": "uint16"},
+
+        {"name": "DCA", "label": "DC Current", "type": "int16", "sf": "DCSF", "units": "A"},
+        {"name": "DCSF", "label": "DC Scale", "type": "sunssf"},
+        {"name": "DCV", "label": "DC Voltage", "type": "int16", "sf": "DCSF", "units": "V"},
+
+        {"name": "DCPower", "label": "DC Power", "type": "int16", "sf": "DCSF", "units": "W"},
+
+        {"name": "TmpCab", "label": "Cabinet Temperature", "type": "int16", "sf": "Tmp_SF", "units": "C"},
+        {"name": "Pad2", "type": "pad", "size": 2},
+        {"name": "TmpSnk", "label": "Heatsink Temperature", "type": "int16", "sf": "Tmp_SF", "units": "C"},
+        {"name": "Tmp_SF", "label": "Temp Scale", "type": "sunssf"},
+
+        {"name": "St", "label": "Operating State", "type": "enum16"},
+        {"name": "StVnd", "label": "Vendor State", "type": "enum16"}
+      ]
+    }
+  ]
+}

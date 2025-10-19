@@ -1,3 +1,4 @@
+# ruff: noqa: ALL
 import argparse
 import base64
 import configparser

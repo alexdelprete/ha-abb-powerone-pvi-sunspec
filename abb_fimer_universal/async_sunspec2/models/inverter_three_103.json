@@ -1,0 +1,49 @@
+{
+  "id": 103,
+  "name": "inverter_three_phase",
+  "groups": [
+    {
+      "name": "ac_block",
+      "points": [
+        {"name": "InvType", "label": "Inverter Type", "type": "uint16"},
+        {"name": "Pad0", "type": "pad"},
+
+        {"name": "A", "label": "AC Current", "type": "uint16", "sf": "A_SF", "units": "A"},
+        {"name": "AphA", "label": "AC Current A", "type": "uint16", "sf": "A_SF", "units": "A"},
+        {"name": "AphB", "label": "AC Current B", "type": "uint16", "sf": "A_SF", "units": "A"},
+        {"name": "AphC", "label": "AC Current C", "type": "uint16", "sf": "A_SF", "units": "A"},
+        {"name": "A_SF", "label": "A Scale", "type": "sunssf"},
+
+        {"name": "PhVab", "label": "AC Voltage AB", "type": "uint16", "sf": "V_SF", "units": "V"},
+        {"name": "PhVbc", "label": "AC Voltage BC", "type": "uint16", "sf": "V_SF", "units": "V"},
+        {"name": "PhVca", "label": "AC Voltage CA", "type": "uint16", "sf": "V_SF", "units": "V"},
+        {"name": "PhVphAN", "label": "AC Voltage AN", "type": "uint16", "sf": "V_SF", "units": "V"},
+        {"name": "PhVphBN", "label": "AC Voltage BN", "type": "uint16", "sf": "V_SF", "units": "V"},
+        {"name": "PhVphCN", "label": "AC Voltage CN", "type": "uint16", "sf": "V_SF", "units": "V"},
+        {"name": "V_SF", "label": "V Scale", "type": "sunssf"},
+
+        {"name": "W", "label": "AC Power", "type": "int16", "sf": "W_SF", "units": "W"},
+        {"name": "W_SF", "label": "W Scale", "type": "sunssf"},
+
+        {"name": "Hz", "label": "AC Frequency", "type": "uint16", "sf": "Hz_SF", "units": "Hz"},
+        {"name": "Hz_SF", "label": "Hz Scale", "type": "sunssf"},
+
+        {"name": "Pad1", "type": "pad", "size": 6},
+
+        {"name": "WH", "label": "Total Energy", "type": "acc32", "sf": "WH_SF", "units": "Wh"},
+        {"name": "WH_SF", "label": "WH Scale", "type": "uint16"},
+
+        {"name": "DCPower", "label": "DC Power", "type": "int16", "sf": "DCSF", "units": "W"},
+        {"name": "DCSF", "label": "DC Scale", "type": "sunssf"},
+
+        {"name": "TmpCab", "label": "Cabinet Temperature", "type": "int16", "sf": "Tmp_SF", "units": "C"},
+        {"name": "Pad2", "type": "pad", "size": 2},
+        {"name": "TmpSnk", "label": "Heatsink Temperature", "type": "int16", "sf": "Tmp_SF", "units": "C"},
+        {"name": "Tmp_SF", "label": "Temp Scale", "type": "sunssf"},
+
+        {"name": "St", "label": "Operating State", "type": "enum16"},
+        {"name": "StVnd", "label": "Vendor State", "type": "enum16"}
+      ]
+    }
+  ]
+}

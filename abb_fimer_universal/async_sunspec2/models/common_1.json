@@ -1,0 +1,16 @@
+{
+  "id": 1,
+  "name": "common",
+  "groups": [
+    {
+      "name": "common",
+      "points": [
+        {"name": "Mn", "label": "Manufacturer", "type": "string", "size": 32},
+        {"name": "Md", "label": "Model", "type": "string", "size": 32},
+        {"name": "Opt", "label": "Options", "type": "string", "size": 16},
+        {"name": "Vr", "label": "Version", "type": "string", "size": 16},
+        {"name": "SN", "label": "Serial", "type": "string", "size": 32}
+      ]
+    }
+  ]
+}

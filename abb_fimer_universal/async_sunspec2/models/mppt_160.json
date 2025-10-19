@@ -1,0 +1,26 @@
+{
+  "id": 160,
+  "name": "mppt_extension",
+  "groups": [
+    {
+      "name": "scales",
+      "points": [
+        {"name": "DCA_SF", "label": "DCA Scale", "type": "sunssf"},
+        {"name": "DCV_SF", "label": "DCV Scale", "type": "sunssf"},
+        {"name": "DCW_SF", "label": "DCW Scale", "type": "sunssf"},
+        {"name": "Pad0", "type": "pad", "size": 3},
+        {"name": "N", "label": "MPPT Count", "type": "uint16"}
+      ]
+    },
+    {
+      "name": "mppt",
+      "repeating": true,
+      "count": "N",
+      "points": [
+        {"name": "DCA", "label": "DC Current", "type": "uint16", "sf": "DCA_SF", "units": "A"},
+        {"name": "DCV", "label": "DC Voltage", "type": "uint16", "sf": "DCV_SF", "units": "V"},
+        {"name": "DCW", "label": "DC Power", "type": "uint16", "sf": "DCW_SF", "units": "W"}
+      ]
+    }
+  ]
+}

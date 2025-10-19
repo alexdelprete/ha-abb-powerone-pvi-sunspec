@@ -5,6 +5,7 @@ Status: Finalized master plan for implementation
 Branch: feature/abb-fimer-client-library
 
 Overview
+
 - Goal: Modernize the ABB/Power-One/FIMER integration by introducing a universal data hub that can speak either REST (VSN300/VSN700) or Modbus/TCP (SunSpec), while moving our SunSpec engine to an async, model-driven implementation based on vendored SunSpec JSON models.
 - Outcomes:
   - Better reliability and performance with true async I/O across all paths
@@ -13,10 +14,12 @@ Overview
   - Removal of pymodbus dependency; adoption of ModbusLink
 
 Key References
+
 - pysunspec2 analysis and decision record: docs/pysunspec2-analysis.md
   - Summary: do not use pysunspec2 runtime; reuse JSON model files only
 
 Architecture
+
 1) Libraries (developed under feature/abb-fimer-client-library)
    - async-sunspec2
      - Purpose: Async SunSpec engine built on ModbusLink, using vendored SunSpec JSON model definitions
@@ -114,6 +117,7 @@ Architecture
      - Capability deltas are communicated via Config Options UI and release notes
 
 Milestones & Timeline
+
 - M1: Scaffolding and vendor models (Week 1–2)
   - Create library skeletons (async-sunspec2, abb-fimer-rest-client, abb-fimer-universal-client)
   - Add vendor/sunspec_models with NOTICE and NAMESPACE via the sync procedure
@@ -145,7 +149,8 @@ Milestones & Timeline
   - Prepare release notes and comparisons
 
 SunSpec Model JSON sync procedure
-- Source: https://github.com/sunspec/pysunspec2 (sunspec2/models/json)
+
+- Source: <https://github.com/sunspec/pysunspec2> (sunspec2/models/json)
 - Decision: reuse JSON model files only; do not use pysunspec2 runtime (see docs/pysunspec2-analysis.md)
 - Script outline (scripts/sync_sunspec_models.py)
   - Inputs: upstream repo URL, ref (tag/commit), destination vendor path
@@ -168,6 +173,7 @@ SunSpec Model JSON sync procedure
   - Release notes mention the sync
 
 Contributor guidance
+
 - Work on branch feature/abb-fimer-client-library for all related changes
 - Follow coding standards in CLAUDE.md (async-first, logging helpers, unified exceptions, no f-strings in logs)
 - Prefer typed dataclasses for schema shapes
@@ -175,6 +181,7 @@ Contributor guidance
 - When adding measurements, extend the normalized schema and update capability maps; do not wire entities directly to protocol-specific structures
 
 Maintenance notes
+
 - Periodically run the SunSpec model sync procedure
 - Track ModbusLink and aiohttp minor releases for compatibility with HA core Python version
 - Keep REST auth flows for VSN model families in sync with vendor firmware notes

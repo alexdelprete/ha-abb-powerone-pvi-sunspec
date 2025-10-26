@@ -1,4 +1,35 @@
-# HA Custom Component for ABB/FIMER/P1 inverters 
+# HA Custom Component for ABB/FIMER/P1 inverters
+
+## ⚠️ IMPORTANT NOTICE - NEW INTEGRATIONS AVAILABLE
+
+**This repository (v4.x) is being superseded by two new specialized integrations:**
+
+### 🔌 For Direct Modbus/TCP Users
+
+**[ha-abb-fimer-pvi-sunspec](https://github.com/alexdelprete/ha-abb-fimer-pvi-sunspec)** (v1.0.0-beta.x)
+
+- Direct Modbus/TCP communication with ABB/FIMER inverters
+- Dynamic SunSpec model discovery (supports M1, M101, M103, M120, M160, M124, M802-804, M201-204, M64061)
+- Based on ModbusLink library with async-sunspec-client
+- **Recommended for users connecting directly to inverters via Modbus/TCP**
+
+### 🌐 For VSN300/VSN700 Datalogger Users
+
+**[ha-abb-fimer-pvi-vsn-rest](https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-rest)** (v1.0.0-beta.x)
+
+- REST API for VSN300/VSN700 dataloggers
+- Automatic VSN model detection (VSN300 vs VSN700)
+- Data normalization to SunSpec schema
+- Multi-device support (inverter + batteries + meter)
+- **Recommended for users with VSN dataloggers**
+
+### About This Repository (v4.x)
+
+This repository remains available at **v4.1.6** for existing users. It will receive **critical bug fixes only**, with no new features planned. Users are encouraged to migrate to the appropriate new integration when ready.
+
+**Why the split?** The original plan for a universal client combining both protocols added unnecessary complexity. Most users have either direct Modbus access OR VSN dataloggers, not both. Two focused integrations provide better code clarity, easier maintenance, and protocol-specific optimization.
+
+---
 
 [![GitHub Release][releases-shield]][releases]
 [![BuyMeCoffee][buymecoffee-shield]][buymecoffee]
@@ -6,7 +37,7 @@
 
 _This project is not endorsed by, directly affiliated with, maintained, authorized, or sponsored by ABB or FIMER_
 
-# Introduction
+# Introduction (v4.x - Legacy)
 
 HA Custom Component to integrate data from ABB/Power-One/FIMER PV mono-phase and three-phase inverters that support SunSpec Modbus Models M1/M103/M160, natively or through the VSN300/VSN700 wifi logger card. The VSN300/VSN700 cards provide a SunSpec to Aurora protocol adapter so that all modbus commands are translated to the proprietary Aurora protocol.
 

@@ -1,22 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find:*)",
+      "Bash(python generate_mapping_excel.py)",
+      "Read(//d/OSILifeDrive/Dev/HASS/**)",
+      "Bash(python:*)",
+      "Read(//d/tmp/**)",
       "Bash(git log:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(git fetch:*)",
-      "Bash(git tag:*)",
-      "Bash(gh release create:*)",
-      "Bash(grep:*)",
-      "Bash(gh release list:*)",
-      "Bash(git pull:*)",
-      "Bash(ruff check:*)",
       "Bash(cat:*)",
-      "Bash(python -m ruff:*)",
-      "Bash(git mv:*)",
-      "Bash(test:*)"
+      "Bash(ls:*)",
+      "Bash(xargs:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

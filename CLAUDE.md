@@ -1,16 +1,43 @@
 # Claude Code Development Guidelines
 
-Project Overview
-- This repository provides a Home Assistant custom integration for ABB/Power-One/FIMER PVI inverters. The integration now targets a universal architecture capable of using either REST (VSN300/VSN700 dataloggers) or SunSpec Modbus/TCP, exposing a normalized device and measurement schema to Home Assistant.
+## ⚠️ REPOSITORY STATUS - READ THIS FIRST
 
-Architecture Overview
-- Universal Client Approach
-  - abb-fimer-universal-client: Facade that selects REST or Modbus transports and exposes a unified, async-only API and capability map. All integration code should depend on this facade rather than protocol-specific details.
-  - async-sunspec2: Async SunSpec engine built on ModbusLink using vendored SunSpec JSON models (discovery, parsing, scale factors, repeating groups, invalid sentinels). Builds a stable component tree (inverter, meter, storage, MPPT) with deterministic IDs. Async-only API.
-  - abb-fimer-rest-client: Async aiohttp client for VSN loggers
-    - VSN300: custom auth header
-    - VSN700: bearer token auth
-    - Merges livedata and feeds, strips prefixes, supports multi-device topologies, device identification via device_type, feeds.description URL and MAC address.
+**This repository (ha-abb-powerone-pvi-sunspec v4.x) is being superseded by two new specialized integrations:**
+
+1. **[ha-abb-fimer-pvi-sunspec](https://github.com/alexdelprete/ha-abb-fimer-pvi-sunspec)** - Modbus/TCP only (v1.0.0-beta.x)
+   - Direct Modbus/TCP communication with inverters
+   - Dynamic SunSpec model discovery
+   - Based on ModbusLink library with async-sunspec-client
+
+2. **[ha-abb-fimer-pvi-vsn-rest](https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-rest)** - REST API only (v1.0.0-beta.x)
+   - VSN300/VSN700 datalogger support via REST API
+   - Automatic VSN model detection
+   - Data normalization to SunSpec schema
+
+**Rationale for Split:**
+The original plan for a universal client combining both protocols added complexity without clear user benefit. Most users have either:
+- Direct Modbus access to inverters, OR
+- VSN dataloggers with REST API
+
+Maintaining two focused integrations provides better code clarity, easier maintenance, and protocol-specific optimization.
+
+**Current Repository:**
+- Remains available at v4.1.6 for existing users
+- No new features planned
+- Critical bug fixes only
+- Users should migrate to appropriate new integration when ready
+
+---
+
+## Original Project Overview (v4.x - LEGACY)
+
+- This repository provides a Home Assistant custom integration for ABB/Power-One/FIMER PVI inverters. The v4.x integration uses Modbus/TCP via pymodbus library.
+
+Architecture Overview (v4.x - LEGACY)
+- Modbus/TCP Client (pymodbus-based)
+  - Direct inverter communication
+  - Static model reading (M103, M160)
+  - Fixed register addresses
 
 Core Components in the HA Integration
 1) __init__.py

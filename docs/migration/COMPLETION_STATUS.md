@@ -122,6 +122,7 @@ ha-abb-fimer-pvi-vsn-rest/
 ## Implementation Status
 
 Both integrations have:
+
 - ✅ Complete file structure
 - ✅ All required Python files
 - ✅ Stub implementations with TODO markers
@@ -141,6 +142,7 @@ cd d:\OSILifeDrive\Dev\HASS\ha-abb-powerone-pvi-sunspec
 ```
 
 This will:
+
 1. Initialize git in both directories
 2. Create initial commits with Claude attribution
 3. Tag v1.0.0-beta.1
@@ -149,6 +151,7 @@ This will:
 ## Remaining Development Work
 
 Both integrations need:
+
 1. Complete TODO sections in implementation files
 2. Download SunSpec model JSON files
 3. Full authentication implementations (especially VSN300 X-Digest)

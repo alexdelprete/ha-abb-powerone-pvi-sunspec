@@ -16,12 +16,14 @@
 
 **Rationale for Split:**
 The original plan for a universal client combining both protocols added complexity without clear user benefit. Most users have either:
+
 - Direct Modbus access to inverters, OR
 - VSN dataloggers with REST API
 
 Maintaining two focused integrations provides better code clarity, easier maintenance, and protocol-specific optimization.
 
 **Current Repository:**
+
 - Remains available at v4.1.6 for existing users
 - No new features planned
 - Critical bug fixes only
@@ -34,6 +36,7 @@ Maintaining two focused integrations provides better code clarity, easier mainte
 - This repository provides a Home Assistant custom integration for ABB/Power-One/FIMER PVI inverters. The v4.x integration uses Modbus/TCP via pymodbus library.
 
 Architecture Overview (v4.x - LEGACY)
+
 - Modbus/TCP Client (pymodbus-based)
   - Direct inverter communication
   - Static model reading (M103, M160)
@@ -41,16 +44,19 @@ Architecture Overview (v4.x - LEGACY)
 
 Core Components in the HA Integration
 1) __init__.py
+
    - async_setup_entry(): Initialize universal client hub + coordinator and forward platforms
    - async_unload_entry(): Clean shutdown and resource cleanup
    - async_migrate_entry(): Config migration (Modbus-only → universal client format)
    - Uses config_entry.runtime_data to store coordinator and update listener
 
 2) coordinator.py
+
    - ABBPowerOneFimerCoordinator consumes the universal client hub
    - Manages polling cycles, error handling, retry logic
 
 3) config_flow.py
+
    - ConfigFlow for initial setup
    - OptionsFlow for runtime reconfiguration
    - Protocol selection (REST vs Modbus)
@@ -58,10 +64,12 @@ Core Components in the HA Integration
    - Migration for existing installs; warnings on capability deltas when switching protocol
 
 4) sensor.py
+
    - Dynamic sensor creation from the normalized devices + measurements schema
    - Supports both single-phase and three-phase inverters, MPPT groups, meters, and storage where available
 
 Important Patterns
+
 - Error Handling
   - Use unified exceptions exposed by the universal client
   - For low-level mapping, prefer helpers:
@@ -82,6 +90,7 @@ Important Patterns
   - Use config_entry.runtime_data with typed RuntimeData
 
 Code Quality Standards
+
 - Ruff Configuration
   - Follow .ruff.toml strictly
   - Key rules: A001, TRY300, TRY301, RET505, G004, SIM222, PIE796
@@ -90,6 +99,7 @@ Code Quality Standards
   - Use modern type syntax; alias: type ABBPowerOneFimerConfigEntry = ConfigEntry[RuntimeData]
 
 Testing Approach
+
 - Unit tests
   - SunSpec parser: scale factors, repeats, invalid sentinels
   - REST auth: VSN300 header, VSN700 bearer; livedata+feeds merge
@@ -103,6 +113,7 @@ Testing Approach
   - VSN300/VSN700 scenarios
 
 Common Patterns
+
 - Version Updates
   1) Update manifest.json version
   2) Update const.py VERSION
@@ -112,12 +123,14 @@ Common Patterns
   6) Tag: git tag -a vX.Y.Z -m "Release vX.Y.Z"
   7) Push: git push && git push --tags
   8) Create GitHub release (pre-release/latest as appropriate)
+
 - Release Documentation Structure
   - CHANGELOG.md (overview)
   - docs/releases/ (detailed notes per version)
   - docs/releases/README.md (release directory guide)
 
 Configuration Parameters
+
 - host: IP/hostname (not used for unique_id)
 - port: TCP port (default 502 for Modbus)
 - device_id: Modbus unit ID (default 2, 1–247)
@@ -127,15 +140,18 @@ Configuration Parameters
 - REST options: vsn_model (300 or 700), auth params
 
 Entity Unique IDs
+
 - Device identifier: (DOMAIN, serial_number)
 - Sensors: {serial_number}_{sensor_key}
 - Stable component IDs synthesized when a subcomponent lacks a separate Common model
 
 SunSpec Models
+
 - Common (M1), Inverter (M101/103), Nameplate (M120+), MPPT (M160)
 - Discovery offsets for M160: 122, 1104, 208
 
 Git Workflow
+
 - Commit Messages
   - Use conventional commits
   - Always include Claude attribution block
@@ -145,12 +161,14 @@ Git Workflow
   - Create tags for releases; use pre-release flag for betas
 
 Dependencies
+
 - Home Assistant core
 - ModbusLink (async Modbus client library)
 - aiohttp
 - Vendored SunSpec JSON model files (Apache-2.0). We reuse JSON definitions only; we do not depend on the pysunspec2 runtime
 
 Key Files to Review
+
 - .ruff.toml
 - const.py
 - helpers.py
@@ -160,10 +178,12 @@ Key Files to Review
 - vendor/sunspec_models (model JSON and NOTICE/NAMESPACE) once added
 
 pysunspec2 Decision
+
 - Do not use pysunspec2 runtime. Reuse the JSON model definitions only
 - See docs/pysunspec2-analysis.md for full analysis and rationale
 
 SunSpec Model JSON Sync Procedure (documented only)
+
 - Upstream: https://github.com/sunspec/pysunspec2 (sunspec2/models/json)
 - Provide a small sync script (e.g., scripts/sync_sunspec_models.py) that:
   - Fetches JSON at a pinned ref and copies into vendor/sunspec_models
@@ -172,6 +192,7 @@ SunSpec Model JSON Sync Procedure (documented only)
 - Checklist is in docs/architecture-plan.md
 
 Don't Do
+
 - Do not use hass.data[DOMAIN][entry_id]; use runtime_data
 - Do not shadow builtins
 - Do not use f-strings in logging

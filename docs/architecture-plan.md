@@ -21,6 +21,7 @@ Key References
 Architecture
 
 1) Libraries (developed under feature/abb-fimer-client-library)
+
    - async-sunspec2
      - Purpose: Async SunSpec engine built on ModbusLink, using vendored SunSpec JSON model definitions
      - Core capabilities
@@ -62,6 +63,7 @@ Architecture
        - Consistent timestamping, units and scaling
 
 2) Home Assistant integration changes
+
    - Coordinator and entities
      - DataUpdateCoordinator consumes abb-fimer-universal-client hub object, not protocol-specific APIs
      - Sensor entities created from the normalized device/measurement schema
@@ -83,6 +85,7 @@ Architecture
        - Remove entities only when definitively non-applicable for the new protocol/device
 
 3) Dependencies and migration
+
    - Remove pymodbus
    - Add ModbusLink (async Modbus library)
    - Vendor SunSpec JSON model definitions
@@ -90,6 +93,7 @@ Architecture
      - Stored under a vendor directory within the repository
 
 4) Testing and QA plan
+
    - Unit tests
      - SunSpec JSON model parser (points, scale factors, repeats, invalid sentinels)
      - REST client auth and livedata+feeds merge
@@ -107,6 +111,7 @@ Architecture
      - Memory growth bounded; no unbounded caches
 
 5) Release plan
+
    - Staged rollout
      - Phase 1: Ship libraries as internal dependency, keep Modbus as default path
      - Phase 2: Expose REST mode as experimental via options

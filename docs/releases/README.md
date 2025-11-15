@@ -5,6 +5,7 @@ This directory contains detailed release notes for each version of the ABB/Power
 ## Structure
 
 Each release has its own markdown file named with the version number:
+
 - `v4.1.5-beta.1.md` - Beta 1 of version 4.1.5
 - `v4.1.5.md` - Stable version 4.1.5
 - `v4.2.0.md` - Future version 4.2.0
@@ -19,6 +20,7 @@ Each release has its own markdown file named with the version number:
 
 ### For Developers
 When creating a new release:
+
 1. Create a new file: `vX.Y.Z.md` or `vX.Y.Z-beta.N.md`
 2. Use existing release notes as a template
 3. Update [CHANGELOG.md](../../CHANGELOG.md) with a summary
@@ -31,6 +33,7 @@ When creating a new release:
 ## Release Note Template
 
 Each release note file should include:
+
 - Version number in title (with beta/stable indicator)
 - Release date
 - What's Changed summary

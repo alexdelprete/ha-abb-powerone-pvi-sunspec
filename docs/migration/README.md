@@ -42,10 +42,12 @@ These Python scripts and shell scripts were used to generate the complete boiler
 ## Migration Rationale
 
 The original plan for a universal client combining both Modbus and REST protocols added complexity without clear user benefit. Most users have either:
+
 - Direct Modbus access to inverters, OR
 - VSN dataloggers with REST API
 
 Maintaining two focused integrations provides:
+
 - Better code clarity
 - Easier maintenance
 - Protocol-specific optimization
@@ -54,6 +56,7 @@ Maintaining two focused integrations provides:
 ## Files Generated
 
 Each integration received ~40 files including:
+
 - Complete Python implementation structure with stubs
 - Home Assistant integration components
 - Configuration folders (.claude, .devcontainer, .github, .vscode)
@@ -74,6 +77,7 @@ Each integration received ~40 files including:
 ## Current Repository Status
 
 This repository (ha-abb-powerone-pvi-sunspec v4.x) remains available for existing users:
+
 - v4.1.6 is the final feature release
 - Critical bug fixes only
 - Users should migrate to appropriate new integration when ready

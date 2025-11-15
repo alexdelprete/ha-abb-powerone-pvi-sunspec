@@ -8,6 +8,7 @@
 ### ✅ Phase 1: Current Repository Updated
 
 Updated **ha-abb-powerone-pvi-sunspec** (v4.x) with deprecation notices:
+
 - `CLAUDE.md` - Architecture decision notice
 - `docs/claude.md` - Comprehensive split rationale
 - `README.md` - Beta integration announcements
@@ -122,6 +123,7 @@ cd d:\OSILifeDrive\Dev\HASS\ha-abb-powerone-pvi-sunspec
 ```
 
 This will:
+
 1. Initialize git in both integration directories
 2. Create initial commits with Claude attribution
 3. Tag v1.0.0-beta.1
@@ -130,6 +132,7 @@ This will:
 ### Development Tasks
 
 **For Both Integrations:**
+
 1. Complete TODO sections in implementation files
 2. Download SunSpec model JSON files to `vendor/sunspec_models/json/`
 3. Create NOTICE and NAMESPACE files for vendor models
@@ -138,12 +141,14 @@ This will:
 6. Test with real hardware
 
 **Modbus Specific:**
+
 - Implement async_sunspec_client library (discovery, models, parser)
 - Implement coordinator.py
 - Implement sensor.py
 - Complete config_flow.py and __init__.py
 
 **REST Specific:**
+
 - Complete authentication implementations (X-Digest for VSN300)
 - Complete data normalization with full mapping
 - Implement device tree building
@@ -178,6 +183,7 @@ This will:
 ## Success Metrics
 
 **Ready for Beta Release When:**
+
 - [ ] All TODO sections implemented
 - [ ] Basic tests passing
 - [ ] Documentation complete
@@ -186,6 +192,7 @@ This will:
 - [ ] HACS integration configured
 
 **Ready for v1.0.0 Stable When:**
+
 - [ ] Multiple users tested successfully
 - [ ] No critical bugs
 - [ ] 24+ hour stability confirmed

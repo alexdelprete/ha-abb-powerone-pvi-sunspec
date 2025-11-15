@@ -12,6 +12,7 @@
 **Recommendation: ❌ DO NOT USE pysunspec2**
 
 pysunspec2 is **not suitable** for replacing our custom SunSpec parsing in the Home Assistant integration due to:
+
 1. **Complete lack of async/await support** (blocking I/O operations)
 2. **Hardcoded transport layer** (cannot use ModbusLink or other libraries)
 3. **Still depends on pymodbus** (in requirements.txt for testing, but defeats the purpose)
@@ -117,6 +118,7 @@ def scan(self):
 ```
 
 **Workaround Required:** Would need to wrap all pysunspec2 calls in `asyncio.to_thread()` or `run_in_executor()`, which:
+
 - Adds complexity and overhead
 - Defeats the purpose of using a library
 - Still blocks worker threads
@@ -350,6 +352,7 @@ The library architecture prevents using alternative Modbus implementations:
 ✅ **Modbus TCP is fully supported** but only via built-in implementation
 
 Features:
+
 - Standard Modbus TCP protocol
 - TLS/SSL support (Modbus/TCP Security)
 - Connection pooling and retries
@@ -375,6 +378,7 @@ d.inverter[0].SomeGroup.read()  # ⚠️ Synchronous blocking call
 ### Batch Reading
 
 ✅ **Supported** - Can read entire models in one operation
+
 - Optimized for large register reads
 - Max read count: 125 registers (configurable)
 - Automatically splits larger reads
@@ -382,6 +386,7 @@ d.inverter[0].SomeGroup.read()  # ⚠️ Synchronous blocking call
 ### Caching
 
 🟡 **Limited caching**
+
 - Values are cached in Point objects after read
 - No automatic refresh or TTL
 - Must manually call `read()` to update
@@ -594,6 +599,7 @@ class PySunSpec2API:
 ### What is ModbusLink?
 
 **ModbusLink** is a modern Python Modbus library with:
+
 - Native async/await support
 - Clean layered architecture
 - No pymodbus dependency
@@ -769,12 +775,14 @@ class AsyncPySunSpec2Wrapper:
 
 ### Option A: Continue with Current Implementation ✅ RECOMMENDED
 **Pros:**
+
 - Already works well
 - Fully async
 - Well-tested
 - Understood codebase
 
 **Cons:**
+
 - Depends on pymodbus>=3.11.2
 - Custom SunSpec parsing (maintenance burden)
 - Pymodbus version compatibility issues
@@ -785,17 +793,20 @@ class AsyncPySunSpec2Wrapper:
 
 ### Option B: ModbusLink + Custom SunSpec Parsing 🟡 VIABLE
 **Pros:**
+
 - True async support
 - No pymodbus dependency
 - Modern, actively maintained
 - Type-safe
 
 **Cons:**
+
 - Need to implement SunSpec parsing
 - More code to write and maintain
 - ModbusLink is newer (less proven)
 
 **Migration Path:**
+
 1. Install ModbusLink: `pip install modbuslink`
 2. Copy pysunspec2 model definitions (JSON files)
 3. Implement SunSpec discovery logic
@@ -810,10 +821,12 @@ class AsyncPySunSpec2Wrapper:
 
 ### Option C: Fork pysunspec2 and Add Async ❌ NOT RECOMMENDED
 **Pros:**
+
 - Could add async support to pysunspec2
 - Keep high-level API
 
 **Cons:**
+
 - Major refactoring required
 - Need to maintain fork
 - Breaking changes to library architecture
@@ -827,10 +840,12 @@ class AsyncPySunSpec2Wrapper:
 
 ### Option D: Use pysunspec2 with Executor Wrappers ❌ NOT RECOMMENDED
 **Pros:**
+
 - Minimal code changes
 - Use pysunspec2 as-is
 
 **Cons:**
+
 - Poor performance (multiple executor calls)
 - Complexity in error handling
 - Thread pool pressure
@@ -847,6 +862,7 @@ class AsyncPySunSpec2Wrapper:
 ### Primary Recommendation: Continue Current Implementation
 
 **Keep the current custom implementation** until pymodbus issues become blocking. The current code:
+
 - ✅ Works reliably
 - ✅ Is fully async
 - ✅ Is well-tested

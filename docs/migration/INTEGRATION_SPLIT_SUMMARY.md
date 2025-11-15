@@ -13,6 +13,7 @@ The original plan for a universal client combining both Modbus and REST protocol
 ## Rationale
 
 **Problems with Universal Client Approach:**
+
 - Added complexity without clear user benefit
 - Most users have EITHER Modbus OR REST access, not both
 - Protocol switching is rare in practice
@@ -20,6 +21,7 @@ The original plan for a universal client combining both Modbus and REST protocol
 - Single point of failure for both protocols
 
 **Benefits of Split:**
+
 - Focused codebases optimized for each protocol
 - Simpler maintenance (protocol-specific bugs isolated)
 - Independent testing and release cycles
@@ -30,6 +32,7 @@ The original plan for a universal client combining both Modbus and REST protocol
 ## Current Repository Status
 
 **ha-abb-powerone-pvi-sunspec (v4.x):**
+
 - ✅ Updated documentation with deprecation notices
 - ✅ CLAUDE.md: Points to new integrations
 - ✅ docs/claude.md: Comprehensive split rationale
@@ -76,6 +79,7 @@ ha-abb-fimer-pvi-sunspec/
 ```
 
 **Key Features:**
+
 - Dynamic SunSpec model discovery
 - ModbusLink-based async client
 - Support for M1, M101, M103, M120, M160, M124, M802-804, M201-204, M64061
@@ -84,6 +88,7 @@ ha-abb-fimer-pvi-sunspec/
 - Multi-device topology
 
 **TODO:**
+
 - [ ] Implement async_sunspec_client library (discovery, models, parser)
 - [ ] Implement coordinator.py
 - [ ] Implement sensor.py
@@ -126,6 +131,7 @@ ha-abb-fimer-pvi-vsn-rest/
 ```
 
 **Key Features:**
+
 - Automatic VSN300/VSN700 detection
 - VSN300 X-Digest authentication
 - VSN700 Preemptive Basic authentication
@@ -134,6 +140,7 @@ ha-abb-fimer-pvi-vsn-rest/
 - 162+ data points (54 standard, 61 M64061, 47 ABB proprietary)
 
 **TODO:**
+
 - [ ] Create README.md
 - [ ] Create CHANGELOG.md
 - [ ] Create CLAUDE.md (development guidelines)
@@ -168,6 +175,7 @@ ha-abb-fimer-pvi-vsn-rest/
 **Purpose:** Generate initial boilerplate for Modbus integration
 
 **What it does:**
+
 - Creates directory structure
 - Generates LICENSE, README, CHANGELOG
 - Creates manifest.json with proper domain and version
@@ -184,6 +192,7 @@ ha-abb-fimer-pvi-vsn-rest/
 **Purpose:** Add documentation and REST integration files
 
 **What it does:**
+
 - Adds CLAUDE.md to Modbus integration
 - Adds docs/architecture-plan.md to Modbus integration
 - Copies docs/pysunspec2-analysis.md to Modbus integration
@@ -198,6 +207,7 @@ ha-abb-fimer-pvi-vsn-rest/
 **Purpose:** Initialize git repositories for both integrations
 
 **What it does:**
+
 - Initializes git in both integration directories
 - Creates initial commits with Claude attribution
 - Tags v1.0.0-beta.1
@@ -226,6 +236,7 @@ ha-abb-fimer-pvi-vsn-rest/
 ### Implementation Phase
 
 **Modbus Integration:**
+
 1. Implement async_sunspec_client.discovery (model scanning)
 2. Implement async_sunspec_client.models (JSON loading)
 3. Implement async_sunspec_client.parser (data parsing, scale factors)
@@ -236,6 +247,7 @@ ha-abb-fimer-pvi-vsn-rest/
 8. Write tests
 
 **REST Integration:**
+
 1. Implement abb_fimer_vsn_rest_client.auth (VSN300/700 auth, detection)
 2. Implement abb_fimer_vsn_rest_client.client (REST endpoints)
 3. Implement abb_fimer_vsn_rest_client.normalizer (data normalization)
@@ -299,6 +311,7 @@ ha-abb-fimer-pvi-vsn-rest/
 ## Success Criteria
 
 **Modbus Integration v1.0.0 Stable:**
+
 - [ ] Tested with M101 (single-phase) inverters
 - [ ] Tested with M103 (three-phase) inverters
 - [ ] Tested with various MPPT configurations (1-4 channels)
@@ -311,6 +324,7 @@ ha-abb-fimer-pvi-vsn-rest/
 - [ ] No critical bugs
 
 **REST Integration v1.0.0 Stable:**
+
 - [ ] Tested with VSN300 dataloggers
 - [ ] Tested with VSN700 dataloggers
 - [ ] Auto-detection reliable
@@ -323,14 +337,17 @@ ha-abb-fimer-pvi-vsn-rest/
 ## Contact and Support
 
 **GitHub Repositories (once created):**
+
 - Modbus: https://github.com/alexdelprete/ha-abb-fimer-pvi-sunspec
 - REST: https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-rest
 
 **Issue Tracking:**
+
 - Report issues to respective GitHub repo issue trackers
 - Include configuration details, logs, hardware info
 
 **Community:**
+
 - Home Assistant Community Forum discussions
 - HACS integration pages
 

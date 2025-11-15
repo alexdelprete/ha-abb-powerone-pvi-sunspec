@@ -20,17 +20,20 @@ All configuration folders have been successfully copied from the old integration
 
 ### ✅ .github/
 **Workflows (5 files):**
+
 - `workflows/lint.yml` - Ruff linting
 - `workflows/validate.yml` - Hassfest and HACS validation
 - `workflows/release.yml` - Automated releases
 - `workflows/dbautomerge.yml` - Dependabot auto-merge
 
 **Issue Templates (3 files):**
+
 - `ISSUE_TEMPLATE/bug.yml` - Adapted with integration-specific URLs
 - `ISSUE_TEMPLATE/feature_request.yml` - Adapted with integration-specific URLs
 - `ISSUE_TEMPLATE/config.yml` - Copied as-is
 
 **Other (3 files):**
+
 - `FUNDING.yml` - Copied as-is
 - `dependabot.yml` - Dependency updates configuration
 - `release-notes-template.md` - Release notes template
@@ -74,6 +77,7 @@ All configuration folders have been successfully copied from the old integration
 
 ### Files Copied As-Is
 All other files were copied without modification as they contain generic configurations:
+
 - Dockerfile and devcontainer.json (generic HA development environment)
 - Workflows (generic HA integration CI/CD)
 - VS Code configurations (generic Python/HA debugging)

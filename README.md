@@ -1,6 +1,6 @@
 # HA Custom Component for ABB/FIMER/P1 inverters
 
-## ⚠️ IMPORTANT NOTICE - REPO DISCOTINUED: NEW INTEGRATION AVAILABLE
+## ⚠️ IMPORTANT NOTICE - REPO DISCONTINUED: NEW INTEGRATION AVAILABLE
 
 **This repository has been superseded by a new specialized integrations:**
 

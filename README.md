@@ -1,17 +1,8 @@
 # HA Custom Component for ABB/FIMER/P1 inverters
 
-## ⚠️ IMPORTANT NOTICE - NEW INTEGRATIONS AVAILABLE
+## ⚠️ IMPORTANT NOTICE - REPO DISCOTINUED: NEW INTEGRATION AVAILABLE
 
-**This repository (v4.x) is being superseded by two new specialized integrations:**
-
-### 🔌 For Direct Modbus/TCP Users
-
-**[ha-abb-fimer-pvi-sunspec](https://github.com/alexdelprete/ha-abb-fimer-pvi-sunspec)** (v1.0.0-beta.x)
-
-- Direct Modbus/TCP communication with ABB/FIMER inverters
-- Dynamic SunSpec model discovery (supports M1, M101, M103, M120, M160, M124, M802-804, M201-204, M64061)
-- Based on ModbusLink library with async-sunspec-client
-- **Recommended for users connecting directly to inverters via Modbus/TCP**
+**This repository has been superseded by a new specialized integrations:**
 
 ### 🌐 For VSN300/VSN700 Datalogger Users
 
@@ -26,8 +17,6 @@
 ### About This Repository (v4.x)
 
 This repository remains available at **v4.1.6** for existing users. It will receive **critical bug fixes only**, with no new features planned. Users are encouraged to migrate to the appropriate new integration when ready.
-
-**Why the split?** The original plan for a universal client combining both protocols added unnecessary complexity. Most users have either direct Modbus access OR VSN dataloggers, not both. Two focused integrations provide better code clarity, easier maintenance, and protocol-specific optimization.
 
 ---
 

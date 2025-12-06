@@ -6,7 +6,7 @@
 
 ### 🌐 For VSN300/VSN700 Datalogger Users
 
-**[ha-abb-fimer-pvi-vsn-rest](https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-rest)** (v1.0.0-beta.x)
+**[ha-abb-fimer-pvi-vsn-rest](https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-rest)**
 
 - REST API for VSN300/VSN700 dataloggers
 - Automatic VSN model detection (VSN300 vs VSN700)

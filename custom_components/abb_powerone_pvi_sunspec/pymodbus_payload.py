@@ -22,12 +22,55 @@ from struct import pack, unpack
 
 from pymodbus.exceptions import ParameterException
 from pymodbus.logging import Log
-from pymodbus.pdu.pdu import (
-    pack_bitstring,
-    unpack_bitstring,
-)
 
 from .pymodbus_constants import Endian
+
+
+def pack_bitstring(bits: list[bool]) -> bytes:
+    """Create a bytestring out of a list of bits.
+
+    Vendored from pymodbus 3.12.0 (pymodbus/pdu/pdu.py); the helper was
+    removed from pymodbus in 3.13.0.
+
+    example::
+
+        bits   = [False, True, False, True]
+        result = pack_bitstring(bits)
+    """
+    ret = b""
+    i = packed = 0
+    t_bits = list(bits)
+    if extra := len(t_bits) % 8:
+        t_bits += [False] * (8 - extra)
+    for byte_inx in range(0, len(t_bits), 8):
+        for bit in reversed(t_bits[byte_inx : byte_inx + 8]):
+            packed <<= 1
+            if bit:
+                packed += 1
+            i += 1
+            if i == 8:
+                ret += pack(">B", packed)
+                i = packed = 0
+    return ret
+
+
+def unpack_bitstring(data: bytes) -> list[bool]:
+    """Create bit list out of a bytestring.
+
+    Vendored from pymodbus 3.12.0 (pymodbus/pdu/pdu.py); the helper was
+    removed from pymodbus in 3.13.0.
+
+    example::
+
+        bytes  = 0x05 0x81
+        result = unpack_bitstring(bytes)
+    """
+    res = []
+    for t_byte in data:
+        res.extend(
+            bool(t_byte & bit_mask) for bit_mask in (1, 2, 4, 8, 16, 32, 64, 128)
+        )
+    return res
 
 
 class BinaryPayloadBuilder:

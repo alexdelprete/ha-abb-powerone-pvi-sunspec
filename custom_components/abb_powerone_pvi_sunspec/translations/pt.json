@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Configuração da Ligação do Inversor",
-        "description": "Se precisar de ajuda com a configuração, vá para: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
+        "description": "Se precisar de ajuda com a configuração, consulte a documentação.",
         "data": {
           "name": "Nome Personalizado do Inversor (usado para o prefixo dos sensores)",
           "host": "IP ou nome de anfitrião",

@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Inverter Connection Configuration",
-        "description": "If you need help with the configuration go to: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
+        "description": "If you need help with the configuration, see the documentation.",
         "data": {
           "name": "Custom Name of the inverter (used for sensors' prefix)",
           "host": "IP or hostname",

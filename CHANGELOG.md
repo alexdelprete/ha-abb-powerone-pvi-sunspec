@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes at this time.
 
+## [4.1.8] - 2026-08-11
+
+Maintenance release adding local brand images and repository health fixes.
+
+### ✨ Improvements
+
+- Added local `brand/` folder (icons/logos) served natively by Home Assistant 2026.3+
+
+### 🐛 Bug Fixes
+
+- Removed URLs from config flow translation descriptions (hassfest compliance)
+- Converted `Endian` enum to `StrEnum` (behavior unchanged)
+
+### 🔧 CI/CD Improvements
+
+- Removed expired `WORKFLOW_PAT` references breaking workflow authentication
+- Modernized release workflow with version validation
+- Fixed Lint for ruff 0.16.2 (docs excluded, PLR0917 ignored, Python 3.14)
+
+### 📦 Dependencies
+
+- Bumped `homeassistant` dev dependency to 2026.8.1 (resolves all Dependabot security alerts)
+
+**Full Release Notes:** [docs/releases/v4.1.8.md](docs/releases/v4.1.8.md)
+
+**Full Changelog:** https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.7...v4.1.8
+
+---
+
 ## [4.1.7] - 2026-08-11
 
 Critical bug fix release restoring compatibility with pymodbus 3.13.0 and newer.

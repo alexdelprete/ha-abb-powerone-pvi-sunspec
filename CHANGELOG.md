@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No unreleased changes at this time.
 
+## [4.1.7] - 2026-08-11
+
+Critical bug fix release restoring compatibility with pymodbus 3.13.0 and newer.
+
+### 🐛 Critical Bug Fixes
+
+- Fixed integration failing to load with pymodbus >= 3.13.0 (`cannot import name 'pack_bitstring' from 'pymodbus.pdu.pdu'`) by vendoring the removed `pack_bitstring`/`unpack_bitstring` helpers into `pymodbus_payload.py`
+
+**Full Release Notes:** [docs/releases/v4.1.7.md](docs/releases/v4.1.7.md)
+
+**Full Changelog:** https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.6...v4.1.7
+
+---
+
 ## [4.1.6] - 2025-10-15
 
 Maintenance release with dependency updates and CI/CD improvements.

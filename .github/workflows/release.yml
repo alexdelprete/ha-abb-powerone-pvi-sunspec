@@ -15,15 +15,45 @@ jobs:
       contents: write
     steps:
       - name: "Checkout the repository"
-        uses: "actions/checkout@v6.0.1"
-        with:
-          token: ${{ secrets.WORKFLOW_PAT || github.token }}
+        uses: "actions/checkout@v7"
 
-      - name: "Adjust version number"
+      - name: "Validate version numbers"
         shell: "bash"
         run: |
-          yq -i -o json '.version="${{ github.event.release.tag_name }}"' \
-            "${{ github.workspace }}/custom_components/abb_powerone_pvi_sunspec/manifest.json"
+          # Extract version from tag (remove 'v' prefix if present)
+          TAG_VERSION="${{ github.event.release.tag_name }}"
+          TAG_VERSION="${TAG_VERSION#v}"
+
+          # Extract version from manifest.json
+          MANIFEST_VERSION=$(yq -r '.version' \
+            "${{ github.workspace }}/custom_components/abb_powerone_pvi_sunspec/manifest.json")
+
+          # Extract VERSION from const.py
+          CONST_VERSION=$(grep -E "^VERSION = " \
+            "${{ github.workspace }}/custom_components/abb_powerone_pvi_sunspec/const.py" \
+            | sed 's/VERSION = "\(.*\)"/\1/')
+
+          echo "Tag version:      $TAG_VERSION"
+          echo "manifest.json:    $MANIFEST_VERSION"
+          echo "const.py:         $CONST_VERSION"
+
+          # Validate all versions match
+          if [[ "$TAG_VERSION" != "$MANIFEST_VERSION" ]] || [[ "$TAG_VERSION" != "$CONST_VERSION" ]]; then
+            echo ""
+            echo "::error::Version mismatch detected!"
+            echo ""
+            echo "ERROR: Version mismatch!"
+            echo "  Tag:           $TAG_VERSION"
+            echo "  manifest.json: $MANIFEST_VERSION"
+            echo "  const.py:      $CONST_VERSION"
+            echo ""
+            echo "Please update versions in manifest.json and const.py before releasing."
+            echo "See CLAUDE.md for the release process."
+            exit 1
+          fi
+
+          echo ""
+          echo "✓ All versions match: $TAG_VERSION"
 
       - name: "ZIP the integration directory"
         shell: "bash"

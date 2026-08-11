@@ -21,7 +21,6 @@ jobs:
         - name: "Checkout the repository"
           uses: "actions/checkout@v6.0.1"
           with:
-            token: ${{ secrets.WORKFLOW_PAT || github.token }}
             ref: ${{ github.head_ref }}
 
         - name: "Set up Python"

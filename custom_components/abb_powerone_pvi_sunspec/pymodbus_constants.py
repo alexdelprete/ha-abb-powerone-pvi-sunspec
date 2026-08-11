@@ -48,7 +48,7 @@ class ModbusStatus(int, enum.Enum):
     OFF = READY  # Alias for 0x0000 so linter doesn't complain
 
 
-class Endian(str, enum.Enum):
+class Endian(enum.StrEnum):
     """An enumeration representing the various byte endianness.
 
     attribute:: AUTO

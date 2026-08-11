@@ -2,6 +2,9 @@
 
 target-version = "py313"
 
+# One-off migration/scaffolding scripts, not shipped code
+extend-exclude = ["docs"]
+
 [lint]
 select = [
     "A001",   # Variable {name} is shadowing a Python builtin
@@ -119,6 +122,7 @@ ignore = [
     "PLR0912", # Too many branches ({branches} > {max_branches})
     "PLR0913", # Too many arguments to function call ({c_args} > {max_args})
     "PLR0915", # Too many statements ({statements} > {max_statements})
+    "PLR0917", # Too many positional arguments defined for a function ({p_args} > {max_args})
     "PLR2004", # Magic value used in comparison, consider replacing {value} with a constant variable
     "PLW1641", # __eq__ without __hash__
     "PLW2901", # Outer {outer_kind} variable {name} overwritten by inner {inner_kind} target

@@ -62,6 +62,6 @@ jobs:
           zip abb_powerone_pvi_sunspec.zip -r ./
 
       - name: "Upload the ZIP file to the release"
-        uses: softprops/action-gh-release@v3.0.2
+        uses: softprops/action-gh-release@v3.0.3
         with:
           files: ${{ github.workspace }}/custom_components/abb_powerone_pvi_sunspec/abb_powerone_pvi_sunspec.zip

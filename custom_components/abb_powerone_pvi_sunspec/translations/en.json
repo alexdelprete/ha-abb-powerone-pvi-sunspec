@@ -32,5 +32,10 @@
         }
       }
     }
+  },
+  "exceptions": {
+    "modbus_link_conflict": {
+      "message": "The inverter at {host} is already used by another integration with different Modbus link settings: {error}"
+    }
   }
 }

@@ -1,20 +1,22 @@
 """Fixtures for the ABB/Power-One/FIMER PVI SunSpec tests.
 
-The Modbus transport is never touched: ``ABBPowerOneFimerAPI.async_get_data`` is
-replaced so the real API object, coordinator, config flow and sensor platform run
-against a canned three-phase, dual-MPPT inverter.
+The integration takes a unit on Home Assistant's shared Modbus connection. Here
+that unit is a ``MockModbusUnit`` serving the SunSpec register map of a canned
+three-phase, dual-MPPT inverter, so the real API, coordinator, config flow and
+sensor platform run end to end without a network.
 """
 
 from __future__ import annotations
 
-from collections.abc import Generator
+from collections.abc import AsyncIterator, Generator
+from contextlib import asynccontextmanager
 from typing import Any
 from unittest.mock import patch
 
+from modbus_connection.mock import MockModbusConnection, MockModbusUnit
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.abb_powerone_pvi_sunspec.api import ABBPowerOneFimerAPI, VSNConnectionError
 from custom_components.abb_powerone_pvi_sunspec.const import (
     CONF_BASE_ADDR,
     CONF_DEVICE_ID,
@@ -23,40 +25,22 @@ from custom_components.abb_powerone_pvi_sunspec.const import (
     CONF_PORT,
     CONF_SCAN_INTERVAL,
     DOMAIN,
-    INVERTER_TYPE,
 )
+from homeassistant.core import HomeAssistant
 
-TEST_SERIAL = "123456-3P75-1234"
+from .registers import InverterSpec, build_register_map
+
+TEST_SERIAL = InverterSpec().serial
+TEST_HOST = "192.168.1.50"
 
 USER_INPUT: dict[str, Any] = {
     CONF_NAME: "ABB Inverter",
-    CONF_HOST: "192.168.1.50",
+    CONF_HOST: TEST_HOST,
     CONF_PORT: 502,
     CONF_DEVICE_ID: 2,
     CONF_BASE_ADDR: 0,
     CONF_SCAN_INTERVAL: 60,
 }
-
-DEVICE_DATA: dict[str, Any] = {
-    "comm_manufact": "Power-One",
-    "comm_model": "PVI-10.0-OUTD",
-    "comm_version": "C008",
-    "comm_sernum": TEST_SERIAL,
-    "comm_options": "DSP",
-    "invtype": INVERTER_TYPE[103],
-    "mppt_nr": 2,
-    "acpower": 4321.0,
-    "totalenergy": 12345678.0,
-}
-
-
-async def _get_data_ok(self: ABBPowerOneFimerAPI) -> bool:
-    self.data.update(DEVICE_DATA)
-    return True
-
-
-async def _get_data_unreachable(self: ABBPowerOneFimerAPI) -> bool:
-    raise VSNConnectionError("Failed to connect to inverter")
 
 
 @pytest.fixture(autouse=True)
@@ -65,22 +49,34 @@ def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
 
 
 @pytest.fixture
-def inverter_ok() -> Generator[None]:
-    """Inverter answers every poll with DEVICE_DATA."""
-    with patch.object(ABBPowerOneFimerAPI, "async_get_data", _get_data_ok):
-        yield
+def mock_unit() -> MockModbusUnit:
+    """A mock Modbus unit serving the test inverter's register map."""
+    unit = MockModbusConnection().for_unit(USER_INPUT[CONF_DEVICE_ID])
+    unit.holding.update(build_register_map())
+    return unit
 
 
-@pytest.fixture
-def inverter_unreachable() -> Generator[None]:
-    """Inverter never answers."""
-    with patch.object(ABBPowerOneFimerAPI, "async_get_data", _get_data_unreachable):
+@pytest.fixture(autouse=True)
+def mock_shared_connection(mock_unit: MockModbusUnit) -> Generator[None]:
+    """Hand out the mock unit in place of core's shared Modbus connection."""
+
+    @asynccontextmanager
+    async def temporary_unit(*args: Any, **kwargs: Any) -> AsyncIterator[MockModbusUnit]:
+        yield mock_unit
+
+    with (
+        patch("custom_components.abb_powerone_pvi_sunspec.async_get_unit", return_value=mock_unit),
+        patch(
+            "custom_components.abb_powerone_pvi_sunspec.config_flow.async_get_temporary_unit",
+            temporary_unit,
+        ),
+    ):
         yield
 
 
 @pytest.fixture
 def config_entry() -> MockConfigEntry:
-    """A current (version 2) config entry for the canned inverter."""
+    """A current (version 2) config entry for the test inverter."""
     return MockConfigEntry(
         domain=DOMAIN,
         title=USER_INPUT[CONF_NAME],
@@ -88,3 +84,12 @@ def config_entry() -> MockConfigEntry:
         unique_id=TEST_SERIAL,
         version=2,
     )
+
+
+@pytest.fixture
+async def init_integration(hass: HomeAssistant, config_entry: MockConfigEntry) -> MockConfigEntry:
+    """Set up the integration with the test inverter."""
+    config_entry.add_to_hass(hass)
+    await hass.config_entries.async_setup(config_entry.entry_id)
+    await hass.async_block_till_done()
+    return config_entry

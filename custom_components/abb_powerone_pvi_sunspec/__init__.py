@@ -6,13 +6,25 @@ https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 from dataclasses import dataclass
 import logging
 
+from modbus_connection import ModbusTcpParams
+
+from homeassistant.components.modbus import async_get_unit
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.exceptions import ConfigEntryError, ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 
-from .const import CONF_HOST, CONF_NAME, DOMAIN, STARTUP_MESSAGE
+from .api import ABBPowerOneFimerAPI
+from .const import (
+    CONF_BASE_ADDR,
+    CONF_DEVICE_ID,
+    CONF_HOST,
+    CONF_NAME,
+    CONF_PORT,
+    DOMAIN,
+    STARTUP_MESSAGE,
+)
 from .coordinator import ABBPowerOneFimerCoordinator
 from .helpers import log_debug, log_error, log_info
 
@@ -36,9 +48,24 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ABBPowerOneFimerC
     log_info(_LOGGER, "async_setup_entry", STARTUP_MESSAGE)
     log_debug(_LOGGER, "async_setup_entry", "Setup config_entry", domain=DOMAIN)
 
-    # Initialise the coordinator that manages data updates from your api.
-    # This is defined in coordinator.py
-    coordinator = ABBPowerOneFimerCoordinator(hass, config_entry)
+    data = config_entry.data
+    # A unit on Home Assistant's shared Modbus connection to the inverter: the
+    # hold is released when the entry unloads, closing the link behind the last one
+    params = ModbusTcpParams(host=data[CONF_HOST], port=int(data[CONF_PORT]))
+    try:
+        unit = async_get_unit(hass, config_entry, params, int(data[CONF_DEVICE_ID]))
+    except HomeAssistantError as err:
+        # another integration holds this device with different link settings
+        raise ConfigEntryError(
+            translation_domain=DOMAIN,
+            translation_key="modbus_link_conflict",
+            translation_placeholders={"host": data[CONF_HOST], "error": str(err)},
+        ) from err
+
+    api = ABBPowerOneFimerAPI(
+        data.get(CONF_NAME, config_entry.title), data[CONF_HOST], unit, data[CONF_BASE_ADDR]
+    )
+    coordinator = ABBPowerOneFimerCoordinator(hass, config_entry, api)
 
     # If the refresh fails, async_config_entry_first_refresh() will
     # raise ConfigEntryNotReady and setup will try again later
@@ -106,16 +133,8 @@ async def async_unload_entry(
     """Unload a config entry."""
     log_debug(_LOGGER, "async_unload_entry", "Unload config_entry: started")
 
-    # Unload platforms - only cleanup runtime_data if successful
-    # ref.: https://developers.home-assistant.io/blog/2025/02/19/new-config-entry-states/
-    if unload_ok := await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS):
-        log_debug(_LOGGER, "async_unload_entry", "Platforms unloaded successfully")
-        # Cleanup per-entry resources only if unload succeeded
-        await config_entry.runtime_data.coordinator.api.close()
-        log_debug(_LOGGER, "async_unload_entry", "Closed API connection")
-    else:
-        log_debug(_LOGGER, "async_unload_entry", "Platform unload failed, skipping cleanup")
-
+    # The shared Modbus connection is released by the hold taken in setup
+    unload_ok = await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS)
     log_debug(
         _LOGGER,
         "async_unload_entry",

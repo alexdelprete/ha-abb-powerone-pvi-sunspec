@@ -1,6 +1,6 @@
 {
   "name": "ABB/Power-One/FIMER PVI SunSpec",
-  "homeassistant": "2026.8.0",
+  "homeassistant": "2026.9.0",
   "content_in_root": false,
   "render_readme": true,
   "zip_release": true,

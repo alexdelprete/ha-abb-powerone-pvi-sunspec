@@ -1,5 +1,11 @@
 # Claude Alignment Notes - Repository Split Decision
 
+> **Archived (2026-10-03).** This note records the 2025 plan to split this integration in two. The Modbus-only
+> half, `ha-abb-fimer-pvi-sunspec`, was deleted on 2026-10-03; the successor is
+> [ha-fimer](https://github.com/alexdelprete/ha-fimer) (Modbus + REST, no release yet), and
+> [ha-abb-fimer-pvi-vsn-rest](https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-rest) remains the REST-only
+> integration. This repository now uses Home Assistant's shared `modbus-connection` layer, not ModbusLink.
+
 ## ⚠️ IMPORTANT: Architecture Decision Change
 
 **This repository (ha-abb-powerone-pvi-sunspec v4.x) will NOT implement the universal client architecture.**
@@ -8,7 +14,7 @@ Instead, the project is splitting into **two new focused integrations:**
 
 ### 1. ha-abb-fimer-pvi-sunspec (Modbus/TCP Only)
 
-**Repository:** <https://github.com/alexdelprete/ha-abb-fimer-pvi-sunspec>
+**Repository:** deleted on 2026-10-03
 
 **Status:** v1.0.0-beta.x
 
@@ -102,14 +108,14 @@ Instead, the project is splitting into **two new focused integrations:**
 - Continue using v4.1.6 for production (stable)
 - Monitor announcements for new integrations
 - Migrate to appropriate new integration when ready:
-  - **Direct Modbus users** → ha-abb-fimer-pvi-sunspec
+  - **Direct Modbus users** → ha-fimer (once released)
   - **VSN datalogger users** → ha-abb-fimer-pvi-vsn-rest
 
 ## Migration Path (Future)
 
 **When migrating from v4.x to new integrations:**
 
-**For Modbus users (v4.x → ha-abb-fimer-pvi-sunspec):**
+**For Modbus users (v4.x → ha-fimer, once released):**
 
 1. Install new integration via HACS
 2. Configure with same host/port/device_id

@@ -21,7 +21,7 @@ vars:
   python_import_name: ""
 
   # -- HA/HACS --
-  ha_min_version: "2026.8.0"
+  ha_min_version: "2026.9.0"                # first HA with the shared Modbus connection API
   hide_default_branch: false
   ignore_brands: false
 
@@ -38,8 +38,6 @@ vars:
   ruff_extend_exclude: ["docs", "gfxfiles"]
   ruff_lint_extra_ignores: []
   ruff_lint_extra_perfile_ignores:
-    # vendored copy of pymodbus' removed BinaryPayloadDecoder: keep upstream method names
-    "custom_components/abb_powerone_pvi_sunspec/pymodbus_payload.py": ["N802"]
     # one-off migration/scaffolding scripts from the v5 split, not shipped code (the pre-template
     # .ruff.toml excluded docs/ too; extend-exclude alone is ignored for the explicit paths pre-commit passes)
     "docs/**": ["ALL"]

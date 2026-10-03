@@ -1,23 +1,19 @@
 # HA Custom Component for ABB/FIMER/P1 inverters
 
-## ⚠️ IMPORTANT NOTICE - REPO DISCONTINUED: NEW INTEGRATION AVAILABLE
+## ⚠️ IMPORTANT NOTICE - LEGACY INTEGRATION, MAINTENANCE ONLY
 
-**This repository has been superseded by a new specialized integrations:**
+This integration receives **critical bug fixes only**; no new features are planned.
+
+### 🔜 Successor: ha-fimer (in development)
+
+**[ha-fimer](https://github.com/alexdelprete/ha-fimer)** will replace this integration. It reads FIMER / ABB / Power-One
+inverters over Modbus TCP (SunSpec) and over the VSN300/VSN700 datalogger's REST API, in one integration. It has no
+release yet: keep using this integration until it does.
 
 ### 🌐 For VSN300/VSN700 Datalogger Users
 
-**[ha-abb-fimer-pvi-vsn-rest](https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-rest)**
-
-- REST API for VSN300/VSN700 dataloggers
-- Automatic VSN model detection (VSN300 vs VSN700)
-- Data normalization to SunSpec schema
-- Multi-device support (inverter + batteries + meter)
-- **Recommended for users with VSN dataloggers**
-
-### About This Repository (v4.x)
-
-This repository remains available at **v4.1.6** for existing users. It will receive **critical bug fixes only**, with
-no new features planned. Users are encouraged to migrate to the appropriate new integration when ready.
+**[ha-abb-fimer-pvi-vsn-rest](https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-rest)** reads the datalogger's REST
+API, including the batteries and meter a VSN700 manages. ha-fimer will be able to take over its entities.
 
 ---
 

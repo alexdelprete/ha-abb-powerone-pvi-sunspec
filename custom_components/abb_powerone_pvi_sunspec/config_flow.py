@@ -5,16 +5,18 @@ https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 
 import logging
 
-from pymodbus.exceptions import ConnectionException
+from modbus_connection import ModbusError, ModbusTcpParams
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.components.modbus import async_get_temporary_unit
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.selector import selector
 
-from .api import ABBPowerOneFimerAPI, ModbusError, VSNConnectionError
+from .api import ABBPowerOneFimerAPI
 from .const import (
     CONF_BASE_ADDR,
     CONF_DEVICE_ID,
@@ -76,51 +78,28 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[cal
         port: int,
         device_id: int,
         base_addr: int,
-        scan_interval: int,
-    ):
-        """Return device serial number."""
-        self._name = str(name)
-        self._host = str(host)
-        self._port = int(port)
-        self._device_id = int(device_id)
-        self._base_addr = int(base_addr)
-        self._scan_interval = int(scan_interval)
-
+    ) -> str | None:
+        """Read the inverter and return its serial number, or None if it cannot be read."""
         log_debug(
-            _LOGGER,
-            "get_unique_id",
-            "Test connection",
-            host=self._host,
-            port=self._port,
-            device_id=self._device_id,
+            _LOGGER, "get_unique_id", "Test connection", host=host, port=port, device_id=device_id
         )
+        params = ModbusTcpParams(host=host, port=port)
         try:
-            log_debug(_LOGGER, "get_unique_id", "Creating API Client")
-            self.api = ABBPowerOneFimerAPI(
-                self.hass,
-                self._name,
-                self._host,
-                self._port,
-                self._device_id,
-                self._base_addr,
-                self._scan_interval,
-            )
-            log_debug(_LOGGER, "get_unique_id", "API Client created: calling get data")
-            self.api_data = await self.api.async_get_data()
-            log_debug(_LOGGER, "get_unique_id", "API Client: get data")
-            log_debug(_LOGGER, "get_unique_id", "API Client Data", data=self.api_data)
-            return self.api.data["comm_sernum"]
-        except (ConnectionException, VSNConnectionError, ModbusError) as connerr:
+            async with async_get_temporary_unit(self.hass, params, device_id) as unit:
+                api = ABBPowerOneFimerAPI(name, host, unit, base_addr)
+                data = await api.async_get_data()
+        except (ModbusError, HomeAssistantError) as err:
             log_error(
                 _LOGGER,
                 "get_unique_id",
                 "Failed to connect",
-                host=self._host,
-                port=self._port,
-                device_id=self._device_id,
-                error=connerr,
+                host=host,
+                port=port,
+                device_id=device_id,
+                error=err,
             )
-            return False
+            return None
+        return data["comm_sernum"] or None
 
     async def async_step_user(self, user_input=None) -> ConfigFlowResult:
         """Handle the initial step."""
@@ -132,17 +111,14 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[cal
             port = int(user_input[CONF_PORT])
             device_id = int(user_input[CONF_DEVICE_ID])
             base_addr = int(user_input[CONF_BASE_ADDR])
-            scan_interval = int(user_input[CONF_SCAN_INTERVAL])
 
             if self._host_in_configuration_exists(host):
                 errors[CONF_HOST] = "Device Already Configured"
             elif not host_valid(host):
                 errors[CONF_HOST] = "invalid Host IP"
             else:
-                uid = await self.get_unique_id(
-                    name, host, port, device_id, base_addr, scan_interval
-                )
-                if uid is not False:
+                uid = await self.get_unique_id(name, host, port, device_id, base_addr)
+                if uid is not None:
                     log_debug(_LOGGER, "async_step_user", "Device unique id", uid=uid)
                     # Assign a unique ID to the flow and abort the flow
                     # if another flow with the same unique ID is in progress

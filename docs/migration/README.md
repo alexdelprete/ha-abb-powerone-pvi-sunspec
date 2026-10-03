@@ -1,5 +1,9 @@
 # Migration Archive
 
+> **Archived.** Historical record of the 2025 split. `ha-abb-fimer-pvi-sunspec` was deleted on 2026-10-03, so its
+> links and paths below are dead; the successor is [ha-fimer](https://github.com/alexdelprete/ha-fimer). These scripts
+> are not maintained and should not be run.
+
 This directory contains scripts and documentation used during the migration from the unified integration (v4.x) to two
 separate integrations.
 
@@ -9,7 +13,7 @@ separate integrations.
 
 ## New Integrations Created
 
-1. **[ha-abb-fimer-pvi-sunspec](https://github.com/alexdelprete/ha-abb-fimer-pvi-sunspec)** - Modbus/TCP only (v1.0.0-beta.x)
+1. **ha-abb-fimer-pvi-sunspec** (deleted 2026-10-03) - Modbus/TCP only (v1.0.0-beta.x)
    - Direct Modbus/TCP communication with inverters
    - Dynamic SunSpec model discovery
    - Based on ModbusLink library with async-sunspec-client

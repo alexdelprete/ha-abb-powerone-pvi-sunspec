@@ -5,19 +5,16 @@ https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 
 from datetime import timedelta
 import logging
+from typing import Any
+
+from modbus_connection import ModbusError
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from homeassistant.util import dt as dt_util
 
 from .api import ABBPowerOneFimerAPI
 from .const import (
-    CONF_BASE_ADDR,
-    CONF_DEVICE_ID,
-    CONF_HOST,
-    CONF_NAME,
-    CONF_PORT,
     CONF_SCAN_INTERVAL,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
@@ -29,91 +26,36 @@ from .helpers import log_debug
 _LOGGER = logging.getLogger(__name__)
 
 
-class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
+class ABBPowerOneFimerCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Class to manage fetching data from the API."""
 
     config_entry: ConfigEntry
 
-    def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    def __init__(
+        self, hass: HomeAssistant, config_entry: ConfigEntry, api: ABBPowerOneFimerAPI
+    ) -> None:
         """Initialize data update coordinator."""
-        # get parameters from user config
-        self.name = str(config_entry.data.get(CONF_NAME))
-        self.host = str(config_entry.data.get(CONF_HOST))
-        self.port = int(config_entry.data[CONF_PORT])
-        # Handle backward compatibility: try new key first, fallback to old key
-        self.device_id = int(config_entry.data.get(CONF_DEVICE_ID) or config_entry.data["slave_id"])
-        self.base_addr = int(config_entry.data[CONF_BASE_ADDR])
-        self.scan_interval = int(config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL))
-
-        # enforce scan_interval bounds
-        if self.scan_interval < MIN_SCAN_INTERVAL:
-            self.scan_interval = MIN_SCAN_INTERVAL
-        elif self.scan_interval > MAX_SCAN_INTERVAL:
-            self.scan_interval = MAX_SCAN_INTERVAL
-        # set coordinator update interval
-        self.update_interval = timedelta(seconds=self.scan_interval)
-        log_debug(
-            _LOGGER,
-            "__init__",
-            "Scan Interval configured",
-            scan_interval=self.scan_interval,
-            update_interval=self.update_interval,
-        )
-
-        # set update method and interval for coordinator
+        scan_interval = int(config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL))
+        scan_interval = min(max(scan_interval, MIN_SCAN_INTERVAL), MAX_SCAN_INTERVAL)
         super().__init__(
             hass,
             _LOGGER,
+            config_entry=config_entry,
             name=f"{DOMAIN} ({config_entry.unique_id})",
-            update_method=self.async_update_data,
-            update_interval=self.update_interval,
+            update_interval=timedelta(seconds=scan_interval),
         )
-
-        self.last_update_time = dt_util.utcnow()
-        self.last_update_success = True
-
-        self.api = ABBPowerOneFimerAPI(
-            hass,
-            self.name,
-            self.host,
-            self.port,
-            self.device_id,
-            self.base_addr,
-            self.scan_interval,
-        )
-
-        log_debug(_LOGGER, "__init__", "Coordinator Config Data", data=config_entry.data)
+        self.api = api
         log_debug(
             _LOGGER,
             "__init__",
             "Coordinator initialized",
-            host=self.host,
-            port=self.port,
-            device_id=self.device_id,
-            base_addr=self.base_addr,
-            scan_interval=self.scan_interval,
+            host=api.host,
+            scan_interval=scan_interval,
         )
 
-    async def async_update_data(self):
-        """Update data method."""
-        log_debug(_LOGGER, "async_update_data", "Update started", time=dt_util.utcnow())
+    async def _async_update_data(self) -> dict[str, Any]:
+        """Read the inverter."""
         try:
-            self.last_update_status = await self.api.async_get_data()
-            self.last_update_time = dt_util.utcnow()
-            log_debug(
-                _LOGGER,
-                "async_update_data",
-                "Update completed",
-                time=self.last_update_time,
-            )
-        except Exception as ex:
-            self.last_update_status = False
-            log_debug(
-                _LOGGER,
-                "async_update_data",
-                "Update error",
-                error=ex,
-                time=self.last_update_time,
-            )
-            raise UpdateFailed from ex
-        return self.last_update_status
+            return await self.api.async_get_data()
+        except ModbusError as err:
+            raise UpdateFailed(f"Error reading inverter {self.api.name}: {err}") from err

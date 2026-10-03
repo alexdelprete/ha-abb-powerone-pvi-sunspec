@@ -3,12 +3,13 @@
   "name": "ABB/Power-One/FIMER PVI SunSpec",
   "codeowners": ["@alexdelprete"],
   "config_flow": true,
+  "dependencies": ["modbus"],
   "documentation": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec",
   "integration_type": "hub",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues",
-  "loggers": ["custom_components.abb_powerone_pvi_sunspec"],
-  "requirements": ["pymodbus>=3.11.2"],
+  "loggers": ["modbus_connection"],
+  "requirements": [],
   "single_config_entry": false,
-  "version": "4.1.8"
+  "version": "4.2.0"
 }

@@ -32,5 +32,10 @@
         }
       }
     }
+  },
+  "exceptions": {
+    "modbus_link_conflict": {
+      "message": "O inversor em {host} já está a ser usado por outra integração com definições de ligação Modbus diferentes: {error}"
+    }
   }
 }

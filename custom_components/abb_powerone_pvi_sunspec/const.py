@@ -16,7 +16,7 @@ from homeassistant.const import (
 # Base component constants
 NAME = "ABB/Power-One/FIMER PVI SunSpec ModBus TCP"
 DOMAIN = "abb_powerone_pvi_sunspec"
-VERSION = "4.1.8"
+VERSION = "4.2.0"
 ATTRIBUTION = "by @alexdelprete"
 ISSUE_URL = "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues"
 
@@ -437,7 +437,7 @@ DEVICE_STATUS = {
     46: "Grid Fail",
     47: "Input OC",
     255: "Inverter Dsp not programmed",
-    999: "Unkown",
+    999: "Unknown",
 }
 
 DEVICE_MODEL = {

@@ -7,7 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-No unreleased changes at this time.
+### ⚠️ Requirements
+
+- Requires Home Assistant **2026.9.0** or newer (v4.1.8 required 2025.10.0)
+
+### 🔧 Changed
+
+- Modbus now goes through Home Assistant's shared Modbus connection (`modbus-connection`, bundled with HA)
+  instead of a private pymodbus client: the integration no longer installs pymodbus, and it can share the
+  inverter with other integrations reading it. Entities and their unique IDs are unchanged
+- Removed the vendored pymodbus payload/constants modules
+
+### 🐛 Bug Fixes
+
+- Stopped passing the deprecated `via_device` to the device registry (setup would fail from HA 2027.8)
+- Deleting the inverter device on its own is now refused as intended (the check never matched)
+- An unknown inverter type no longer fails the whole poll with a `KeyError`
+- An empty options register no longer fails the first read
+- The total-energy scale factor is read as signed, per SunSpec
+- The operating state sensor now shows "Unknown" instead of "Unkown" for unrecognised states
+
+### 🧪 Tests
+
+- New test suite running the real API, coordinator, config flow and sensors against an in-memory Modbus unit
 
 ## [4.1.8] - 2026-08-11
 
@@ -114,7 +136,7 @@ Assistant 2025.3.0+ best practices.
 - Updated softprops/action-gh-release from 2.3.4 to 2.4.0
 - Compatible with pymodbus >= 3.11.1
 
-### ⚠️ Breaking Changes
+### ⚠️ Requirements
 
 - **Requires Home Assistant 2025.3.0 or newer**
 
@@ -184,7 +206,7 @@ Assistant 2025.3.0+ best practices.
 - Conditional cleanup with walrus operator (only if platform unload succeeds)
 - Uses `async_loaded_entries(DOMAIN)` for last-entry check
 
-### ⚠️ Breaking Changes
+### ⚠️ Requirements
 
 - **Requires Home Assistant 2025.3.0 or newer**
 

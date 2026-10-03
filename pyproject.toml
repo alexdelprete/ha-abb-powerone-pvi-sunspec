@@ -1,6 +1,6 @@
 [project]
 name = "ha-abb-powerone-pvi-sunspec"
-version = "4.1.8"
+version = "4.2.0"
 description = "Home Assistant integration for ABB/Power-One/FIMER PVI inverters via SunSpec Modbus TCP"
 readme = "README.md"
 license = "MIT"
@@ -13,9 +13,13 @@ authors = [{ name = "alexdelprete" }]
 
 [project.optional-dependencies]
 dev = [
+    # Not imported by the integration: Home Assistant's own modbus integration (a manifest
+    # dependency) needs these importable in the test venv. modbus-connection is pinned to the
+    # release HA 2026.9 (the minimum supported core) bundles, so tests exercise its API floor.
+    "modbus-connection[tmodbus]==4.10.0",
     "pymodbus>=3.15.0",
     "colorlog>=6.10.0",
-    "homeassistant>=2026.8.0",
+    "homeassistant>=2026.9.0",
     "homeassistant-stubs",
     "mdformat",
     "mdformat-gfm",
@@ -222,9 +226,6 @@ ignore = [
     "B017",     # Don't assert blind Exception
     "PT006",    # Wrong type passed to first argument
     "S108",     # Probable insecure usage of temporary file
-]
-"custom_components/abb_powerone_pvi_sunspec/pymodbus_payload.py" = [
-    "N802",
 ]
 "docs/**" = [
     "ALL",

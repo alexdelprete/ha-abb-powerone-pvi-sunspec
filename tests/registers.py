@@ -61,7 +61,7 @@ class InverterSpec:
     temp_cabinet: int = 453
     temp_other: int = 412
     temp_sf: int = -1
-    status: int = 2  # Run
+    status: int = 4  # SunSpec MPPT: producing
     status_vendor: int = 6  # Run
 
     m160_offset: int | None = M160_DEFAULT_OFFSET

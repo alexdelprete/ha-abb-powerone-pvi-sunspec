@@ -80,7 +80,8 @@ async def test_information_sensors_are_diagnostic(
         return entry.entity_category
 
     assert sensor_state(hass, "comm_manufact").state == "Power-One"
-    assert sensor_state(hass, "status").state == "Run"
+    assert sensor_state(hass, "status").state == "MPPT"
+    assert sensor_state(hass, "statusvendor").state == "Run"
     assert category("comm_sernum") is EntityCategory.DIAGNOSTIC
     assert category("status") is EntityCategory.DIAGNOSTIC
     assert category("acpower") is None

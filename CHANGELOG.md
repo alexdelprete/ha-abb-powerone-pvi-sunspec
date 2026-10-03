@@ -25,7 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - An unknown inverter type no longer fails the whole poll with a `KeyError`
 - An empty options register no longer fails the first read
 - The total-energy scale factor is read as signed, per SunSpec
-- The operating state sensor now shows "Unknown" instead of "Unkown" for unrecognised states
+- A malformed hex model code in the options register no longer fails the first read
+- Vendor operating state 32 reads "Fan Stuck" (was "Fan Staucked")
+- **Operating State** now decodes register 108 with the SunSpec states (Off, Sleeping, Starting, MPPT,
+  Throttled, Shutting Down, Fault, Standby); since 2021 it used ABB's Aurora table, so a producing inverter
+  showed "Out OC". Its values change: update automations that test this sensor. ABB's own state stays in
+  **Vendor Operating State**
 
 ### 🧪 Tests
 

@@ -190,8 +190,11 @@ class ABBPowerOneFimerAPI:
         """
         if not options_string:
             return UNKNOWN_MODEL_OPTION
-        if options_string.startswith(HEX_PREFIX):
-            return int(options_string[0:HEX_MODEL_SLICE_END], HEX_BASE)
+        if options_string.lower().startswith(HEX_PREFIX):
+            try:
+                return int(options_string[0:HEX_MODEL_SLICE_END], HEX_BASE)
+            except ValueError:
+                return UNKNOWN_MODEL_OPTION
         return ord(options_string[0])
 
     def _apply_temperature_correction(self, temp_value: int, temp_sf: int) -> float:
@@ -422,8 +425,8 @@ class ABBPowerOneFimerAPI:
         self.data["tempcab"] = self._apply_temperature_correction(tempcab, tempsf)
         self.data["tempoth"] = self.calculate_value(tempoth, tempsf)
 
-        # register 108
-        status = regs.int16()
+        # register 108: SunSpec operating state (enum16)
+        status = regs.uint16()
         if status not in DEVICE_STATUS:
             log_debug(_LOGGER, "read_sunspec_modbus_model_101_103", "Unknown status", status=status)
             status = UNKNOWN_STATUS

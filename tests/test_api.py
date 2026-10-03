@@ -67,7 +67,7 @@ async def test_three_phase_dual_mppt() -> None:
     assert data["dcpower"] == 4450
     assert data["tempcab"] == 45.3
     assert data["tempoth"] == 41.2
-    assert data["status"] == "Run"
+    assert data["status"] == "MPPT"
     assert data["statusvendor"] == "Run"
     assert data["mppt_nr"] == 2
     assert (data["dc1curr"], data["dc1volt"], data["dc1power"]) == (3.21, 350.0, 800)
@@ -116,13 +116,25 @@ async def test_unknown_inverter_type() -> None:
     assert data["acvoltagean"] == 230.1
 
 
-async def test_unknown_status_values() -> None:
-    """Status values outside the tables map to the 999 entries."""
-    api, _ = make_api(InverterSpec(status=4242, status_vendor=-5))
+@pytest.mark.parametrize(
+    ("status", "state"),
+    [(1, "Off"), (2, "Sleeping"), (4, "MPPT"), (7, "Fault"), (8, "Standby"), (0xFFFF, "Unknown")],
+)
+async def test_operating_state_uses_sunspec_codes(status: int, state: str) -> None:
+    """Register 108 is the SunSpec operating state, not ABB's Aurora inverter state."""
+    api, _ = make_api(InverterSpec(status=status))
 
     data = await api.async_get_data()
 
-    assert data["status"] == "Unknown"
+    assert data["status"] == state
+
+
+async def test_unknown_vendor_status() -> None:
+    """A vendor status outside ABB's table maps to its 999 entry."""
+    api, _ = make_api(InverterSpec(status_vendor=-5))
+
+    data = await api.async_get_data()
+
     assert data["statusvendor"] == "Unknown"
 
 
@@ -160,6 +172,11 @@ async def test_negative_energy_scale_factor() -> None:
     ("options", "model"),
     [
         ("0x0D", "REACT2-UNO-5.0-TL"),  # non-printable model reported as hex
+        (
+            "0X0D/0xFFFF",
+            "REACT2-UNO-5.0-TL",
+        ),  # upper-case prefix, with the suffix some firmwares add
+        ("0xZZ", "PVI-10.0-OUTD-raw"),  # not valid hex: model register kept
         ("X", "PVI-10.0-OUTD"),
         ("~", "PVI-10.0-OUTD-raw"),  # not in the table: model register kept
         ("", "PVI-10.0-OUTD-raw"),  # no options at all

@@ -1,6 +1,6 @@
 [project]
 name = "ha-abb-powerone-pvi-sunspec"
-version = "4.2.0"
+version = "4.2.1"
 description = "Home Assistant integration for ABB/Power-One/FIMER PVI inverters via SunSpec Modbus TCP"
 readme = "README.md"
 license = "MIT"

@@ -4,7 +4,6 @@ https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 """
 
 import logging
-from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.core import HomeAssistant, callback
@@ -56,18 +55,14 @@ async def async_setup_entry(
     # Get handler to coordinator from config
     coordinator: ABBPowerOneFimerCoordinator = config_entry.runtime_data.coordinator
 
-    log_debug(
-        _LOGGER, "async_setup_entry", "Name", name=config_entry.data.get(CONF_NAME)
-    )
+    log_debug(_LOGGER, "async_setup_entry", "Name", name=config_entry.data.get(CONF_NAME))
     log_debug(
         _LOGGER,
         "async_setup_entry",
         "Manufacturer",
         manufacturer=coordinator.api.data["comm_manufact"],
     )
-    log_debug(
-        _LOGGER, "async_setup_entry", "Model", model=coordinator.api.data["comm_model"]
-    )
+    log_debug(_LOGGER, "async_setup_entry", "Model", model=coordinator.api.data["comm_model"])
     log_debug(
         _LOGGER,
         "async_setup_entry",
@@ -80,9 +75,7 @@ async def async_setup_entry(
         "Inverter Type",
         type=coordinator.api.data["invtype"],
     )
-    log_debug(
-        _LOGGER, "async_setup_entry", "MPPT count", mppt=coordinator.api.data["mppt_nr"]
-    )
+    log_debug(_LOGGER, "async_setup_entry", "MPPT count", mppt=coordinator.api.data["mppt_nr"])
     log_debug(
         _LOGGER,
         "async_setup_entry",
@@ -94,13 +87,9 @@ async def async_setup_entry(
     add_sensor_defs(coordinator, config_entry, sensor_list, SENSOR_TYPES_COMMON)
 
     if coordinator.api.data["invtype"] == INVERTER_TYPE[101]:
-        add_sensor_defs(
-            coordinator, config_entry, sensor_list, SENSOR_TYPES_SINGLE_PHASE
-        )
+        add_sensor_defs(coordinator, config_entry, sensor_list, SENSOR_TYPES_SINGLE_PHASE)
     elif coordinator.api.data["invtype"] == INVERTER_TYPE[103]:
-        add_sensor_defs(
-            coordinator, config_entry, sensor_list, SENSOR_TYPES_THREE_PHASE
-        )
+        add_sensor_defs(coordinator, config_entry, sensor_list, SENSOR_TYPES_THREE_PHASE)
 
     log_debug(
         _LOGGER,
@@ -111,9 +100,7 @@ async def async_setup_entry(
         dc2=coordinator.api.data["dc2volt"],
     )
     if coordinator.api.data["mppt_nr"] == 1:
-        add_sensor_defs(
-            coordinator, config_entry, sensor_list, SENSOR_TYPES_SINGLE_MPPT
-        )
+        add_sensor_defs(coordinator, config_entry, sensor_list, SENSOR_TYPES_SINGLE_MPPT)
     else:
         add_sensor_defs(coordinator, config_entry, sensor_list, SENSOR_TYPES_DUAL_MPPT)
 
@@ -199,11 +186,6 @@ class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
         """Return the state of the sensor."""
         if self._key in self._coordinator.api.data:
             return self._coordinator.api.data[self._key]
-        return None
-
-    @property
-    def state_attributes(self) -> dict[str, Any] | None:
-        """Return the attributes."""
         return None
 
     @property

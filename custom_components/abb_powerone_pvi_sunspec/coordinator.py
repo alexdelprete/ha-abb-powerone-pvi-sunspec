@@ -3,12 +3,13 @@
 https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 """
 
+from datetime import timedelta
 import logging
-from datetime import datetime, timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .api import ABBPowerOneFimerAPI
 from .const import (
@@ -38,15 +39,11 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
         # get parameters from user config
         self.name = str(config_entry.data.get(CONF_NAME))
         self.host = str(config_entry.data.get(CONF_HOST))
-        self.port = int(config_entry.data.get(CONF_PORT))
+        self.port = int(config_entry.data[CONF_PORT])
         # Handle backward compatibility: try new key first, fallback to old key
-        self.device_id = int(
-            config_entry.data.get(CONF_DEVICE_ID) or config_entry.data.get("slave_id")
-        )
-        self.base_addr = int(config_entry.data.get(CONF_BASE_ADDR))
-        self.scan_interval = int(
-            config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
-        )
+        self.device_id = int(config_entry.data.get(CONF_DEVICE_ID) or config_entry.data["slave_id"])
+        self.base_addr = int(config_entry.data[CONF_BASE_ADDR])
+        self.scan_interval = int(config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL))
 
         # enforce scan_interval bounds
         if self.scan_interval < MIN_SCAN_INTERVAL:
@@ -72,7 +69,7 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
             update_interval=self.update_interval,
         )
 
-        self.last_update_time = datetime.now()
+        self.last_update_time = dt_util.utcnow()
         self.last_update_success = True
 
         self.api = ABBPowerOneFimerAPI(
@@ -85,9 +82,7 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
             self.scan_interval,
         )
 
-        log_debug(
-            _LOGGER, "__init__", "Coordinator Config Data", data=config_entry.data
-        )
+        log_debug(_LOGGER, "__init__", "Coordinator Config Data", data=config_entry.data)
         log_debug(
             _LOGGER,
             "__init__",
@@ -101,10 +96,10 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator):
 
     async def async_update_data(self):
         """Update data method."""
-        log_debug(_LOGGER, "async_update_data", "Update started", time=datetime.now())
+        log_debug(_LOGGER, "async_update_data", "Update started", time=dt_util.utcnow())
         try:
             self.last_update_status = await self.api.async_get_data()
-            self.last_update_time = datetime.now()
+            self.last_update_time = dt_util.utcnow()
             log_debug(
                 _LOGGER,
                 "async_update_data",

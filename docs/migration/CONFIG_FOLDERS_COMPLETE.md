@@ -5,20 +5,24 @@
 
 ## Summary
 
-All configuration folders have been successfully copied from the old integration to both new integrations with appropriate adaptations.
+All configuration folders have been successfully copied from the old integration to both new integrations with
+appropriate adaptations.
 
 ## Configuration Folders Copied
 
 ### ✅ .claude/
+
 - `settings.local.json` - Adapted with integration-specific paths
   - Modbus: `//d/OSILifeDrive/Dev/HASS/ha-abb-fimer-pvi-sunspec/**`
   - REST: `//d/OSILifeDrive/Dev/HASS/ha-abb-fimer-pvi-vsn-rest/**`
 
 ### ✅ .devcontainer/
+
 - `Dockerfile` - Copied as-is (generic HA dev environment)
 - `devcontainer.json` - Copied as-is (generic HA dev configuration)
 
 ### ✅ .github/
+
 **Workflows (5 files):**
 
 - `workflows/lint.yml` - Ruff linting
@@ -39,16 +43,19 @@ All configuration folders have been successfully copied from the old integration
 - `release-notes-template.md` - Release notes template
 
 ### ✅ .vscode/
+
 - `tasks.json` - VS Code tasks configuration
 - `launch.json` - VS Code debugging configuration
 
 ### ✅ Root Config Files
+
 - `.gitignore` - Git ignore patterns
 - `.gitattributes` - Git attributes configuration
 
 ## File Counts
 
 ### Modbus Integration (ha-abb-fimer-pvi-sunspec)
+
 - ✅ .claude: 1 file
 - ✅ .devcontainer: 2 files
 - ✅ .github: 10 files
@@ -57,6 +64,7 @@ All configuration folders have been successfully copied from the old integration
 - **Total config files: 17**
 
 ### REST Integration (ha-abb-fimer-pvi-vsn-rest)
+
 - ✅ .claude: 1 file
 - ✅ .devcontainer: 2 files
 - ✅ .github: 10 files
@@ -67,6 +75,7 @@ All configuration folders have been successfully copied from the old integration
 ## Adaptations Made
 
 ### Integration-Specific
+
 1. **URL Replacements** in issue templates:
    - Modbus: `alexdelprete/ha-abb-fimer-pvi-sunspec`
    - REST: `alexdelprete/ha-abb-fimer-pvi-vsn-rest`
@@ -76,6 +85,7 @@ All configuration folders have been successfully copied from the old integration
    - REST: Paths point to `ha-abb-fimer-pvi-vsn-rest`
 
 ### Files Copied As-Is
+
 All other files were copied without modification as they contain generic configurations:
 
 - Dockerfile and devcontainer.json (generic HA development environment)
@@ -88,6 +98,7 @@ All other files were copied without modification as they contain generic configu
 Both integrations now have:
 
 ### Structure
+
 - ✅ Complete directory trees
 - ✅ All Python implementation files
 - ✅ All documentation files
@@ -95,6 +106,7 @@ Both integrations now have:
 - ✅ All workflows and automation
 
 ### Configuration
+
 - ✅ Claude Code permissions
 - ✅ Development container setup
 - ✅ GitHub Actions workflows
@@ -103,6 +115,7 @@ Both integrations now have:
 - ✅ Git configuration
 
 ### Ready For
+
 - ✅ Git initialization
 - ✅ GitHub repository creation
 - ✅ Development in devcontainer

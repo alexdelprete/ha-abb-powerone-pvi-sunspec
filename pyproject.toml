@@ -1,0 +1,266 @@
+[project]
+name = "ha-abb-powerone-pvi-sunspec"
+version = "4.1.8"
+description = "Home Assistant integration for ABB/Power-One/FIMER PVI inverters via SunSpec Modbus TCP"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.14.2"
+authors = [{ name = "alexdelprete" }]
+
+[project.urls]
+"Homepage" = "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec"
+"Bug Tracker" = "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pymodbus>=3.15.0",
+    "colorlog>=6.10.0",
+    "homeassistant>=2026.8.0",
+    "homeassistant-stubs",
+    "mdformat",
+    "mdformat-gfm",
+    "pre-commit",
+    "pymarkdownlnt",
+    "ruff==0.16.8",
+    "ty==0.0.82",
+    "pytest>=9.0.0",
+    "pytest-asyncio>=1.3.0",
+    "pytest-cov",
+    "pytest-homeassistant-custom-component==0.13.366",
+    "pytest-timeout",
+]
+
+# <!-- BEGIN SHARED:repo-sync -->
+# Synced by repo-sync on 2026-10-03
+
+
+# Explicit package discovery: scripts/develop creates a config/ directory at the
+# repo root for the live HA dev instance, which makes setuptools' flat-layout
+# auto-discovery ambiguous (config/ vs custom_components/) and abort the build.
+[tool.setuptools.packages.find]
+include = ["custom_components*"]
+
+[tool.codespell]
+skip = "*.json"
+quiet-level = 3
+ignore-words-list = "hass"
+
+[tool.pytest.ini_options]
+addopts = """
+  --timeout=20
+"""
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.coverage.run]
+branch = true
+source = ["custom_components.abb_powerone_pvi_sunspec"]
+relative_files = true
+
+[tool.coverage.report]
+show_missing = true
+
+# ty type checker configuration (Rust-based, faster than mypy)
+[tool.ty.environment]
+python-version = "3.14"
+python-platform = "linux"
+
+[tool.ty.rules]
+# Promote warnings to errors for strictness
+deprecated = "error"
+redundant-cast = "error"
+
+[tool.ruff]
+line-length = 100
+indent-width = 4
+fix = true
+target-version = "py314"
+required-version = ">=0.15.17"
+
+# Exclude non-code directories from formatting and linting
+extend-exclude = [
+    ".vscode",
+    ".devcontainer",
+    ".github",
+    "docs",
+    "gfxfiles",
+    # Keep ruff >= 0.16 from reformatting Python code blocks inside Markdown
+    # (docs snippets and the repo-sync-managed CLAUDE.md SHARED zone are
+    # hand-formatted; the linter never processed .md files anyway)
+    "*.md",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "lf"
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = [
+    "A001",     # Variable {name} is shadowing a Python builtin
+    "ASYNC",    # flake8-async
+    "B",        # flake8-bugbear
+    "BLE",      # flake8-blind-except
+    "C",        # complexity
+    "COM818",   # Trailing comma on bare tuple prohibited
+    "D",        # pydocstyle
+    "DTZ",      # flake8-datetimez
+    "E",        # pycodestyle errors
+    "F",        # pyflakes
+    "FLY",      # flynt
+    "FURB",     # refurb
+    "G",        # flake8-logging-format
+    "I",        # isort
+    "ICN001",   # import conventions
+    "INP",      # flake8-no-pep420
+    "ISC",      # flake8-implicit-str-concat
+    "LOG",      # flake8-logging
+    "N",        # pep8-naming
+    "PERF",     # perflint
+    "PGH",      # pygrep-hooks
+    "PIE",      # flake8-pie
+    "PL",       # pylint
+    "PT",       # flake8-pytest-style
+    "PTH",      # flake8-pathlib
+    "PYI",      # flake8-pyi
+    "RET",      # flake8-return
+    "RSE",      # flake8-raise
+    "RUF",      # ruff-specific rules
+    "S",        # flake8-bandit (security)
+    "SIM",      # flake8-simplify
+    "SLF",      # flake8-self
+    "SLOT",     # flake8-slots
+    "T10",      # flake8-debugger
+    "T20",      # flake8-print
+    "TC",       # flake8-type-checking
+    "TID",      # flake8-tidy-imports
+    "TRY",      # tryceratops
+    "UP",       # pyupgrade
+    "W",        # pycodestyle warnings
+]
+
+ignore = [
+    "D100",     # Missing docstring in public module
+    "D101",     # Missing docstring in public class
+    "D102",     # Missing docstring in public method
+    "D103",     # Missing docstring in public function
+    "D104",     # Missing docstring in public package
+    "D105",     # Missing docstring in magic method
+    "D107",     # Missing docstring in __init__
+    "D202",     # No blank lines allowed after function docstring
+    "D203",     # 1 blank line required before class docstring
+    "D213",     # Multi-line docstring summary should start at the second line
+    "D406",     # Section name should end with a newline
+    "D407",     # Section name underlining
+    "E501",     # line too long
+
+    "PLC1901",  # compare-to-empty-string
+    "PLR0904",  # Too many public methods
+    "PLR0911",  # Too many return statements
+    "PLR0912",  # Too many branches
+    "PLR0913",  # Too many arguments
+    "PLR0914",  # Too many local variables
+    "PLR0915",  # Too many statements
+    "PLR0916",  # Too many Boolean expressions
+    "PLR0917",  # Too many positional arguments
+    "PLR1702",  # Too many nested blocks
+    "PLR2004",  # Magic value used in comparison
+    "PLW2901",  # Outer variable overwritten by inner target
+
+    "PT011",    # pytest.raises is too broad
+    "PT018",    # Assertion should be broken down
+
+    "RUF001",   # String contains ambiguous unicode
+    "RUF002",   # Docstring contains ambiguous unicode
+    "RUF003",   # Comment contains ambiguous unicode
+    "RUF015",   # Prefer next(...) over single element slice
+
+    "SIM102",   # Use a single if statement instead of nested
+    "SIM103",   # Return the condition directly
+    "SIM108",   # Use ternary operator
+    "SIM115",   # Use context handler for opening files
+
+    # Moving imports into type-checking blocks can mess with pytest.patch()
+    "TC001",    # Move application import into a type-checking block
+    "TC002",    # Move third-party import into a type-checking block
+    "TC003",    # Move standard library import into a type-checking block
+
+    "TRY003",   # Avoid specifying long messages outside the exception class
+    "TRY400",   # Use logging.exception instead of logging.error
+    "PGH003",   # Use specific rule codes when ignoring type issues
+
+    # May conflict with the formatter
+    "W191",
+    "E111",
+    "E114",
+    "E117",
+    "D206",
+    "D300",
+    "Q",
+    "COM812",
+    "COM819",
+    "ISC001",
+
+    # Disabled because ruff does not understand type of __all__ generated by a function
+    "PLE0605",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = [
+    "INP001",
+]
+"tests/*" = [
+    "D",        # Docstring rules
+    "S101",     # Use of assert detected
+    "SLF001",   # Private member accessed
+    "PLR2004",  # Magic value used in comparison
+    "PLR0913",  # Too many arguments
+    "C901",     # Function is too complex
+    "B017",     # Don't assert blind Exception
+    "PT006",    # Wrong type passed to first argument
+    "S108",     # Probable insecure usage of temporary file
+]
+"custom_components/abb_powerone_pvi_sunspec/pymodbus_payload.py" = [
+    "N802",
+]
+"docs/**" = [
+    "ALL",
+]
+
+[tool.ruff.lint.flake8-import-conventions.extend-aliases]
+voluptuous = "vol"
+"homeassistant.helpers.area_registry" = "ar"
+"homeassistant.helpers.config_validation" = "cv"
+"homeassistant.helpers.device_registry" = "dr"
+"homeassistant.helpers.entity_registry" = "er"
+"homeassistant.helpers.issue_registry" = "ir"
+"homeassistant.util.dt" = "dt_util"
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"async_timeout".msg = "use asyncio.timeout instead"
+"pytz".msg = "use zoneinfo instead"
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+known-first-party = ["homeassistant"]
+combine-as-imports = true
+split-on-trailing-comma = false
+
+[tool.ruff.lint.mccabe]
+max-complexity = 25
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mdformat]
+wrap = 120
+number = true
+
+# <!-- END SHARED:repo-sync -->

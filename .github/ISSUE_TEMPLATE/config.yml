@@ -1,11 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: I need support
-    url: https://github.com/nathanmarlor/alexdelprete/ha-abb-powerone-pvi-sunspec/discussions/new?category=support
-    about: Questions? Problems? Get help here
-  - name: Feature request
-    url: https://github.com/nathanmarlor/alexdelprete/ha-abb-powerone-pvi-sunspec/discussions/new?category=ideas
-    about: Share ideas for new features
-  - name: Anything else
-    url: https://github.com/nathanmarlor/alexdelprete/ha-abb-powerone-pvi-sunspec/discussions/new?category=general
-    about: If it's something else or you're not sure, open a discussion
+  - name: Support & Questions
+    url: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/discussions
+    about: Get help with setup and configuration
+  - name: Feature Ideas
+    url: https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/discussions/categories/ideas
+    about: Share and discuss feature ideas

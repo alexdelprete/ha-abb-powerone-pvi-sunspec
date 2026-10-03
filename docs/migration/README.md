@@ -1,6 +1,7 @@
 # Migration Archive
 
-This directory contains scripts and documentation used during the migration from the unified integration (v4.x) to two separate integrations.
+This directory contains scripts and documentation used during the migration from the unified integration (v4.x) to two
+separate integrations.
 
 ## Date
 
@@ -41,7 +42,8 @@ These Python scripts and shell scripts were used to generate the complete boiler
 
 ## Migration Rationale
 
-The original plan for a universal client combining both Modbus and REST protocols added complexity without clear user benefit. Most users have either:
+The original plan for a universal client combining both Modbus and REST protocols added complexity without clear user
+benefit. Most users have either:
 
 - Direct Modbus access to inverters, OR
 - VSN dataloggers with REST API

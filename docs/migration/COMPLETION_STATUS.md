@@ -14,7 +14,8 @@ Both integrations now have complete file structures with implementation stubs re
 **Python Files:** 14
 
 ### Structure
-```
+
+```text
 ha-abb-fimer-pvi-sunspec/
 ├── custom_components/abb_fimer_pvi_sunspec/
 │   ├── __init__.py ✅
@@ -56,7 +57,8 @@ ha-abb-fimer-pvi-sunspec/
 **Python Files:** 15
 
 ### Structure
-```
+
+```text
 ha-abb-fimer-pvi-vsn-rest/
 ├── custom_components/abb_fimer_pvi_vsn_rest/
 │   ├── __init__.py ✅
@@ -95,6 +97,7 @@ ha-abb-fimer-pvi-vsn-rest/
 ## Files Added in Final Completion
 
 ### Modbus Integration
+
 1. `async_sunspec_client/client.py` - Main SunSpec client
 2. `coordinator.py` - DataUpdateCoordinator
 3. `sensor.py` - Sensor platform
@@ -104,6 +107,7 @@ ha-abb-fimer-pvi-vsn-rest/
 7. `vendor/sunspec_models/README.md` - Model notes
 
 ### REST Integration
+
 1. `abb_fimer_vsn_rest_client/client.py` - REST client
 2. `abb_fimer_vsn_rest_client/auth.py` - Authentication
 3. `abb_fimer_vsn_rest_client/normalizer.py` - Data normalization

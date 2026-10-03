@@ -6,7 +6,9 @@ Branch: feature/abb-fimer-client-library
 
 Overview
 
-- Goal: Modernize the ABB/Power-One/FIMER integration by introducing a universal data hub that can speak either REST (VSN300/VSN700) or Modbus/TCP (SunSpec), while moving our SunSpec engine to an async, model-driven implementation based on vendored SunSpec JSON models.
+- Goal: Modernize the ABB/Power-One/FIMER integration by introducing a universal data hub that can speak either REST
+  (VSN300/VSN700) or Modbus/TCP (SunSpec), while moving our SunSpec engine to an async, model-driven implementation
+  based on vendored SunSpec JSON models.
 - Outcomes:
   - Better reliability and performance with true async I/O across all paths
   - Cleaner device/measurement schema independent of protocol
@@ -183,7 +185,8 @@ Contributor guidance
 - Follow coding standards in CLAUDE.md (async-first, logging helpers, unified exceptions, no f-strings in logs)
 - Prefer typed dataclasses for schema shapes
 - Keep protocol-specific code contained within library boundaries; the HA integration consumes only the universal client
-- When adding measurements, extend the normalized schema and update capability maps; do not wire entities directly to protocol-specific structures
+- When adding measurements, extend the normalized schema and update capability maps; do not wire entities directly to
+  protocol-specific structures
 
 Maintenance notes
 

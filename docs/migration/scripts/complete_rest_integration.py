@@ -99,7 +99,9 @@ for filename, content in files.items():
     create_file(client / filename, content)
 
 # Integration files
-create_file(comp / "coordinator.py", '''"""Coordinator."""
+create_file(
+    comp / "coordinator.py",
+    '''"""Coordinator."""
 from datetime import timedelta
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .const import DOMAIN
@@ -114,18 +116,24 @@ class ABBFimerPVIVSNRestCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         return await self.client.get_all_data()
-''')
+''',
+)
 
-create_file(comp / "sensor.py", '''"""Sensor platform."""
+create_file(
+    comp / "sensor.py",
+    '''"""Sensor platform."""
 from homeassistant.components.sensor import SensorEntity
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up sensors."""
     # TODO: Implement sensor setup
     pass
-''')
+''',
+)
 
-create_file(comp / "config_flow.py", '''"""Config flow."""
+create_file(
+    comp / "config_flow.py",
+    '''"""Config flow."""
 import voluptuous as vol
 from homeassistant import config_entries
 from .const import DOMAIN
@@ -147,9 +155,12 @@ class ABBFimerPVIVSNRestConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required("password"): str,
             })
         )
-''')
+''',
+)
 
-create_file(comp / "helpers.py", '''"""Helper functions."""
+create_file(
+    comp / "helpers.py",
+    '''"""Helper functions."""
 import logging
 
 def log_debug(logger: logging.Logger, context: str, message: str, **kwargs):
@@ -171,10 +182,13 @@ def log_error(logger: logging.Logger, context: str, message: str, **kwargs):
     """Log error."""
     extra = " ".join(f"{k}={v}" for k, v in kwargs.items())
     logger.error("%s: %s %s", context, message, extra)
-''')
+''',
+)
 
 # Documentation
-create_file(base / "README.md", f'''# ABB/FIMER PVI VSN REST
+create_file(
+    base / "README.md",
+    f"""# ABB/FIMER PVI VSN REST
 
 ⚠️ **BETA v{VERSION}**
 
@@ -187,24 +201,33 @@ Via HACS or manual installation.
 ## Configuration
 
 Configure via UI with host, username, password.
-''')
+""",
+)
 
-create_file(base / "CHANGELOG.md", f'''# Changelog
+create_file(
+    base / "CHANGELOG.md",
+    f"""# Changelog
 
 ## [{VERSION}] - 2025-10-26
 
 Initial beta release.
-''')
+""",
+)
 
-create_file(base / "CLAUDE.md", '''# Development Guidelines
+create_file(
+    base / "CLAUDE.md",
+    """# Development Guidelines
 
 REST integration for VSN dataloggers.
 
 See main repository documentation.
-''')
+""",
+)
 
 # Workflows
-create_file(base / ".github" / "workflows" / "lint.yml", '''name: Lint
+create_file(
+    base / ".github" / "workflows" / "lint.yml",
+    """name: Lint
 on: [push, pull_request]
 jobs:
   ruff:
@@ -212,21 +235,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: chartboost/ruff-action@v1
-''')
+""",
+)
 
 # Tests
-create_file(base / "tests" / "test_client.py", '''"""Client tests."""
+create_file(
+    base / "tests" / "test_client.py",
+    '''"""Client tests."""
 def test_placeholder():
     """Placeholder."""
     assert True
-''')
+''',
+)
 
 # Vendor
-create_file(base / "vendor" / "sunspec_models" / "README.md",
-'''# SunSpec Models
+create_file(
+    base / "vendor" / "sunspec_models" / "README.md",
+    """# SunSpec Models
 
 Download from https://github.com/sunspec/models
-''')
+""",
+)
 
 print("\n✅ REST integration structure complete!")
 print(f"\nLocation: {REST_DIR}")

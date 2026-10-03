@@ -22,7 +22,9 @@ client = comp / "async_sunspec_client"
 print("Creating missing Modbus integration files...\n")
 
 # Client library
-create_file(client / "client.py", '''"""Main SunSpec client implementation."""
+create_file(
+    client / "client.py",
+    '''"""Main SunSpec client implementation."""
 import logging
 from .discovery import discover_models
 from .models import load_model_definition
@@ -57,10 +59,13 @@ class AsyncSunSpecClient:
         """Read all discovered models."""
         # TODO: Implement Modbus reading
         return {}
-''')
+''',
+)
 
 # Coordinator
-create_file(comp / "coordinator.py", '''"""DataUpdateCoordinator for SunSpec."""
+create_file(
+    comp / "coordinator.py",
+    '''"""DataUpdateCoordinator for SunSpec."""
 from datetime import timedelta
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from .const import CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL, DOMAIN
@@ -85,20 +90,26 @@ class ABBFimerPVISunSpecCoordinator(DataUpdateCoordinator):
             return await self.client.read_all()
         except Exception as err:
             raise UpdateFailed(f"Error: {err}") from err
-''')
+''',
+)
 
 # Sensor platform
-create_file(comp / "sensor.py", '''"""Sensor platform for SunSpec."""
+create_file(
+    comp / "sensor.py",
+    '''"""Sensor platform for SunSpec."""
 from homeassistant.components.sensor import SensorEntity
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up sensors."""
     # TODO: Implement dynamic sensor creation
     pass
-''')
+''',
+)
 
 # Workflow
-create_file(base / ".github" / "workflows" / "lint.yml", '''name: Lint
+create_file(
+    base / ".github" / "workflows" / "lint.yml",
+    """name: Lint
 on: [push, pull_request]
 jobs:
   ruff:
@@ -106,23 +117,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: chartboost/ruff-action@v1
-''')
+""",
+)
 
 # Tests
-create_file(base / "tests" / "test_discovery.py", '''"""Discovery tests."""
+create_file(
+    base / "tests" / "test_discovery.py",
+    '''"""Discovery tests."""
 def test_placeholder():
     """Placeholder test."""
     assert True
-''')
+''',
+)
 
-create_file(base / "tests" / "test_parser.py", '''"""Parser tests."""
+create_file(
+    base / "tests" / "test_parser.py",
+    '''"""Parser tests."""
 def test_placeholder():
     """Placeholder test."""
     assert True
-''')
+''',
+)
 
 # Vendor README
-create_file(base / "vendor" / "sunspec_models" / "README.md", '''# SunSpec Models
+create_file(
+    base / "vendor" / "sunspec_models" / "README.md",
+    """# SunSpec Models
 
 Download JSON models from: https://github.com/sunspec/models
 
@@ -138,7 +158,8 @@ Required files in `json/` directory:
 
 Create NOTICE file with Apache-2.0 license text.
 Create NAMESPACE file with upstream URL, ref, and timestamp.
-''')
+""",
+)
 
 print("\n✅ Modbus integration structure complete!")
 print(f"\nLocation: {MODBUS_DIR}")

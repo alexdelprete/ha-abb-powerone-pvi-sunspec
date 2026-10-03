@@ -1,44 +1,54 @@
-name: "Lint"
+name: Lint
 
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  ruff:
-    name: "Ruff"
-    runs-on: "ubuntu-latest"
-
-    # see: https://github.com/stefanzweifel/git-auto-commit-action#usage
-    permissions:
-      # Give the default GITHUB_TOKEN write permission to commit and push the
-      # added or changed files to the repository.
-      contents: write
-
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
     steps:
-        - name: "Checkout the repository"
-          uses: "actions/checkout@v7.0.1"
-          with:
-            ref: ${{ github.head_ref }}
+      - name: Checkout repository
+        uses: actions/checkout@v7
 
-        - name: "Set up Python"
-          uses: actions/setup-python@v7.0.0
-          with:
-            python-version: "3.14"
-            cache: "pip"
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version-file: .python-version
 
-        - name: "Install requirements"
-          run: python3 -m pip install -r requirements.txt
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
 
-        - name: "Format"
-          run: python3 -m ruff format .
+      - name: Validate JSON files
+        run: find . -name "*.json" -not -path "./.vscode/*" | xargs uvx --from demjson3 jsonlint -S
 
-        - name: "Check"
-          run: python3 -m ruff check .
+      # Every uvx tool below is pinned via TOOL_VERSIONS in the template repo's
+      # repo-sync.py, which also renders the pre-commit hooks, so CI and the local
+      # hooks always run the same release. Bump there, not here.
+      - name: Validate YAML files
+        run: >-
+          uvx yamllint@1.38.0 -d "{extends: default, rules: {line-length: {max: 120},
+          document-start: disable, truthy: {check-keys: false},
+          comments: {min-spaces-from-content: 1}}}"
+          $(find . -name "*.yml" -o -name "*.yaml" | grep -v node_modules)
 
-        - name: "Auto Commit"
-          uses: stefanzweifel/git-auto-commit-action@v7.1.0
-          with:
-            commit_message: 'Style fixes by ruff'
+      - name: Lint Markdown files
+        run: uvx --from pymarkdownlnt==0.9.39 pymarkdown --config .pymarkdownlint.json scan .
+
+      - name: Run Ruff format check
+        run: uvx ruff@0.16.8 format . --check
+
+      - name: Run Ruff check
+        run: uvx ruff@0.16.8 check .
+
+      # ty needs dependencies installed to resolve imports (homeassistant, mqtt, etc.)
+      - name: Install dependencies for ty
+        run: uv pip install -e ".[dev]" --system
+      - name: Run ty
+        run: uvx ty@0.0.82 check -vv --python $(which python) custom_components/abb_powerone_pvi_sunspec

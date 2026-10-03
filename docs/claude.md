@@ -155,7 +155,8 @@ Instead, the project is splitting into **two new focused integrations:**
 
 ## Legacy Notes (v4.x - ARCHIVED)
 
-The original plan for a universal client architecture (as documented below) was abandoned in favor of the two-integration split approach.
+The original plan for a universal client architecture (as documented below) was abandoned in favor of the
+two-integration split approach.
 
 **Original planned architecture (NOT IMPLEMENTED):**
 

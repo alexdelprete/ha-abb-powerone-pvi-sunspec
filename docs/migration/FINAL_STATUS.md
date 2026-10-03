@@ -18,7 +18,8 @@ Updated **ha-abb-powerone-pvi-sunspec** (v4.x) with deprecation notices:
 **Location:** `d:\OSILifeDrive\Dev\HASS\ha-abb-fimer-pvi-sunspec`
 
 **Structure:**
-```
+
+```text
 ha-abb-fimer-pvi-sunspec/
 ├── LICENSE
 ├── README.md
@@ -54,7 +55,8 @@ ha-abb-fimer-pvi-sunspec/
 **Location:** `d:\OSILifeDrive\Dev\HASS\ha-abb-fimer-pvi-vsn-rest`
 
 **Structure:**
-```
+
+```text
 ha-abb-fimer-pvi-vsn-rest/
 ├── LICENSE
 ├── README.md
@@ -103,11 +105,13 @@ ha-abb-fimer-pvi-vsn-rest/
 ## File Counts
 
 ### Modbus Integration
+
 - **15 files** created
 - **3 directories** with structure
 - Implementation: **Stub files with TODO markers**
 
 ### REST Integration
+
 - **26 files** created
 - **5 directories** with structure
 - Implementation: **Basic implementations with TODO markers**
@@ -117,6 +121,7 @@ ha-abb-fimer-pvi-vsn-rest/
 ### Immediate: Initialize Git Repositories
 
 Run the initialization script:
+
 ```bash
 cd d:\OSILifeDrive\Dev\HASS\ha-abb-powerone-pvi-sunspec
 ./init_repos.sh
@@ -201,4 +206,5 @@ This will:
 
 ---
 
-**Status:** Both integration structures are complete and ready for git initialization and development. The boilerplate, documentation, and helper scripts are in place to support efficient implementation.
+**Status:** Both integration structures are complete and ready for git initialization and development. The
+boilerplate, documentation, and helper scripts are in place to support efficient implementation.

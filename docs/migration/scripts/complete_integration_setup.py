@@ -37,7 +37,9 @@ def add_modbus_documentation():
     docs = base / "docs"
 
     # CLAUDE.md
-    create_file(base / "CLAUDE.md", f"""# Claude Code Development Guidelines - ABB/FIMER PVI SunSpec (Modbus)
+    create_file(
+        base / "CLAUDE.md",
+        f"""# Claude Code Development Guidelines - ABB/FIMER PVI SunSpec (Modbus)
 
 ## Project Overview
 
@@ -242,10 +244,13 @@ The integration includes an embedded async SunSpec client library:
 - Do not forget to await async methods
 - Do not mix sync/async patterns
 - Do not hardcode model IDs - use dynamic discovery
-""")
+""",
+    )
 
     # docs/architecture-plan.md
-    create_file(docs / "architecture-plan.md", """# Architecture Plan - ABB/FIMER PVI SunSpec (Modbus)
+    create_file(
+        docs / "architecture-plan.md",
+        """# Architecture Plan - ABB/FIMER PVI SunSpec (Modbus)
 
 ## Executive Summary
 
@@ -418,7 +423,8 @@ entity_id = f"{device_type}_{serial}_{sunspec_point}"
 - [ ] Beta testing
 - [ ] Bug fixes
 - [ ] v1.0.0 stable release
-""")
+""",
+    )
 
     # Copy pysunspec2-analysis.md from old repo
     old_analysis = CURRENT_DIR / "docs" / "pysunspec2-analysis.md"
@@ -437,7 +443,9 @@ def add_rest_integration_files():
     client = comp / "abb_fimer_vsn_rest_client"
 
     # LICENSE
-    create_file(base / "LICENSE", f"""MIT License
+    create_file(
+        base / "LICENSE",
+        f"""MIT License
 
 Copyright (c) 2019 - {YEAR} Alessandro Del Prete @alexdelprete
 
@@ -458,10 +466,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-""")
+""",
+    )
 
     # manifest.json
-    create_file(comp / "manifest.json", f'''{{
+    create_file(
+        comp / "manifest.json",
+        f'''{{
   "domain": "abb_fimer_pvi_vsn_rest",
   "name": "ABB/FIMER PVI VSN REST",
   "codeowners": ["@alexdelprete"],
@@ -475,10 +486,13 @@ SOFTWARE.
   "single_config_entry": false,
   "version": "{VERSION}"
 }}
-''')
+''',
+    )
 
     # const.py
-    create_file(comp / "const.py", f'''"""Constants for ABB FIMER PVI VSN REST integration."""
+    create_file(
+        comp / "const.py",
+        f'''"""Constants for ABB FIMER PVI VSN REST integration."""
 
 DOMAIN = "abb_fimer_pvi_vsn_rest"
 VERSION = "{VERSION}"
@@ -513,10 +527,13 @@ If you have any issues, please report them at:
 https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-rest/issues
 -------------------------------------------------------------------
 """
-''')
+''',
+    )
 
     # __init__.py stub
-    create_file(comp / "__init__.py", '''"""ABB FIMER PVI VSN REST Integration.
+    create_file(
+        comp / "__init__.py",
+        '''"""ABB FIMER PVI VSN REST Integration.
 
 https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-rest
 """
@@ -568,10 +585,13 @@ async def async_unload_entry(
 ) -> bool:
     """Unload a config entry."""
     return await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS)
-''')
+''',
+    )
 
     # Client library __init__.py
-    create_file(client / "__init__.py", '''"""ABB FIMER VSN REST Client Library."""
+    create_file(
+        client / "__init__.py",
+        '''"""ABB FIMER VSN REST Client Library."""
 
 from .exceptions import (
     VSNClientError,
@@ -586,10 +606,13 @@ __all__ = [
     "VSNConnectionError",
     "VSNDetectionError",
 ]
-''')
+''',
+    )
 
     # Client exceptions
-    create_file(client / "exceptions.py", '''"""Exceptions for abb-fimer-vsn-rest-client."""
+    create_file(
+        client / "exceptions.py",
+        '''"""Exceptions for abb-fimer-vsn-rest-client."""
 
 
 class VSNClientError(Exception):
@@ -606,14 +629,17 @@ class VSNAuthenticationError(VSNClientError):
 
 class VSNDetectionError(VSNClientError):
     """VSN model detection error."""
-''')
+''',
+    )
 
     # Copy .ruff.toml
     ruff_content = (CURRENT_DIR / ".ruff.toml").read_text(encoding="utf-8")
     create_file(base / ".ruff.toml", ruff_content)
 
     # hacs.json
-    create_file(base / "hacs.json", '''{
+    create_file(
+        base / "hacs.json",
+        """{
   "name": "ABB FIMER PVI VSN REST",
   "homeassistant": "2025.10.0",
   "content_in_root": false,
@@ -621,7 +647,8 @@ class VSNDetectionError(VSNClientError):
   "zip_release": true,
   "filename": "abb_fimer_pvi_vsn_rest.zip"
 }
-''')
+""",
+    )
 
     # Copy mapping Excel and scripts
     mapping_excel = CURRENT_DIR / "docs" / "vsn-sunspec-point-mapping.xlsx"
@@ -644,7 +671,9 @@ def create_init_script():
     print("\n=== Creating Repository Initialization Script ===\n")
 
     script_path = PARENT_DIR / "ha-abb-powerone-pvi-sunspec" / "init_repos.sh"
-    create_file(script_path, f'''#!/bin/bash
+    create_file(
+        script_path,
+        f"""#!/bin/bash
 # Initialize both new repositories for BETA release
 
 set -e
@@ -700,10 +729,12 @@ echo "3. Create pre-releases:"
 echo "   cd $MODBUS_DIR && gh release create v{VERSION} --prerelease --title 'v{VERSION}' --notes 'Initial beta release'"
 echo "   cd $REST_DIR && gh release create v{VERSION} --prerelease --title 'v{VERSION}' --notes 'Initial beta release'"
 echo ""
-''')
+""",
+    )
 
     # Make executable
     import stat
+
     script_path.chmod(script_path.stat().st_mode | stat.S_IEXEC)
     print(f"✅ Created: {script_path}")
 

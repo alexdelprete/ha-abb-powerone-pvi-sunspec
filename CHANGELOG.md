@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+No unreleased changes at this time.
+
+## [4.2.0] - 2026-10-03
+
 ### ⚠️ Requirements
 
 - Requires Home Assistant **2026.9.0** or newer (v4.1.8 required 2025.10.0)

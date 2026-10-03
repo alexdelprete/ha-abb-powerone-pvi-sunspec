@@ -3,7 +3,9 @@
 https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 """
 
+from collections.abc import Mapping
 import logging
+from typing import Any
 
 from modbus_connection import ModbusError, ModbusTcpParams
 import voluptuous as vol
@@ -39,18 +41,97 @@ from .const import (
     MIN_PORT,
     MIN_SCAN_INTERVAL,
 )
-from .helpers import host_valid, log_debug, log_error
+from .helpers import host_valid, log_debug
 
 _LOGGER = logging.getLogger(__name__)
 
 
+DEVICE_ID_SELECTOR = selector(
+    {"number": {"min": MIN_DEVICE_ID, "max": MAX_DEVICE_ID, "step": 1, "mode": "box"}}
+)
+PORT_VALIDATOR = vol.All(vol.Coerce(int), vol.Clamp(min=MIN_PORT, max=MAX_PORT))
+BASE_ADDR_VALIDATOR = vol.All(vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR))
+SCAN_INTERVAL_VALIDATOR = vol.All(
+    vol.Coerce(int), vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL)
+)
+
+USER_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        vol.Required(CONF_HOST): cv.string,
+        vol.Required(CONF_PORT, default=DEFAULT_PORT): PORT_VALIDATOR,
+        vol.Required(CONF_DEVICE_ID, default=DEFAULT_DEVICE_ID): DEVICE_ID_SELECTOR,
+        vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): BASE_ADDR_VALIDATOR,
+        vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): SCAN_INTERVAL_VALIDATOR,
+    }
+)
+
+
+def connection_settings(data: Mapping[str, Any]) -> tuple[str, int, int, int]:
+    """Return the settings that select the inverter: host, port, unit id and base address."""
+    device_id = data.get(CONF_DEVICE_ID) or data.get("slave_id") or 0
+    return (
+        str(data.get(CONF_HOST)),
+        int(data.get(CONF_PORT) or 0),
+        int(device_id),
+        int(data.get(CONF_BASE_ADDR) or 0),
+    )
+
+
 @callback
-def get_host_from_config(hass: HomeAssistant):
+def get_host_from_config(hass: HomeAssistant) -> set[str]:
     """Return the hosts already configured."""
     return {
-        config_entry.data.get(CONF_HOST)
+        str(config_entry.data[CONF_HOST])
         for config_entry in hass.config_entries.async_entries(DOMAIN)
+        if CONF_HOST in config_entry.data
     }
+
+
+async def async_read_serial_number(
+    hass: HomeAssistant, data: dict[str, Any]
+) -> tuple[str | None, dict[str, str]]:
+    """Read the inverter that ``data`` points at.
+
+    Returns its serial number and no errors, or None and the form errors.
+    """
+    host = str(data[CONF_HOST])
+    if not host_valid(host):
+        return None, {CONF_HOST: "invalid_host"}
+
+    port = int(data[CONF_PORT])
+    device_id = int(data[CONF_DEVICE_ID])
+    params = ModbusTcpParams(host=host, port=port)
+    api: ABBPowerOneFimerAPI | None = None
+    try:
+        async with async_get_temporary_unit(hass, params, device_id) as unit:
+            api = ABBPowerOneFimerAPI(
+                str(data.get(CONF_NAME, DEFAULT_NAME)), host, unit, int(data[CONF_BASE_ADDR])
+            )
+            await api.async_get_data()
+    except HomeAssistantError as err:
+        # another integration holds this device with different link settings
+        log_debug(_LOGGER, "async_read_serial_number", "Link conflict", host=host, error=err)
+        return None, {"base": "modbus_link_conflict"}
+    except (ModbusError, OSError) as err:
+        log_debug(
+            _LOGGER,
+            "async_read_serial_number",
+            "Cannot connect",
+            host=host,
+            port=port,
+            device_id=device_id,
+            error=err,
+        )
+        return None, {"base": "cannot_connect"}
+    except Exception:
+        _LOGGER.exception("Unexpected error reading the inverter at %s", host)
+        return None, {"base": "unknown"}
+
+    if not (serial := api.data["comm_sernum"]):
+        return None, {"base": "no_serial_number"}
+    log_debug(_LOGGER, "async_read_serial_number", "Inverter found", host=host, serial=serial)
+    return serial, {}
 
 
 class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
@@ -61,116 +142,27 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[cal
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: ConfigEntry):
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
         """Initiate Options Flow Instance."""
         return ABBPowerOneFimerOptionsFlow(config_entry)
 
-    def _host_in_configuration_exists(self, host) -> bool:
-        """Return True if host exists in configuration."""
-        if host in get_host_from_config(self.hass):
-            return True
-        return False
-
-    async def get_unique_id(
-        self,
-        name: str,
-        host: str,
-        port: int,
-        device_id: int,
-        base_addr: int,
-    ) -> str | None:
-        """Read the inverter and return its serial number, or None if it cannot be read."""
-        log_debug(
-            _LOGGER, "get_unique_id", "Test connection", host=host, port=port, device_id=device_id
-        )
-        params = ModbusTcpParams(host=host, port=port)
-        try:
-            async with async_get_temporary_unit(self.hass, params, device_id) as unit:
-                api = ABBPowerOneFimerAPI(name, host, unit, base_addr)
-                data = await api.async_get_data()
-        except (ModbusError, HomeAssistantError) as err:
-            log_error(
-                _LOGGER,
-                "get_unique_id",
-                "Failed to connect",
-                host=host,
-                port=port,
-                device_id=device_id,
-                error=err,
-            )
-            return None
-        return data["comm_sernum"] or None
-
-    async def async_step_user(self, user_input=None) -> ConfigFlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle the initial step."""
-        errors = {}
+        errors: dict[str, str] = {}
 
         if user_input is not None:
-            name = str(user_input[CONF_NAME])
-            host = str(user_input[CONF_HOST])
-            port = int(user_input[CONF_PORT])
-            device_id = int(user_input[CONF_DEVICE_ID])
-            base_addr = int(user_input[CONF_BASE_ADDR])
-
-            if self._host_in_configuration_exists(host):
-                errors[CONF_HOST] = "Device Already Configured"
-            elif not host_valid(host):
-                errors[CONF_HOST] = "invalid Host IP"
+            if user_input[CONF_HOST] in get_host_from_config(self.hass):
+                errors[CONF_HOST] = "already_configured"
             else:
-                uid = await self.get_unique_id(name, host, port, device_id, base_addr)
-                if uid is not None:
-                    log_debug(_LOGGER, "async_step_user", "Device unique id", uid=uid)
-                    # Assign a unique ID to the flow and abort the flow
-                    # if another flow with the same unique ID is in progress
-                    await self.async_set_unique_id(uid)
-
-                    # Abort the flow if a config entry with the same unique ID exists
+                serial, errors = await async_read_serial_number(self.hass, user_input)
+                if serial is not None:
+                    await self.async_set_unique_id(serial)
                     self._abort_if_unique_id_configured()
                     return self.async_create_entry(title=user_input[CONF_NAME], data=user_input)
 
-                errors[CONF_HOST] = "Connection to device failed (S/N not retreived)"
-
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_NAME,
-                        default=DEFAULT_NAME,
-                    ): cv.string,
-                    vol.Required(
-                        CONF_HOST,
-                    ): cv.string,
-                    vol.Required(
-                        CONF_PORT,
-                        default=DEFAULT_PORT,
-                    ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_PORT, max=MAX_PORT)),
-                    vol.Required(
-                        CONF_DEVICE_ID,
-                        default=DEFAULT_DEVICE_ID,
-                    ): selector(
-                        {
-                            "number": {
-                                "min": MIN_DEVICE_ID,
-                                "max": MAX_DEVICE_ID,
-                                "step": 1,
-                                "mode": "box",
-                            }
-                        }
-                    ),
-                    vol.Required(
-                        CONF_BASE_ADDR,
-                        default=DEFAULT_BASE_ADDR,
-                    ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR)),
-                    vol.Required(
-                        CONF_SCAN_INTERVAL,
-                        default=DEFAULT_SCAN_INTERVAL,
-                    ): vol.All(
-                        vol.Coerce(int),
-                        vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL),
-                    ),
-                },
-            ),
+            data_schema=self.add_suggested_values_to_schema(USER_SCHEMA, user_input),
             errors=errors,
         )
 
@@ -182,59 +174,49 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
 
     def __init__(self, config_entry: ConfigEntry) -> None:
         """Initialize option flow instance."""
+        data = config_entry.data
         self.data_schema = vol.Schema(
             {
+                vol.Required(CONF_HOST, default=data.get(CONF_HOST)): cv.string,
+                vol.Required(CONF_PORT, default=data.get(CONF_PORT)): PORT_VALIDATOR,
                 vol.Required(
-                    CONF_HOST,
-                    default=config_entry.data.get(CONF_HOST),
-                ): cv.string,
+                    CONF_DEVICE_ID, default=data.get(CONF_DEVICE_ID) or data.get("slave_id")
+                ): DEVICE_ID_SELECTOR,
+                vol.Required(CONF_BASE_ADDR, default=data.get(CONF_BASE_ADDR)): BASE_ADDR_VALIDATOR,
                 vol.Required(
-                    CONF_PORT,
-                    default=config_entry.data.get(CONF_PORT),
-                ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_PORT, max=MAX_PORT)),
-                vol.Required(
-                    CONF_DEVICE_ID,
-                    default=config_entry.data.get(CONF_DEVICE_ID)
-                    or config_entry.data.get("slave_id"),
-                ): selector(
-                    {
-                        "number": {
-                            "min": MIN_DEVICE_ID,
-                            "max": MAX_DEVICE_ID,
-                            "step": 1,
-                            "mode": "box",
-                        }
-                    }
-                ),
-                vol.Required(
-                    CONF_BASE_ADDR,
-                    default=config_entry.data.get(CONF_BASE_ADDR),
-                ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR)),
-                vol.Required(
-                    CONF_SCAN_INTERVAL,
-                    default=config_entry.data.get(CONF_SCAN_INTERVAL),
-                ): vol.All(
-                    vol.Coerce(int),
-                    vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL),
-                ),
+                    CONF_SCAN_INTERVAL, default=data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+                ): SCAN_INTERVAL_VALIDATOR,
             }
         )
 
-    async def async_step_init(self, user_input=None) -> ConfigFlowResult:
-        """Manage the options."""
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Manage the options.
+
+        New connection settings are tested first and must reach the same
+        inverter; a polling-interval change alone is saved without a test, so it
+        works while the inverter is unreachable (e.g. at night).
+        """
+        errors: dict[str, str] = {}
 
         if user_input is not None:
-            # complete non-edited entries before update (ht @PeteRage)
-            if CONF_NAME in self.config_entry.data:
-                user_input[CONF_NAME] = self.config_entry.data.get(CONF_NAME)
+            entry = self.config_entry
+            # keep the name, which the options form does not edit (ht @PeteRage)
+            new_data = {**user_input}
+            if CONF_NAME in entry.data:
+                new_data[CONF_NAME] = entry.data[CONF_NAME]
 
-            # write updated config entries (ht @PeteRage / @fuatakgun)
-            self.hass.config_entries.async_update_entry(
-                self.config_entry, data=user_input, options=self.config_entry.options
-            )
-            self.async_abort(reason="configuration updated")
+            if connection_settings(new_data) != connection_settings(entry.data):
+                serial, errors = await async_read_serial_number(self.hass, new_data)
+                if serial is not None and entry.unique_id and serial != entry.unique_id:
+                    errors = {"base": "wrong_device"}
 
-            # write empty options entries (ht @PeteRage / @fuatakgun)
-            return self.async_create_entry(title="", data={})
+            if not errors:
+                # write updated config entries (ht @PeteRage / @fuatakgun)
+                self.hass.config_entries.async_update_entry(entry, data=new_data)
+                return self.async_create_entry(title="", data={})
 
-        return self.async_show_form(step_id="init", data_schema=self.data_schema)
+        return self.async_show_form(
+            step_id="init",
+            data_schema=self.add_suggested_values_to_schema(self.data_schema, user_input),
+            errors=errors,
+        )

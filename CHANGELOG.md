@@ -21,6 +21,12 @@ No unreleased changes at this time.
   instead of a private pymodbus client: the integration no longer installs pymodbus, and it can share the
   inverter with other integrations reading it. Entities and their unique IDs are unchanged
 - Removed the vendored pymodbus payload/constants modules
+- Robust error handling: every failure to read the inverter (link down, timeout, refused or short reply, transport
+  error) marks the sensors unavailable with a translated message and recovers on the next poll; readings SunSpec marks
+  as "not implemented" show as unknown instead of bogus values
+- The options flow tests new connection settings before saving them and refuses settings that reach a different
+  inverter; changing only the polling interval is never blocked
+- Config flow errors are translated (English, Portuguese) and the form keeps what you typed after an error
 
 ### 🐛 Bug Fixes
 

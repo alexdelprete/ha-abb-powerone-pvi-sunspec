@@ -14,6 +14,14 @@
         }
       }
     },
+    "error": {
+      "invalid_host": "Invalid IP address or host name.",
+      "already_configured": "This host is already configured.",
+      "cannot_connect": "Cannot read the inverter: check the host, port, Modbus device address and base address, and that Modbus TCP is enabled on the inverter or datalogger.",
+      "modbus_link_conflict": "Another integration already uses this device with different Modbus link settings.",
+      "no_serial_number": "The inverter answered but did not report a serial number. Try again when it is running.",
+      "unknown": "Unexpected error, see the Home Assistant log for details."
+    },
     "abort": {
       "already_configured": "Device is already configured"
     }
@@ -31,11 +39,25 @@
           "scan_interval": "Polling Period (min: 30s max: 600s)"
         }
       }
+    },
+    "error": {
+      "invalid_host": "Invalid IP address or host name.",
+      "cannot_connect": "Cannot read the inverter: check the host, port, Modbus device address and base address, and that Modbus TCP is enabled on the inverter or datalogger.",
+      "modbus_link_conflict": "Another integration already uses this device with different Modbus link settings.",
+      "no_serial_number": "The inverter answered but did not report a serial number. Try again when it is running.",
+      "unknown": "Unexpected error, see the Home Assistant log for details.",
+      "wrong_device": "These settings reach a different inverter than the one configured in this entry."
     }
   },
   "exceptions": {
     "modbus_link_conflict": {
       "message": "The inverter at {host} is already used by another integration with different Modbus link settings: {error}"
+    },
+    "update_failed": {
+      "message": "Error reading inverter {name}: {error}"
+    },
+    "no_serial_number": {
+      "message": "The inverter at {host} did not report a serial number; retrying."
     }
   }
 }

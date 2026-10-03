@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import Any
 
-from modbus_connection import ModbusConnectionError
+from modbus_connection import IllegalDataAddressError, ModbusConnectionError, ModbusTimeoutError
 from modbus_connection.mock import MockModbusUnit
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -66,12 +66,26 @@ async def test_update_returns_inverter_data(hass: HomeAssistant, mock_unit: Mock
     assert data["comm_sernum"] == TEST_SERIAL
 
 
+@pytest.mark.parametrize(
+    "error",
+    [
+        ModbusConnectionError("no route to host"),
+        ModbusTimeoutError("timed out"),
+        IllegalDataAddressError(),
+        ConnectionResetError("reset by peer"),
+    ],
+)
 async def test_update_failure_raises_update_failed(
-    hass: HomeAssistant, mock_unit: MockModbusUnit
+    hass: HomeAssistant, mock_unit: MockModbusUnit, error: Exception
 ) -> None:
-    """A Modbus error becomes UpdateFailed, so entities go unavailable until it recovers."""
+    """Any failure to read the inverter becomes a translated UpdateFailed with its cause."""
     coordinator = make_coordinator(hass, mock_unit)
-    mock_unit.fail_requests(ModbusConnectionError("no route to host"))
+    mock_unit.fail_requests(error)
 
-    with pytest.raises(UpdateFailed, match="no route to host"):
+    with pytest.raises(UpdateFailed) as exc_info:
         await coordinator._async_update_data()
+
+    assert exc_info.value.translation_domain == DOMAIN
+    assert exc_info.value.translation_key == "update_failed"
+    assert exc_info.value.translation_placeholders == {"name": "Inverter", "error": str(error)}
+    assert exc_info.value.__cause__ is error

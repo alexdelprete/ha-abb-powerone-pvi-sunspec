@@ -14,6 +14,14 @@
         }
       }
     },
+    "error": {
+      "invalid_host": "Endereço IP ou nome de anfitrião inválido.",
+      "already_configured": "Este anfitrião já está configurado.",
+      "cannot_connect": "Não é possível ler o inversor: verifique o anfitrião, a porta, o endereço Modbus do dispositivo e o endereço base, e se o Modbus TCP está ativo no inversor ou no datalogger.",
+      "modbus_link_conflict": "Outra integração já usa este dispositivo com definições de ligação Modbus diferentes.",
+      "no_serial_number": "O inversor respondeu mas não indicou o número de série. Tente novamente quando estiver em funcionamento.",
+      "unknown": "Erro inesperado, consulte o registo do Home Assistant para mais detalhes."
+    },
     "abort": {
       "already_configured": "Dispositivo já configurado"
     }
@@ -31,11 +39,25 @@
           "scan_interval": "Período de Polling (mín: 30s máx: 600s)"
         }
       }
+    },
+    "error": {
+      "invalid_host": "Endereço IP ou nome de anfitrião inválido.",
+      "cannot_connect": "Não é possível ler o inversor: verifique o anfitrião, a porta, o endereço Modbus do dispositivo e o endereço base, e se o Modbus TCP está ativo no inversor ou no datalogger.",
+      "modbus_link_conflict": "Outra integração já usa este dispositivo com definições de ligação Modbus diferentes.",
+      "no_serial_number": "O inversor respondeu mas não indicou o número de série. Tente novamente quando estiver em funcionamento.",
+      "unknown": "Erro inesperado, consulte o registo do Home Assistant para mais detalhes.",
+      "wrong_device": "Estas definições levam a um inversor diferente do configurado nesta entrada."
     }
   },
   "exceptions": {
     "modbus_link_conflict": {
       "message": "O inversor em {host} já está a ser usado por outra integração com definições de ligação Modbus diferentes: {error}"
+    },
+    "update_failed": {
+      "message": "Erro ao ler o inversor {name}: {error}"
+    },
+    "no_serial_number": {
+      "message": "O inversor em {host} não indicou o número de série; a tentar novamente."
     }
   }
 }

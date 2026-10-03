@@ -54,8 +54,19 @@ class ABBPowerOneFimerCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
 
     async def _async_update_data(self) -> dict[str, Any]:
-        """Read the inverter."""
+        """Read the inverter.
+
+        Any failure to talk to it (link down, timeout, refused or garbled read)
+        marks the entities unavailable until a later poll succeeds; HA logs the
+        failure and the recovery once each. ``OSError`` (which includes
+        ``TimeoutError``) is caught as a safety net for anything the Modbus
+        library does not wrap.
+        """
         try:
             return await self.api.async_get_data()
-        except ModbusError as err:
-            raise UpdateFailed(f"Error reading inverter {self.api.name}: {err}") from err
+        except (ModbusError, OSError) as err:
+            raise UpdateFailed(
+                translation_domain=DOMAIN,
+                translation_key="update_failed",
+                translation_placeholders={"name": self.api.name, "error": str(err)},
+            ) from err

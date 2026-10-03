@@ -10,7 +10,7 @@ https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 import logging
 from typing import Any
 
-from modbus_connection import ModbusError, ModbusExceptionError, ModbusUnit
+from modbus_connection import ModbusError, ModbusExceptionError, ModbusProtocolError, ModbusUnit
 from modbus_connection.decode import decode_int16, decode_string, decode_uint16, decode_uint32
 
 from .const import (
@@ -46,9 +46,18 @@ UNKNOWN_INVERTER_TYPE = 999
 UNKNOWN_STATUS = 999
 UNKNOWN_MODEL_OPTION = -1
 
+# SunSpec "not implemented" values: a point carrying one has no reading
+NOT_IMPLEMENTED_UINT16 = 0xFFFF
+NOT_IMPLEMENTED_INT16 = -0x8000  # also the "not implemented" scale factor
+NOT_IMPLEMENTED_UINT32 = 0xFFFFFFFF
+NOT_IMPLEMENTED_ACC32 = 0
+
 
 class _Registers:
-    """Read values in order from a block of holding registers."""
+    """Read values in order from a block of holding registers.
+
+    Numeric reads return None for SunSpec's "not implemented" value.
+    """
 
     def __init__(self, words: list[int]) -> None:
         """Start reading at the first register of the block."""
@@ -64,17 +73,20 @@ class _Registers:
         """Skip ``count`` registers."""
         self._pos += count
 
-    def uint16(self) -> int:
+    def uint16(self) -> int | None:
         """Read one register as an unsigned 16-bit integer."""
-        return decode_uint16(self._take(1))
+        value = decode_uint16(self._take(1))
+        return None if value == NOT_IMPLEMENTED_UINT16 else value
 
-    def int16(self) -> int:
-        """Read one register as a signed 16-bit integer."""
-        return decode_int16(self._take(1))
+    def int16(self) -> int | None:
+        """Read one register as a signed 16-bit integer (also a scale factor)."""
+        value = decode_int16(self._take(1))
+        return None if value == NOT_IMPLEMENTED_INT16 else value
 
-    def uint32(self) -> int:
-        """Read two registers as an unsigned 32-bit integer."""
-        return decode_uint32(self._take(2))
+    def acc32(self) -> int | None:
+        """Read two registers as a SunSpec 32-bit accumulator."""
+        value = decode_uint32(self._take(2))
+        return None if value in (NOT_IMPLEMENTED_ACC32, NOT_IMPLEMENTED_UINT32) else value
 
     def string(self, count: int) -> str:
         """Read ``count`` registers as an ASCII string, padding stripped."""
@@ -90,8 +102,9 @@ class ABBPowerOneFimerAPI:
     - SunSpec Model 160: multiple MPPT string data, at an offset found on first read
 
     Requests on the shared connection are serialized by Home Assistant, and the
-    connection is opened on the first request and kept for the next poll.
-    Errors are raised as ``modbus_connection.ModbusError``.
+    connection is opened on the first request and re-opened on the next request
+    after it drops. Errors are raised as ``modbus_connection.ModbusError``; a
+    reading the inverter does not implement is stored as None.
     """
 
     data: dict[str, Any]
@@ -176,11 +189,24 @@ class ABBPowerOneFimerAPI:
         return self._host
 
     async def _read(self, offset: int, count: int) -> _Registers:
-        """Read ``count`` holding registers at ``offset`` from the base address."""
-        return _Registers(await self._unit.read_holding_registers(self._base_addr + offset, count))
+        """Read ``count`` holding registers at ``offset`` from the base address.
 
-    def calculate_value(self, value: float, sf: int) -> float:
-        """Apply Scale Factor and round the result."""
+        Raises:
+            ModbusProtocolError: the inverter answered with a different number of registers
+
+        """
+        address = self._base_addr + offset
+        words = await self._unit.read_holding_registers(address, count)
+        if len(words) != count:
+            raise ModbusProtocolError(
+                f"Read of {count} registers at {address} returned {len(words)}"
+            )
+        return _Registers(words)
+
+    def calculate_value(self, value: float | None, sf: int | None) -> float | None:
+        """Apply Scale Factor and round the result; None if either is not implemented."""
+        if value is None or sf is None:
+            return None
         return round(value * 10**sf, max(0, -sf))
 
     def _parse_model_options(self, options_string: str) -> int:
@@ -197,13 +223,15 @@ class ABBPowerOneFimerAPI:
                 return UNKNOWN_MODEL_OPTION
         return ord(options_string[0])
 
-    def _apply_temperature_correction(self, temp_value: int, temp_sf: int) -> float:
+    def _apply_temperature_correction(
+        self, temp_value: int | None, temp_sf: int | None
+    ) -> float | None:
         """Apply temperature correction for cabinet temperature.
 
         In some inverters, the scale factor must be -2 instead of -1 as per specs.
         """
         temp_corrected = self.calculate_value(temp_value, temp_sf)
-        if temp_corrected > TEMP_THRESHOLD_CELSIUS:
+        if temp_corrected is not None and temp_corrected > TEMP_THRESHOLD_CELSIUS:
             temp_corrected = self.calculate_value(temp_value, TEMP_SCALE_FACTOR_CORRECTION)
         return temp_corrected
 
@@ -211,12 +239,14 @@ class ABBPowerOneFimerAPI:
         """Read all supported SunSpec models and return the updated data.
 
         Raises:
-            ModbusError: the inverter could not be reached or refused a read
+            ModbusError: the inverter could not be reached, refused a read or answered garbage
+            OSError: a transport error the Modbus library did not wrap
 
         """
         try:
             await self.read_sunspec_modbus()
-        except ModbusError:
+        except ModbusError, OSError:
+            # re-read the device info once the inverter answers again
             self._device_info_cached = False
             raise
         log_debug(_LOGGER, "async_get_data", "Data read successful")
@@ -252,7 +282,9 @@ class ABBPowerOneFimerAPI:
         """Return the offset of SunSpec Model 160, or 0 if the inverter has none.
 
         The model usually starts at base address + 122, but some inverters place
-        it elsewhere, so every known offset is tried in turn.
+        it elsewhere, so every known offset is tried in turn. An offset the
+        inverter refuses is skipped; any other error fails the poll, and the
+        search runs again on the next one.
         """
         for offset in SUNSPEC_M160_OFFSETS:
             try:
@@ -387,10 +419,13 @@ class ABBPowerOneFimerAPI:
         regs.skip(6)
 
         # registers 94 to 96
-        totalenergy = regs.uint32()
+        totalenergy = regs.acc32()
         totalenergy = self.calculate_value(totalenergy, regs.int16())
-        # totalenergy is total_increasing: never let it go backwards
-        if totalenergy < self.data["totalenergy"]:
+        # totalenergy is total_increasing: keep the last reading when there is
+        # none, and never let it go backwards
+        if totalenergy is None:
+            log_debug(_LOGGER, "read_sunspec_modbus_model_101_103", "Total energy not available")
+        elif totalenergy < self.data["totalenergy"]:
             log_error(
                 _LOGGER,
                 "read_sunspec_modbus_model_101_103",
@@ -432,7 +467,7 @@ class ABBPowerOneFimerAPI:
             status = UNKNOWN_STATUS
         self.data["status"] = DEVICE_STATUS[status]
 
-        # register 109
+        # register 109: ABB/FIMER global state (Aurora)
         statusvendor = regs.int16()
         if statusvendor not in DEVICE_GLOBAL_STATUS:
             log_debug(
@@ -464,7 +499,7 @@ class ABBPowerOneFimerAPI:
 
         # skip energy scale factor and events, then the number of DC modules
         regs.skip(3)
-        multi_mppt_nr = regs.int16()
+        multi_mppt_nr = regs.int16() or 0
         self.data["mppt_nr"] = multi_mppt_nr
 
         if multi_mppt_nr >= 1:

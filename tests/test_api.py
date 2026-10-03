@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+from unittest.mock import AsyncMock
+
 from modbus_connection import (
     IllegalDataAddressError,
     ModbusConnectionError,
     ModbusError,
     ModbusExceptionError,
+    ModbusProtocolError,
 )
 from modbus_connection.mock import MockModbusConnection, MockModbusUnit
 import pytest
@@ -282,3 +285,76 @@ async def test_properties_and_scaling() -> None:
     assert api.host == "192.168.1.50"
     assert api.calculate_value(12345, -2) == 123.45
     assert api.calculate_value(12, 2) == 1200
+
+
+async def test_not_implemented_values_have_no_reading() -> None:
+    """SunSpec "not implemented" values become None instead of garbage readings."""
+    api, _ = make_api(
+        InverterSpec(
+            ac_current=0xFFFF,  # uint16 not implemented
+            ac_power=-0x8000,  # int16 not implemented
+            ac_frequency_sf=-0x8000,  # scale factor not implemented
+            temp_cabinet=-0x8000,
+            mppts=[MpptSpec(0xFFFF, 3500, 800), MpptSpec(250, 3400, 750)],
+        )
+    )
+
+    data = await api.async_get_data()
+
+    assert data["accurrent"] is None
+    assert data["accurrenta"] == 4.11  # its own value is implemented
+    assert data["acpower"] is None
+    assert data["acfreq"] is None
+    assert data["tempcab"] is None
+    assert data["tempoth"] == 41.2
+    assert data["dc1curr"] is None
+    assert data["dc1volt"] == 350.0
+
+
+async def test_unavailable_total_energy_keeps_last_reading(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """An energy counter reading 0 (SunSpec: not accumulated) keeps the last value silently."""
+    api, unit = make_api()
+    await api.async_get_data()
+
+    unit.holding.update(build_register_map(InverterSpec(energy_total=0)))
+    data = await api.async_get_data()
+
+    assert data["totalenergy"] == 12345678
+    assert "Total Energy less than previous value" not in caplog.text
+
+
+async def test_not_implemented_mppt_count() -> None:
+    """A Model 160 without a module count reads no DC inputs instead of failing."""
+    api, unit = make_api()
+    unit.holding[122 + 8] = 0x8000
+
+    data = await api.async_get_data()
+
+    assert data["mppt_nr"] == 0
+    assert data["dc1power"] == 1  # untouched default
+
+
+async def test_short_read_is_a_protocol_error() -> None:
+    """A reply with fewer registers than requested is rejected, not decoded as zeros."""
+    api, unit = make_api()
+    unit.read_holding_registers = AsyncMock(return_value=[0] * 10)  # type: ignore[method-assign]
+
+    with pytest.raises(ModbusProtocolError):
+        await api.async_get_data()
+
+
+async def test_unwrapped_transport_error_resets_device_info() -> None:
+    """A raw OSError propagates and, like a Modbus error, forces Model 1 to be re-read."""
+    api, unit = make_api()
+    await api.async_get_data()
+
+    unit.fail_requests(ConnectionResetError("reset by peer"))
+    with pytest.raises(ConnectionResetError):
+        await api.async_get_data()
+    unit.fail_requests(None)
+
+    unit.read_events.clear()
+    await api.async_get_data()
+    assert read_addresses(unit)[0] == M1_ADDRESS

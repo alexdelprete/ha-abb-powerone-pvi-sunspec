@@ -72,10 +72,13 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ABBPowerOneFimerC
     # ref.: https://developers.home-assistant.io/docs/integration_setup_failures
     await coordinator.async_config_entry_first_refresh()
 
-    # Test to see if api initialised correctly, else raise ConfigNotReady to make HA retry setup
-    # Change this to match how your api will know if connected or successful update
+    # The serial number keys the device and every entity: retry until the inverter reports it
     if not coordinator.api.data["comm_sernum"]:
-        raise ConfigEntryNotReady(f"Timeout connecting to {config_entry.data.get(CONF_NAME)}")
+        raise ConfigEntryNotReady(
+            translation_domain=DOMAIN,
+            translation_key="no_serial_number",
+            translation_placeholders={"host": data[CONF_HOST]},
+        )
 
     # Store coordinator in runtime_data to make it accessible throughout the integration
     config_entry.runtime_data = RuntimeData(coordinator)

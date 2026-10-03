@@ -85,13 +85,12 @@ def async_update_device_registry(
         name=config_entry.data.get(CONF_NAME),
         serial_number=coordinator.api.data["comm_sernum"],
         sw_version=coordinator.api.data["comm_version"],
-        via_device=None,
     )
 
 
 async def async_remove_config_entry_device(hass: HomeAssistant, config_entry, device_entry) -> bool:
     """Delete device if not entities."""
-    if DOMAIN in device_entry.identifiers:
+    if any(identifier[0] == DOMAIN for identifier in device_entry.identifiers):
         log_error(
             _LOGGER,
             "async_remove_config_entry_device",

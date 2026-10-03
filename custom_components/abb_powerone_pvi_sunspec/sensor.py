@@ -210,5 +210,4 @@ class ABBPowerOneFimerSensor(CoordinatorEntity, SensorEntity):
             "name": self._device_name,
             "serial_number": self._device_sn,
             "sw_version": self._device_swver,
-            "via_device": None,
         }

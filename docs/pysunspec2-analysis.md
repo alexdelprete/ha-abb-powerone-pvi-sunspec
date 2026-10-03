@@ -3,7 +3,7 @@
 **Date:** October 18, 2025  
 **Analyst:** Claude Code  
 **Version:** 1.0  
-**Repository Analyzed:** https://github.com/sunspec/pysunspec2 (commit: 57c2f76, Sep 24, 2025)
+**Repository Analyzed:** <https://github.com/sunspec/pysunspec2> (commit: 57c2f76, Sep 24, 2025)
 
 ---
 
@@ -18,7 +18,8 @@ pysunspec2 is **not suitable** for replacing our custom SunSpec parsing in the H
 3. **Still depends on pymodbus** (in requirements.txt for testing, but defeats the purpose)
 4. **Synchronous-only API** (incompatible with Home Assistant's async architecture)
 
-**Alternative Recommendation:** Continue with current custom implementation OR explore **ModbusLink** (modern async Modbus library) combined with pysunspec2's excellent model definitions.
+**Alternative Recommendation:** Continue with current custom implementation OR explore **ModbusLink** (modern async
+Modbus library) combined with pysunspec2's excellent model definitions.
 
 ---
 
@@ -28,7 +29,7 @@ pysunspec2 is **not suitable** for replacing our custom SunSpec parsing in the H
 
 **pymodbus dependency: ✅ YES, version 2.5.3 is required**
 
-```
+```text
 # From requirements.txt:
 pytest>=8.3.3
 pyserial>=3.5
@@ -141,7 +142,7 @@ def scan(self):
 
 ### Recent Activity (2024-2025)
 
-```
+```text
 57c2f76 - Sep 24, 2025 - Merge pull request #115 (fix intermediate CAs)
 f38bb76 - Sep 24, 2025 - fix intermediate CAs
 9ac9094 - Sep 24, 2025 - expanded TLS certs
@@ -205,8 +206,8 @@ import sunspec2.modbus.client as client
 
 # Create device
 d = client.SunSpecModbusClientDeviceTCP(
-    slave_id=1, 
-    ipaddr='192.168.1.100', 
+    slave_id=1,
+    ipaddr='192.168.1.100',
     ipport=502
 )
 
@@ -215,7 +216,7 @@ d.scan()  # ⚠️ Synchronous, blocks thread
 
 # Access models
 print(d.models)
-# {1: [<Model>], 'common': [<Model>], 
+# {1: [<Model>], 'common': [<Model>],
 #  103: [<Model>], 'inverter': [<Model>]}
 ```
 
@@ -305,7 +306,7 @@ Models are defined in JSON format with excellent structure:
 
 ### Architecture Overview
 
-```
+```text
 ┌─────────────────────────────────────┐
 │  SunSpecModbusClientDeviceTCP       │  High-level device interface
 └─────────────┬───────────────────────┘
@@ -329,7 +330,7 @@ class ModbusClientTCP(object):
         self.slave_id = slave_id
         self.ipaddr = ipaddr
         self.socket = None  # Direct socket usage
-    
+  
     def connect(self, timeout=None):
         if self.socket is None:
             # Directly creates socket - no abstraction
@@ -441,11 +442,13 @@ $ find /tmp/pysunspec2 -name "*.py" | wc -l
 ### Performance Characteristics
 
 #### Strengths
+
 - ✅ Direct socket operations (no middleware overhead)
 - ✅ Optimized register reads (batching)
 - ✅ Minimal dependencies
 
 #### Weaknesses
+
 - ❌ Synchronous blocking I/O
 - ❌ No connection pooling across devices
 - ❌ No async concurrency
@@ -482,7 +485,8 @@ $ find /tmp/pysunspec2 -name "*.py" | wc -l
 ### Architecture Comparison
 
 #### pysunspec2 Architecture
-```
+
+```text
 ┌──────────────────────────┐
 │   SunSpec Device API     │  High-level, but synchronous
 ├──────────────────────────┤
@@ -493,7 +497,8 @@ $ find /tmp/pysunspec2 -name "*.py" | wc -l
 ```
 
 #### ModbusLink Architecture
-```
+
+```text
 ┌──────────────────────────┐
 │   Application Layer      │  Your async code
 ├──────────────────────────┤
@@ -506,7 +511,8 @@ $ find /tmp/pysunspec2 -name "*.py" | wc -l
 ```
 
 #### Current Implementation
-```
+
+```text
 ┌──────────────────────────┐
 │   ABBPowerOneFimerAPI    │  Async wrapper
 ├──────────────────────────┤
@@ -529,43 +535,43 @@ import sunspec2.modbus.client as client
 
 class PySunSpec2API:
     """Wrapper to make pysunspec2 work with async Home Assistant"""
-    
+  
     def __init__(self, host: str, port: int, device_id: int):
         self._device = client.SunSpecModbusClientDeviceTCP(
             slave_id=device_id,
             ipaddr=host,
             ipport=port
         )
-    
+  
     async def async_scan(self) -> None:
         """Async wrapper for blocking scan"""
         # ⚠️ Must run in executor to avoid blocking
         await asyncio.get_event_loop().run_in_executor(
             None, self._device.scan
         )
-    
+  
     async def async_read_data(self) -> dict:
         """Async wrapper for blocking reads"""
         # ⚠️ Multiple executor calls = slow
-        
+  
         # Read common model
         common = self._device.common[0]
         await asyncio.get_event_loop().run_in_executor(
             None, common.read
         )
-        
+  
         # Read inverter model
         inverter = self._device.inverter[0]
         await asyncio.get_event_loop().run_in_executor(
             None, inverter.read
         )
-        
+  
         # Read MPPT model
         mppt = self._device.mppt[0]
         await asyncio.get_event_loop().run_in_executor(
             None, mppt.read
         )
-        
+  
         # Extract data
         return {
             'manufacturer': common.Mn.value,
@@ -632,26 +638,26 @@ from modbuslink import ModbusClient, TcpTransport
 
 class HybridSunSpecAPI:
     """Use ModbusLink for transport + pysunspec2 model definitions"""
-    
+  
     def __init__(self, host: str, port: int, device_id: int):
         self.transport = TcpTransport(host=host, port=port)
         self.client = ModbusClient(self.transport)
         self.device_id = device_id
-        
+  
         # Load pysunspec2 model definitions
         self.models = self._load_sunspec_models()
-    
+  
     def _load_sunspec_models(self) -> dict:
         """Load model definitions from pysunspec2 JSON files"""
         models = {}
         model_ids = [1, 103, 160]  # Common, Three-phase, MPPT
-        
+  
         for model_id in model_ids:
             with open(f'models/json/model_{model_id}.json') as f:
                 models[model_id] = json.load(f)
-        
+  
         return models
-    
+  
     async def async_scan(self) -> list[int]:
         """Async SunSpec device scan"""
         async with self.client:
@@ -663,11 +669,11 @@ class HybridSunSpecAPI:
                 if self._is_sunspec_marker(data):
                     return await self._discover_models(base_addr)
         return []
-    
+  
     async def async_read_model(self, model_id: int, base_addr: int) -> dict:
         """Async read of a SunSpec model"""
         model_def = self.models[model_id]
-        
+  
         async with self.client:
             # Read model data
             registers = await self.client.read_holding_registers(
@@ -675,7 +681,7 @@ class HybridSunSpecAPI:
                 base_addr,
                 model_def['length']
             )
-            
+  
             # Parse using pysunspec2 model definition
             return self._parse_model_data(model_def, registers)
 ```
@@ -700,30 +706,35 @@ class HybridSunSpecAPI:
 ## 12. Specific Issues Identified
 
 ### Issue 1: No Async Support
+
 - **Severity:** 🔴 Critical
 - **Impact:** Cannot be used in Home Assistant without executor wrappers
 - **Workaround:** Run all operations in thread pool
 - **Effort:** High complexity, poor performance
 
 ### Issue 2: pymodbus Dependency
+
 - **Severity:** 🔴 Critical
 - **Impact:** Still depends on pymodbus (though only for tests)
 - **Workaround:** Fork and remove dependency
 - **Effort:** Low, but defeats purpose of evaluation
 
 ### Issue 3: Transport Not Abstracted
+
 - **Severity:** 🟠 High
 - **Impact:** Cannot use ModbusLink or other Modbus libraries
 - **Workaround:** Major refactoring required
 - **Effort:** Very high, essentially rewriting the library
 
 ### Issue 4: No Type Hints
+
 - **Severity:** 🟡 Medium
 - **Impact:** Reduced IDE support, harder to maintain
 - **Workaround:** Add type hints in wrapper
 - **Effort:** Medium
 
 ### Issue 5: Connection Management
+
 - **Severity:** 🟡 Medium
 - **Impact:** Connection lifecycle is synchronous
 - **Workaround:** Manage in executor with careful state tracking
@@ -736,6 +747,7 @@ class HybridSunSpecAPI:
 ### If We Were to Use pysunspec2 (Not Recommended)
 
 #### Step 1: Create Async Wrapper
+
 ```python
 # Estimated: 200-300 lines of wrapper code
 class AsyncPySunSpec2Wrapper:
@@ -743,17 +755,21 @@ class AsyncPySunSpec2Wrapper:
     # Handle connection state across threads
     # Manage error propagation
 ```
+
 **Effort:** 2-3 days
 
 #### Step 2: Adapt Data Extraction
+
 ```python
 # Map pysunspec2 Point objects to our sensor entities
 # Handle scale factors
 # Deal with None/undefined values
 ```
+
 **Effort:** 1-2 days
 
 #### Step 3: Testing
+
 - Test with single-phase inverters
 - Test with three-phase inverters
 - Test MPPT detection
@@ -761,6 +777,7 @@ class AsyncPySunSpec2Wrapper:
 **Effort:** 2-3 days
 
 #### Step 4: Performance Tuning
+
 - Optimize executor usage
 - Minimize thread pool pressure
 - Handle timeouts properly
@@ -774,6 +791,7 @@ class AsyncPySunSpec2Wrapper:
 ## 14. Alternative Solutions
 
 ### Option A: Continue with Current Implementation ✅ RECOMMENDED
+
 **Pros:**
 
 - Already works well
@@ -792,6 +810,7 @@ class AsyncPySunSpec2Wrapper:
 ---
 
 ### Option B: ModbusLink + Custom SunSpec Parsing 🟡 VIABLE
+
 **Pros:**
 
 - True async support
@@ -820,6 +839,7 @@ class AsyncPySunSpec2Wrapper:
 ---
 
 ### Option C: Fork pysunspec2 and Add Async ❌ NOT RECOMMENDED
+
 **Pros:**
 
 - Could add async support to pysunspec2
@@ -839,6 +859,7 @@ class AsyncPySunSpec2Wrapper:
 ---
 
 ### Option D: Use pysunspec2 with Executor Wrappers ❌ NOT RECOMMENDED
+
 **Pros:**
 
 - Minimal code changes
@@ -869,7 +890,8 @@ class AsyncPySunSpec2Wrapper:
 - ✅ Handles all required SunSpec models
 - ⚠️ Has pymodbus dependency (manageable for now)
 
-**When to reconsider:** If pymodbus version conflicts become critical or if Home Assistant drops support for our pymodbus version.
+**When to reconsider:** If pymodbus version conflicts become critical or if Home Assistant drops support for our
+pymodbus version.
 
 ---
 
@@ -972,7 +994,7 @@ async def read_sunspec_common(host: str, port: int, device_id: int) -> dict:
     """Read SunSpec Model 1 (Common) using ModbusLink"""
     transport = TcpTransport(host=host, port=port)
     client = ModbusClient(transport)
-    
+  
     async with client:
         # Scan for SunS marker
         base_addr = None
@@ -981,15 +1003,15 @@ async def read_sunspec_common(host: str, port: int, device_id: int) -> dict:
             if data and data[0:2] == b'SunS':
                 base_addr = addr
                 break
-        
+  
         if not base_addr:
             raise ValueError("SunSpec device not found")
-        
+  
         # Read Model 1 (Common) - 66 registers
         registers = await client.read_holding_registers(
             device_id, base_addr + 2, 66
         )
-        
+  
         # Parse according to SunSpec Model 1 definition
         # (Use pysunspec2 model definition as reference)
         return {
@@ -1005,17 +1027,20 @@ async def read_sunspec_common(host: str, port: int, device_id: int) -> dict:
 ## 18. References
 
 ### Repositories
-- **pysunspec2:** https://github.com/sunspec/pysunspec2
-- **ModbusLink:** https://pypi.org/project/modbuslink/
-- **pymodbus:** https://github.com/pymodbus-dev/pymodbus
-- **SunSpec Models:** https://github.com/sunspec/models
+
+- **pysunspec2:** <https://github.com/sunspec/pysunspec2>
+- **ModbusLink:** <https://pypi.org/project/modbuslink/>
+- **pymodbus:** <https://github.com/pymodbus-dev/pymodbus>
+- **SunSpec Models:** <https://github.com/sunspec/models>
 
 ### Documentation
-- **SunSpec Specification:** https://sunspec.org/specifications/
-- **Home Assistant Async:** https://developers.home-assistant.io/docs/asyncio_working_with_async/
+
+- **SunSpec Specification:** <https://sunspec.org/specifications/>
+- **Home Assistant Async:** <https://developers.home-assistant.io/docs/asyncio_working_with_async/>
 - **ModbusLink Docs:** (See PyPI package)
 
 ### Relevant Issues
+
 - pysunspec2 #51: "How to use numbered models?" (October 2021)
 - pysunspec2 #115: TLS certificate fixes (September 2025)
 

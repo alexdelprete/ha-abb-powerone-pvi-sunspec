@@ -34,7 +34,7 @@ Maintenance release adding local brand images and repository health fixes.
 
 **Full Release Notes:** [docs/releases/v4.1.8.md](docs/releases/v4.1.8.md)
 
-**Full Changelog:** https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.7...v4.1.8
+**Full Changelog:** <https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.7...v4.1.8>
 
 ---
 
@@ -44,11 +44,12 @@ Critical bug fix release restoring compatibility with pymodbus 3.13.0 and newer.
 
 ### 🐛 Critical Bug Fixes
 
-- Fixed integration failing to load with pymodbus >= 3.13.0 (`cannot import name 'pack_bitstring' from 'pymodbus.pdu.pdu'`) by vendoring the removed `pack_bitstring`/`unpack_bitstring` helpers into `pymodbus_payload.py`
+- Fixed integration failing to load with pymodbus >= 3.13.0 (`cannot import name 'pack_bitstring' from
+  'pymodbus.pdu.pdu'`) by vendoring the removed `pack_bitstring`/`unpack_bitstring` helpers into `pymodbus_payload.py`
 
 **Full Release Notes:** [docs/releases/v4.1.7.md](docs/releases/v4.1.7.md)
 
-**Full Changelog:** https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.6...v4.1.7
+**Full Changelog:** <https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.6...v4.1.7>
 
 ---
 
@@ -73,17 +74,19 @@ Maintenance release with dependency updates and CI/CD improvements.
 
 **Full Release Notes:** [docs/releases/v4.1.6.md](docs/releases/v4.1.6.md)
 
-**Full Changelog:** https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5...v4.1.6
+**Full Changelog:** <https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5...v4.1.6>
 
 ---
 
 ## [4.1.5] - 2025-10-12
 
-Official stable release with comprehensive code quality improvements, critical bug fixes, and modernization to Home Assistant 2025.3.0+ best practices.
+Official stable release with comprehensive code quality improvements, critical bug fixes, and modernization to Home
+Assistant 2025.3.0+ best practices.
 
 ### 🐛 Critical Bug Fixes
 
-- **Fixed Sensor Availability** - Sensors now properly show as "unavailable" when inverter is offline instead of displaying stale data
+- **Fixed Sensor Availability** - Sensors now properly show as "unavailable" when inverter is offline instead of
+  displaying stale data
 - **Fixed Integration Unload KeyError** - Removed invalid cleanup of non-existent `hass.data[DOMAIN][entry_id]`
 - **Fixed RuntimeWarning** - Added missing `await` to `api.close()` coroutine call
 - **Fixed Duplicate Cleanup Error** - Removed incorrect `async_on_unload()` registration causing double cleanup
@@ -117,7 +120,7 @@ Official stable release with comprehensive code quality improvements, critical b
 
 **Full Release Notes:** [docs/releases/v4.1.5.md](docs/releases/v4.1.5.md)
 
-**Full Changelog:** https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.0...v4.1.5
+**Full Changelog:** <https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.0...v4.1.5>
 
 ---
 
@@ -139,7 +142,7 @@ Official stable release with comprehensive code quality improvements, critical b
 
 **Full Release Notes:** [docs/releases/v4.1.5-beta.6.md](docs/releases/v4.1.5-beta.6.md)
 
-**Full Changelog:** https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5-beta.5...v4.1.5-beta.6
+**Full Changelog:** <https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5-beta.5...v4.1.5-beta.6>
 
 ---
 
@@ -166,7 +169,7 @@ Official stable release with comprehensive code quality improvements, critical b
 
 **Full Release Notes:** [docs/releases/v4.1.5-beta.5.md](docs/releases/v4.1.5-beta.5.md)
 
-**Full Changelog:** https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5-beta.4...v4.1.5-beta.5
+**Full Changelog:** <https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5-beta.4...v4.1.5-beta.5>
 
 ---
 
@@ -187,7 +190,7 @@ Official stable release with comprehensive code quality improvements, critical b
 
 **Full Release Notes:** [docs/releases/v4.1.5-beta.4.md](docs/releases/v4.1.5-beta.4.md)
 
-**Full Changelog:** https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5-beta.3...v4.1.5-beta.4
+**Full Changelog:** <https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5-beta.3...v4.1.5-beta.4>
 
 ---
 
@@ -203,7 +206,7 @@ Official stable release with comprehensive code quality improvements, critical b
 
 **Full Release Notes:** [docs/releases/v4.1.5-beta.3.md](docs/releases/v4.1.5-beta.3.md)
 
-**Full Changelog:** https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5-beta.2...v4.1.5-beta.3
+**Full Changelog:** <https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5-beta.2...v4.1.5-beta.3>
 
 ---
 
@@ -222,7 +225,7 @@ Continuation of beta.1 code quality improvements:
 
 **Full Release Notes:** [docs/releases/v4.1.5-beta.2.md](docs/releases/v4.1.5-beta.2.md)
 
-**Full Changelog:** https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5-beta.1...v4.1.5-beta.2
+**Full Changelog:** <https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.5-beta.1...v4.1.5-beta.2>
 
 ---
 
@@ -250,7 +253,7 @@ Continuation of beta.1 code quality improvements:
 
 **Full Release Notes:** [docs/releases/v4.1.5-beta.1.md](docs/releases/v4.1.5-beta.1.md)
 
-**Full Changelog:** https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.0...v4.1.5-beta.1
+**Full Changelog:** <https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/compare/v4.1.0...v4.1.5-beta.1>
 
 ---
 

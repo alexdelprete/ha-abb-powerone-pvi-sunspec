@@ -1,0 +1,101 @@
+# syntax=docker/dockerfile:1
+#
+# Devcontainer image for Home Assistant custom integration development.
+# Mirrors the pattern used by home-assistant/core:
+#   - mcr.microsoft.com/vscode/devcontainers/base:debian (currently trixie)
+#   - uv installs the exact Python version pinned in .python-version
+#   - uv creates a named venv at /home/vscode/.local/ha-venv
+#   - PATH is set so subsequent layers and postCreate run inside the venv
+#
+# The apt install list below mirrors home-assistant/core's Dockerfile.dev
+# plus a few common-case build prerequisites (build-essential, libffi-dev,
+# libssl-dev, pkg-config). HA's set covers the system libs the HA dep tree
+# may need to compile or link against; matching it means any wheel issue
+# HA already exercises in its CI is already exercised here too, so HA-side
+# fixes flow straight through.
+#
+# Trimming is fine for a specific integration that's known to be lean
+# (e.g. pure-Python MQTT, REST, Modbus repos won't need ffmpeg or
+# libav*-dev). Edit this file per-consumer after sync if you want to
+# slim it down — repo-sync will preserve the trim only until the next
+# template change to Dockerfile.dev forces a re-sync.
+
+FROM mcr.microsoft.com/vscode/devcontainers/base:debian
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        # Build toolchain — needed for any Python C extension that lacks a
+        # prebuilt 3.14 wheel and falls back to source build.
+        build-essential \
+        git \
+        cmake \
+        autoconf \
+        pkg-config \
+        # Common C extension prerequisites (cryptography, urllib3, etc.).
+        libffi-dev \
+        libssl-dev \
+        # YAML / XML (PyYAML C accelerator, lxml, etc.).
+        libyaml-dev \
+        libxml2 \
+        # Image processing for camera-class integrations.
+        libturbojpeg0 \
+        # FFmpeg + dev headers — required by media/camera integrations
+        # (PyAV and friends pull in libav*-dev at build time).
+        ffmpeg \
+        libavformat-dev \
+        libavcodec-dev \
+        libavdevice-dev \
+        libavutil-dev \
+        libswscale-dev \
+        libswresample-dev \
+        libavfilter-dev \
+        # Network packet capture (some discovery / sniffer integrations).
+        libpcap-dev \
+        # Nicer git diffs. The gitconfig copied in from the host selects
+        # delta only when it is on PATH, so this simply enables it here too.
+        git-delta \
+        # Bluetooth + USB / hardware enumeration (Zigbee, Z-Wave, BT-LE,
+        # serial-USB devices).
+        bluez \
+        libudev-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv from upstream — faster and version-controlled vs pip-installing it
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+USER vscode
+
+# Install the exact Python version pinned in .python-version, then create
+# a named venv. PATH is exported so all subsequent commands (postCreate
+# included) install into the venv without needing explicit activation.
+ENV VIRTUAL_ENV="/home/vscode/.local/ha-venv"
+RUN --mount=type=bind,source=.python-version,target=.python-version \
+    uv python install \
+    && uv venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Pre-install the dev tooling that VS Code extensions look for at
+# activation time. Without these in the venv at container start, the
+# extensions race against postCreate's full `uv pip install -e '.[dev]'`
+# (10–30s) and don't find their binaries at the configured paths during
+# the gap — at which point they fall back to Python-environment
+# discovery, can latch onto any stray Windows `.venv` in the bind-
+# mounted workspace, and throw a WSL socket error popup before recovering
+# to bundled binaries. Pre-installing here means ruff.path and the ty
+# extension's discovery resolve immediately.
+#
+# postCreate's `-e '.[dev]'` step re-installs the same versions from
+# pyproject pins — no conflict, just a fast no-op for these packages.
+RUN uv pip install "ruff>=0.15.17" "ty"
+
+# Claude Code via the upstream installer.
+# Why not the ghcr.io/anthropics/devcontainer-features/claude-code:1.0 feature:
+# that feature is currently broken on debian trixie (anthropics/devcontainer-
+# features#28, opened by HA's project lead). HA core's own Dockerfile.dev
+# uses this same curl install for the same reason.
+RUN curl -fsSL https://claude.ai/install.sh | bash
+
+ENV SHELL=/bin/bash

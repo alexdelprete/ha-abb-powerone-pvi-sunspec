@@ -1,0 +1,122 @@
+{
+    "name": "ABB/Power-One/FIMER PVI SunSpec",
+    "build": {
+        "dockerfile": "Dockerfile.dev",
+        "context": "."
+    },
+    "containerEnv": {
+        "PYTHONASYNCIODEBUG": "1"
+    },
+    "runArgs": [
+        "-e",
+        "GIT_EDITOR=code --wait",
+        "--security-opt=label=disable",
+        "--name=devc-abbsunspec",
+        "--label", "proxy.aliases=abbsunspec.code,abbsunspec.hadev",
+        "--label", "proxy.#1.port=8443",
+        "--label", "proxy.#1.scheme=http",
+        "--label", "proxy.#2.port=8123",
+        "--label", "proxy.#1.homepage.name=abbsunspec code",
+        "--label", "proxy.#2.homepage.name=abbsunspec hadev",
+        "--label", "proxy.*.homepage.show=false",
+        "--label", "proxy.#2.healthcheck.disable=true"
+    ],
+    "postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && sudo rm -rf ./*.egg-info && uv pip install -e '.[dev]' --config-settings editable_mode=compat && pre-commit install",
+    "postStartCommand": "uv pip install -q -e '.[dev]' --config-settings editable_mode=compat",
+    "forwardPorts": [8123],
+    "portsAttributes": {
+        "8123": {
+            "label": "Home Assistant",
+            "onAutoForward": "notify"
+        },
+        "0-8122": {
+            "onAutoForward": "ignore"
+        },
+        "8124-999999": {
+            "onAutoForward": "ignore"
+        }
+    },
+    "mounts": [
+        "source=${localEnv:USERPROFILE:/home/alexdelprete}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+        "source=${localEnv:USERPROFILE:/home/alexdelprete}/.claude.json,target=/home/vscode/.claude.json,type=bind,consistency=cached",
+        "source=${localEnv:USERPROFILE:/home/alexdelprete}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached",
+        "source=${localEnv:APPDATA:/home/alexdelprete/.config}/GitHub CLI,target=/home/vscode/.config/gh,type=bind,consistency=cached"
+    ],
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/coder/devcontainer-features/code-server:1": {
+            "port": 8443,
+            "host": "0.0.0.0",
+            "auth": "none",
+            "workspace": "/workspaces/ha-abb-powerone-pvi-sunspec"
+        }
+    },
+    "remoteUser": "vscode",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "charliermarsh.ruff",
+                "astral-sh.ty",
+                "redhat.vscode-yaml",
+                "esbenp.prettier-vscode",
+                "GitHub.vscode-pull-request-github",
+                "ryanluker.vscode-coverage-gutters",
+                "GitHub.copilot-chat",
+                "anthropic.claude-code"
+            ],
+            "settings": {
+                "python.experiments.optOutFrom": ["pythonTestAdapter"],
+                "python.defaultInterpreterPath": "/home/vscode/.local/ha-venv/bin/python",
+                "python.pythonPath": "/home/vscode/.local/ha-venv/bin/python",
+                "python.terminal.activateEnvInCurrentTerminal": true,
+                "python.analysis.typeCheckingMode": "off",
+                "ruff.path": ["/home/vscode/.local/ha-venv/bin/ruff"],
+                "python.testing.pytestEnabled": true,
+                "python.testing.pytestArgs": ["tests/", "--no-cov"],
+                "editor.formatOnSave": true,
+                "editor.formatOnType": true,
+                "editor.formatOnPaste": false,
+                "editor.codeActionsOnSave": {
+                    "source.fixAll": "always",
+                    "source.organizeImports": "always"
+                },
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff"
+                },
+                "[json]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "[jsonc]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "[yaml]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "yaml.customTags": [
+                    "!input scalar",
+                    "!secret scalar",
+                    "!include_dir_named scalar",
+                    "!include_dir_list scalar",
+                    "!include_dir_merge_list scalar",
+                    "!include_dir_merge_named scalar"
+                ],
+                "json.schemas": [
+                    {
+                        "fileMatch": ["custom_components/*/manifest.json"],
+                        "url": "https://raw.githubusercontent.com/home-assistant/core/dev/script/json_schemas/manifest_schema.json"
+                    }
+                ],
+                "files.eol": "\n",
+                "terminal.integrated.profiles.linux": {
+                    "zsh": { "path": "/usr/bin/zsh" }
+                },
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "files.trimTrailingWhitespace": true,
+                "editor.tabSize": 4,
+                "editor.insertSpaces": true
+            }
+        }
+    }
+}

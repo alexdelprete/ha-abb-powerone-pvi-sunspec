@@ -78,19 +78,21 @@ if src.exists():
 # Issue templates - adapted URLs
 bug_template = (OLD_DIR / ".github" / "ISSUE_TEMPLATE" / "bug.yml").read_text(encoding="utf-8")
 bug_template = bug_template.replace(
-    "ludeeus/integration_blueprint",
-    "alexdelprete/ha-abb-fimer-pvi-sunspec"
+    "ludeeus/integration_blueprint", "alexdelprete/ha-abb-fimer-pvi-sunspec"
 )
 copy_file(None, MODBUS_DIR / ".github" / "ISSUE_TEMPLATE" / "bug.yml", bug_template)
 
-feature_template = (OLD_DIR / ".github" / "ISSUE_TEMPLATE" / "feature_request.yml").read_text(encoding="utf-8")
+feature_template = (OLD_DIR / ".github" / "ISSUE_TEMPLATE" / "feature_request.yml").read_text(
+    encoding="utf-8"
+)
 feature_template = feature_template.replace(
-    "ludeeus/integration_blueprint",
-    "alexdelprete/ha-abb-fimer-pvi-sunspec"
+    "ludeeus/integration_blueprint", "alexdelprete/ha-abb-fimer-pvi-sunspec"
 )
 copy_file(None, MODBUS_DIR / ".github" / "ISSUE_TEMPLATE" / "feature_request.yml", feature_template)
 
-config_template = (OLD_DIR / ".github" / "ISSUE_TEMPLATE" / "config.yml").read_text(encoding="utf-8")
+config_template = (OLD_DIR / ".github" / "ISSUE_TEMPLATE" / "config.yml").read_text(
+    encoding="utf-8"
+)
 copy_file(None, MODBUS_DIR / ".github" / "ISSUE_TEMPLATE" / "config.yml", config_template)
 
 # === REST INTEGRATION - FILES NEEDING ADAPTATION ===
@@ -121,19 +123,21 @@ if src.exists():
 # Issue templates - adapted URLs
 bug_template = (OLD_DIR / ".github" / "ISSUE_TEMPLATE" / "bug.yml").read_text(encoding="utf-8")
 bug_template = bug_template.replace(
-    "ludeeus/integration_blueprint",
-    "alexdelprete/ha-abb-fimer-pvi-vsn-rest"
+    "ludeeus/integration_blueprint", "alexdelprete/ha-abb-fimer-pvi-vsn-rest"
 )
 copy_file(None, REST_DIR / ".github" / "ISSUE_TEMPLATE" / "bug.yml", bug_template)
 
-feature_template = (OLD_DIR / ".github" / "ISSUE_TEMPLATE" / "feature_request.yml").read_text(encoding="utf-8")
+feature_template = (OLD_DIR / ".github" / "ISSUE_TEMPLATE" / "feature_request.yml").read_text(
+    encoding="utf-8"
+)
 feature_template = feature_template.replace(
-    "ludeeus/integration_blueprint",
-    "alexdelprete/ha-abb-fimer-pvi-vsn-rest"
+    "ludeeus/integration_blueprint", "alexdelprete/ha-abb-fimer-pvi-vsn-rest"
 )
 copy_file(None, REST_DIR / ".github" / "ISSUE_TEMPLATE" / "feature_request.yml", feature_template)
 
-config_template = (OLD_DIR / ".github" / "ISSUE_TEMPLATE" / "config.yml").read_text(encoding="utf-8")
+config_template = (OLD_DIR / ".github" / "ISSUE_TEMPLATE" / "config.yml").read_text(
+    encoding="utf-8"
+)
 copy_file(None, REST_DIR / ".github" / "ISSUE_TEMPLATE" / "config.yml", config_template)
 
 print("\n✅ All configuration folders copied!")

@@ -5,18 +5,14 @@ https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 
 import logging
 
+from pymodbus.exceptions import ConnectionException
 import voluptuous as vol
+
 from homeassistant import config_entries
-from homeassistant.config_entries import (
-    ConfigEntry,
-    ConfigFlow,
-    ConfigFlowResult,
-    OptionsFlow,
-)
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.selector import selector
-from pymodbus.exceptions import ConnectionException
 
 from .api import ABBPowerOneFimerAPI, ModbusError, VSNConnectionError
 from .const import (
@@ -154,9 +150,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[cal
 
                     # Abort the flow if a config entry with the same unique ID exists
                     self._abort_if_unique_id_configured()
-                    return self.async_create_entry(
-                        title=user_input[CONF_NAME], data=user_input
-                    )
+                    return self.async_create_entry(title=user_input[CONF_NAME], data=user_input)
 
                 errors[CONF_HOST] = "Connection to device failed (S/N not retreived)"
 
@@ -191,9 +185,7 @@ class ABBPowerOneFimerConfigFlow(ConfigFlow, domain=DOMAIN):  # type: ignore[cal
                     vol.Required(
                         CONF_BASE_ADDR,
                         default=DEFAULT_BASE_ADDR,
-                    ): vol.All(
-                        vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR)
-                    ),
+                    ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR)),
                     vol.Required(
                         CONF_SCAN_INTERVAL,
                         default=DEFAULT_SCAN_INTERVAL,
@@ -241,9 +233,7 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
                 vol.Required(
                     CONF_BASE_ADDR,
                     default=config_entry.data.get(CONF_BASE_ADDR),
-                ): vol.All(
-                    vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR)
-                ),
+                ): vol.All(vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR)),
                 vol.Required(
                     CONF_SCAN_INTERVAL,
                     default=config_entry.data.get(CONF_SCAN_INTERVAL),

@@ -31,7 +31,9 @@ def generate_modbus_integration():
     client = comp / "async_sunspec_client"
 
     # ========== LICENSE ==========
-    create_file(base / "LICENSE", f"""MIT License
+    create_file(
+        base / "LICENSE",
+        f"""MIT License
 
 Copyright (c) 2019 - {YEAR} Alessandro Del Prete @alexdelprete
 
@@ -52,10 +54,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-""")
+""",
+    )
 
     # ========== README.md ==========
-    create_file(base / "README.md", f"""# ABB/FIMER PVI SunSpec (Modbus/TCP)
+    create_file(
+        base / "README.md",
+        f"""# ABB/FIMER PVI SunSpec (Modbus/TCP)
 
 ⚠️ **BETA RELEASE v{VERSION}**
 
@@ -203,10 +208,13 @@ _This project is not endorsed by, directly affiliated with, maintained, authoriz
 [releases]: https://github.com/alexdelprete/ha-abb-fimer-pvi-sunspec/releases
 [hacs-shield]: https://img.shields.io/badge/HACS-Custom-orange.svg
 [hacs]: https://github.com/custom-components/hacs
-""")
+""",
+    )
 
     # ========== CHANGELOG.md ==========
-    create_file(base / "CHANGELOG.md", f"""# Changelog
+    create_file(
+        base / "CHANGELOG.md",
+        f"""# Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -215,7 +223,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [{VERSION}] - {datetime.now().strftime('%Y-%m-%d')}
+## [{VERSION}] - {datetime.now().strftime("%Y-%m-%d")}
 
 ### Added
 - Initial beta release
@@ -248,10 +256,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]: https://github.com/alexdelprete/ha-abb-fimer-pvi-sunspec/compare/v{VERSION}...HEAD
 [{VERSION}]: https://github.com/alexdelprete/ha-abb-fimer-pvi-sunspec/releases/tag/v{VERSION}
-""")
+""",
+    )
 
     # ========== manifest.json ==========
-    create_file(comp / "manifest.json", f'''{{
+    create_file(
+        comp / "manifest.json",
+        f'''{{
   "domain": "abb_fimer_pvi_sunspec",
   "name": "ABB/FIMER PVI SunSpec (Modbus)",
   "codeowners": ["@alexdelprete"],
@@ -265,10 +276,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   "single_config_entry": false,
   "version": "{VERSION}"
 }}
-''')
+''',
+    )
 
     # ========== const.py ==========
-    create_file(comp / "const.py", f'''"""Constants for ABB FIMER PVI SunSpec integration."""
+    create_file(
+        comp / "const.py",
+        f'''"""Constants for ABB FIMER PVI SunSpec integration."""
 
 DOMAIN = "abb_fimer_pvi_sunspec"
 VERSION = "{VERSION}"
@@ -314,10 +328,13 @@ If you have any issues, please report them at:
 https://github.com/alexdelprete/ha-abb-fimer-pvi-sunspec/issues
 -------------------------------------------------------------------
 """
-''')
+''',
+    )
 
     # ========== __init__.py stub ==========
-    create_file(comp / "__init__.py", '''"""ABB FIMER PVI SunSpec Integration.
+    create_file(
+        comp / "__init__.py",
+        '''"""ABB FIMER PVI SunSpec Integration.
 
 https://github.com/alexdelprete/ha-abb-fimer-pvi-sunspec
 """
@@ -367,10 +384,13 @@ async def async_unload_entry(
 ) -> bool:
     """Unload a config entry."""
     return await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS)
-''')
+''',
+    )
 
     # ========== config_flow.py stub ==========
-    create_file(comp / "config_flow.py", '''"""Config flow for ABB FIMER PVI SunSpec."""
+    create_file(
+        comp / "config_flow.py",
+        '''"""Config flow for ABB FIMER PVI SunSpec."""
 
 import logging
 from typing import Any
@@ -495,10 +515,13 @@ class ABBFimerPVISunSpecOptionsFlow(config_entries.OptionsFlow):
         )
 
         return self.async_show_form(step_id="init", data_schema=data_schema)
-''')
+''',
+    )
 
     # ========== helpers.py stub ==========
-    create_file(comp / "helpers.py", '''"""Helper functions for ABB FIMER PVI SunSpec."""
+    create_file(
+        comp / "helpers.py",
+        '''"""Helper functions for ABB FIMER PVI SunSpec."""
 
 import logging
 
@@ -525,10 +548,13 @@ def log_error(logger: logging.Logger, context: str, message: str, **kwargs) -> N
     """Log error message with context."""
     extra = " ".join(f"{k}={v}" for k, v in kwargs.items())
     logger.error("%s: %s %s", context, message, extra)
-''')
+''',
+    )
 
     # ========== async_sunspec_client/__init__.py ==========
-    create_file(client / "__init__.py", '''"""Async SunSpec Client Library."""
+    create_file(
+        client / "__init__.py",
+        '''"""Async SunSpec Client Library."""
 
 from .exceptions import (
     SunSpecClientError,
@@ -545,10 +571,13 @@ __all__ = [
     "SunSpecModelError",
     "SunSpecParseError",
 ]
-''')
+''',
+    )
 
     # ========== async_sunspec_client/exceptions.py ==========
-    create_file(client / "exceptions.py", '''"""Exceptions for async-sunspec-client."""
+    create_file(
+        client / "exceptions.py",
+        '''"""Exceptions for async-sunspec-client."""
 
 
 class SunSpecClientError(Exception):
@@ -569,10 +598,13 @@ class SunSpecModelError(SunSpecClientError):
 
 class SunSpecParseError(SunSpecClientError):
     """Data parsing error."""
-''')
+''',
+    )
 
     # ========== async_sunspec_client/discovery.py stub ==========
-    create_file(client / "discovery.py", '''"""SunSpec model discovery."""
+    create_file(
+        client / "discovery.py",
+        '''"""SunSpec model discovery."""
 
 import logging
 
@@ -594,10 +626,13 @@ async def discover_models(
     - Return list of discovered (model_id, offset) pairs
     """
     raise NotImplementedError("TODO: Implement model discovery")
-''')
+''',
+    )
 
     # ========== async_sunspec_client/models.py stub ==========
-    create_file(client / "models.py", '''"""SunSpec model definitions and loader."""
+    create_file(
+        client / "models.py",
+        '''"""SunSpec model definitions and loader."""
 
 import json
 import logging
@@ -616,10 +651,13 @@ def load_model_definition(model_id: int) -> dict:
     - Return structured model definition
     """
     raise NotImplementedError("TODO: Implement model loading")
-''')
+''',
+    )
 
     # ========== async_sunspec_client/parser.py stub ==========
-    create_file(client / "parser.py", '''"""SunSpec data parser."""
+    create_file(
+        client / "parser.py",
+        '''"""SunSpec data parser."""
 
 import logging
 
@@ -644,10 +682,13 @@ class SunSpecParser:
         - Return structured point data
         """
         raise NotImplementedError("TODO: Implement data parsing")
-''')
+''',
+    )
 
     # ========== hacs.json ==========
-    create_file(base / "hacs.json", '''{
+    create_file(
+        base / "hacs.json",
+        """{
   "name": "ABB FIMER PVI SunSpec (Modbus)",
   "homeassistant": "2025.10.0",
   "content_in_root": false,
@@ -655,7 +696,8 @@ class SunSpecParser:
   "zip_release": true,
   "filename": "abb_fimer_pvi_sunspec.zip"
 }
-''')
+""",
+    )
 
     # ========== .ruff.toml (copy from current repo) ==========
     ruff_content = (CURRENT_DIR / ".ruff.toml").read_text(encoding="utf-8")
@@ -673,7 +715,9 @@ def generate_rest_integration():
     client = comp / "abb_fimer_vsn_rest_client"
 
     # ========== LICENSE ==========
-    create_file(base / "LICENSE", f"""MIT License
+    create_file(
+        base / "LICENSE",
+        f"""MIT License
 
 Copyright (c) 2019 - {YEAR} Alessandro Del Prete @alexdelprete
 
@@ -694,10 +738,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-""")
+""",
+    )
 
     # ========== README.md ==========
-    create_file(base / "README.md", f"""# ABB/FIMER PVI VSN REST
+    create_file(
+        base / "README.md",
+        f"""# ABB/FIMER PVI VSN REST
 
 ⚠️ **BETA RELEASE v{VERSION}**
 
@@ -864,7 +911,8 @@ _This project is not endorsed by, directly affiliated with, maintained, authoriz
 [releases]: https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-rest/releases
 [hacs-shield]: https://img.shields.io/badge/HACS-Custom-orange.svg
 [hacs]: https://github.com/custom-components/hacs
-""")
+""",
+    )
 
     # Continue with REST integration files...
     # (manifest.json, const.py, __init__.py, config_flow.py, etc.)

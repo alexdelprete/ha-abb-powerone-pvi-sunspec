@@ -1,10 +1,27 @@
-# https://www.home-assistant.io/integrations/default_config/
-default_config:
+# Shared dev-instance configuration (see scripts/develop).
+# Runtime state (.storage, db, logs) is gitignored; only this file is versioned.
+# Explicit component list instead of default_config: go2rtc (bundled there)
+# needs a binary absent from the devcontainer and fails the whole meta-setup.
+frontend:
+config:
+api:
+history:
+logbook:
+energy:
+system_health:
 
-# https://www.home-assistant.io/integrations/logger/
 logger:
   default: info
   logs:
     custom_components.abb_powerone_pvi_sunspec: debug
-# If you need to debug uncommment the line below (doc: https://www.home-assistant.io/integrations/debugpy/)
+    # Reverse-proxy healthcheck probes may carry an empty X-Forwarded-For;
+    # silence the per-probe ERROR
+    homeassistant.components.http.forwarded: fatal
+
 debugpy:
+
+# No http: section. Since Home Assistant 2026.9 the HTTP settings live in .storage: a YAML block
+# is imported once as a *pending* trial that reverts unless promoted in the UI, so reverse-proxy
+# trust from YAML never sticks, and the block only raises a repair on every later boot.
+# Reach the dev instance through VS Code's forwarded port 8123, or set dev_host_port in
+# .repo-sync.yaml to publish it on the host.

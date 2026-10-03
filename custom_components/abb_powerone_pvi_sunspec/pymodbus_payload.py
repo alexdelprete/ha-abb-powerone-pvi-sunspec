@@ -34,7 +34,7 @@ def pack_bitstring(bits: list[bool]) -> bytes:
 
     example::
 
-        bits   = [False, True, False, True]
+        bits = [False, True, False, True]
         result = pack_bitstring(bits)
     """
     ret = b""
@@ -67,9 +67,7 @@ def unpack_bitstring(data: bytes) -> list[bool]:
     """
     res = []
     for t_byte in data:
-        res.extend(
-            bool(t_byte & bit_mask) for bit_mask in (1, 2, 4, 8, 16, 32, 64, 128)
-        )
+        res.extend(bool(t_byte & bit_mask) for bit_mask in (1, 2, 4, 8, 16, 32, 64, 128))
     return res
 
 
@@ -95,9 +93,7 @@ class BinaryPayloadBuilder:
     #         'See documentation: "https://pymodbus.readthedocs.io/en/latest/source/client.html#pymodbus.client.mixin.ModbusClientMixin.convert_from_registers"'
     #     )
 
-    def __init__(
-        self, payload=None, byteorder=Endian.LITTLE, wordorder=Endian.BIG, repack=False
-    ):
+    def __init__(self, payload=None, byteorder=Endian.LITTLE, wordorder=Endian.BIG, repack=False):
         """Initialize a new instance of the payload builder.
 
         :param payload: Raw binary payload data to initialize with
@@ -329,8 +325,8 @@ class BinaryPayloadDecoder:
     strings. What follows is a simple example::
 
         decoder = BinaryPayloadDecoder(payload)
-        first   = decoder.decode_8bit_uint()
-        second  = decoder.decode_16bit_uint()
+        first = decoder.decode_8bit_uint()
+        second = decoder.decode_16bit_uint()
     """
 
     # Remove the deprecation warning to avoid issues with HA log

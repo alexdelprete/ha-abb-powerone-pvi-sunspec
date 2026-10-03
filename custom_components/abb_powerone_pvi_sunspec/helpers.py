@@ -40,9 +40,7 @@ def host_valid(host: str) -> bool:
         return all(x and not disallowed.search(x) for x in host.split("."))
 
 
-def log_debug(
-    logger: logging.Logger, context: str, message: str, **kwargs: Any
-) -> None:
+def log_debug(logger: logging.Logger, context: str, message: str, **kwargs: Any) -> None:
     """Standardized debug logging with context.
 
     Provides consistent debug logging format across the integration with
@@ -90,9 +88,7 @@ def log_info(logger: logging.Logger, context: str, message: str, **kwargs: Any) 
     logger.info("%s: %s", context_str, message)
 
 
-def log_warning(
-    logger: logging.Logger, context: str, message: str, **kwargs: Any
-) -> None:
+def log_warning(logger: logging.Logger, context: str, message: str, **kwargs: Any) -> None:
     """Standardized warning logging with context.
 
     Provides consistent warning logging format across the integration with
@@ -116,9 +112,7 @@ def log_warning(
     logger.warning("%s: %s", context_str, message)
 
 
-def log_error(
-    logger: logging.Logger, context: str, message: str, **kwargs: Any
-) -> None:
+def log_error(logger: logging.Logger, context: str, message: str, **kwargs: Any) -> None:
     """Standardized error logging with context.
 
     Provides consistent error logging format across the integration with

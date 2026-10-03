@@ -5,7 +5,8 @@
 
 ## Overview
 
-The original plan for a universal client combining both Modbus and REST protocols has been **replaced** with two separate, focused integrations:
+The original plan for a universal client combining both Modbus and REST protocols has been **replaced** with two
+separate, focused integrations:
 
 1. **ha-abb-fimer-pvi-sunspec** - Modbus/TCP only
 2. **ha-abb-fimer-pvi-vsn-rest** - REST API only
@@ -48,7 +49,8 @@ The original plan for a universal client combining both Modbus and REST protocol
 **Status:** Boilerplate complete, implementation needed
 
 **Generated Files:**
-```
+
+```text
 ha-abb-fimer-pvi-sunspec/
 ├── LICENSE (MIT, 2025)
 ├── README.md (with beta warning)
@@ -106,7 +108,8 @@ ha-abb-fimer-pvi-sunspec/
 **Status:** Partial boilerplate, needs completion
 
 **Generated Files:**
-```
+
+```text
 ha-abb-fimer-pvi-vsn-rest/
 ├── LICENSE (MIT, 2025)
 ├── hacs.json
@@ -223,7 +226,7 @@ ha-abb-fimer-pvi-vsn-rest/
    - Create all missing documentation files
 
 2. **Vendor SunSpec Models**
-   - Download JSON models from https://github.com/sunspec/models
+   - Download JSON models from <https://github.com/sunspec/models>
    - Copy to both integrations' vendor/sunspec_models/json/
    - Create NOTICE file (Apache-2.0 license)
    - Create NAMESPACE file (upstream URL, ref, timestamp)
@@ -296,15 +299,18 @@ ha-abb-fimer-pvi-vsn-rest/
 ## File Locations Summary
 
 ### Current Repository (v4.x)
+
 - `d:\OSILifeDrive\Dev\HASS\ha-abb-powerone-pvi-sunspec`
 - Updated: CLAUDE.md, docs/claude.md, README.md
 - Added: generate_new_integrations.py, complete_integration_setup.py, init_repos.sh
 
 ### New Modbus Integration
+
 - `d:\OSILifeDrive\Dev\HASS\ha-abb-fimer-pvi-sunspec`
 - Boilerplate complete, implementation needed
 
 ### New REST Integration
+
 - `d:\OSILifeDrive\Dev\HASS\ha-abb-fimer-pvi-vsn-rest`
 - Partial boilerplate, needs completion
 
@@ -338,8 +344,8 @@ ha-abb-fimer-pvi-vsn-rest/
 
 **GitHub Repositories (once created):**
 
-- Modbus: https://github.com/alexdelprete/ha-abb-fimer-pvi-sunspec
-- REST: https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-rest
+- Modbus: <https://github.com/alexdelprete/ha-abb-fimer-pvi-sunspec>
+- REST: <https://github.com/alexdelprete/ha-abb-fimer-pvi-vsn-rest>
 
 **Issue Tracking:**
 

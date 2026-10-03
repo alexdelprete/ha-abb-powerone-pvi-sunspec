@@ -1,0 +1,66 @@
+# Pre-commit hooks configuration
+# Every tool runs through uvx at the exact version CI uses (TOOL_VERSIONS in the
+# template repo's repo-sync.py renders both this file and lint.yml), so a
+# devcontainer built on a different day cannot disagree with CI. ty is still
+# pointed at the venv interpreter so it resolves Home Assistant imports.
+# Run: pre-commit install (first time setup)
+# Run: pre-commit run --all-files (manual check)
+
+repos:
+  - repo: local
+    hooks:
+      # Ruff linting (check-only)
+      - id: ruff
+        name: ruff
+        entry: uvx ruff@0.16.8 check --no-fix
+        language: system
+        types: [python]
+        verbose: true
+
+      # Ruff formatting (check-only)
+      - id: ruff-format
+        name: ruff-format
+        entry: uvx ruff@0.16.8 format --check
+        language: system
+        types: [python]
+        verbose: true
+
+      # JSON validation
+      - id: jsonlint
+        name: jsonlint
+        entry: uvx --from demjson3 jsonlint -S
+        language: system
+        types: [json]
+        exclude: ^\.vscode/
+        verbose: true
+
+      # YAML validation
+      - id: yamllint
+        name: yamllint
+        entry: >-
+          uvx yamllint@1.38.0 -d "{extends: default, rules: {line-length: {max: 120},
+          document-start: disable, truthy: {check-keys: false},
+          comments: {min-spaces-from-content: 1}}}"
+        language: system
+        types: [yaml]
+        verbose: true
+
+      # Markdown linting
+      - id: pymarkdown
+        name: pymarkdown
+        entry: uvx --from pymarkdownlnt==0.9.39 pymarkdown --config .pymarkdownlint.json scan
+        language: system
+        types: [markdown]
+        verbose: true
+
+      # Type checking (devcontainer only — requires HA deps installed).
+      # `--python "$(which python)"` resolves the interpreter at runtime
+      # so the hook works whether Python lives at the venv path or system path.
+      - id: ty
+        name: ty
+        entry: >-
+          bash -c 'uvx ty@0.0.82 check --python "$(which python)" custom_components/abb_powerone_pvi_sunspec'
+        language: system
+        pass_filenames: false
+        types: [python]
+        verbose: true

@@ -1,19 +1,21 @@
-# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
-      time: "21:00"
-      timezone: "Europe/Rome"
+      interval: "weekly"
 
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "daily"
-      time: "21:00"
-      timezone: "Europe/Rome"
+      interval: "weekly"
     ignore:
-      # Dependabot should not update Home Assistant as that should match the homeassistant key in hacs.json
       - dependency-name: "homeassistant"
+      # ruff and ty are pinned fleet-wide by TOOL_VERSIONS in the template repo
+      # (CI, pre-commit hooks, and these pyproject entries are all rendered from
+      # it); a Dependabot bump here would fight the sync. Bump the table instead.
+      - dependency-name: "ruff"
+      - dependency-name: "ty"
+      # phacc (and through it the HA test version) is bumped by Dependabot in the
+      # template repo only; the bump reaches this repo as a synced PR.
+      - dependency-name: "pytest-homeassistant-custom-component"

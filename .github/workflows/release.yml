@@ -15,7 +15,7 @@ jobs:
       contents: write
     steps:
       - name: "Checkout the repository"
-        uses: "actions/checkout@v7.0.1"
+        uses: "actions/checkout@v7"
 
       - name: "Validate version numbers"
         shell: "bash"
@@ -32,6 +32,17 @@ jobs:
           CONST_VERSION=$(grep -E "^VERSION = " \
             "${{ github.workspace }}/custom_components/abb_powerone_pvi_sunspec/const.py" \
             | sed 's/VERSION = "\(.*\)"/\1/')
+
+          # Fail early if extraction produced nothing (drifted declaration style)
+          if [[ -z "$CONST_VERSION" ]]; then
+            echo "::error::Could not extract VERSION from const.py"
+            echo ""
+            echo "ERROR: could not extract VERSION from const.py."
+            echo "const.py must declare the version as exactly:"
+            echo "  VERSION = \"X.Y.Z\""
+            echo "(plain assignment — no Final annotation; repo-sync enforces this form)."
+            exit 1
+          fi
 
           echo "Tag version:      $TAG_VERSION"
           echo "manifest.json:    $MANIFEST_VERSION"

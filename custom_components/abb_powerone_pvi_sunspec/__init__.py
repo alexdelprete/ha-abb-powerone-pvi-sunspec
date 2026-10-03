@@ -3,22 +3,16 @@
 https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec
 """
 
-import logging
 from dataclasses import dataclass
+import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from .const import (
-    CONF_HOST,
-    CONF_NAME,
-    DOMAIN,
-    STARTUP_MESSAGE,
-)
+from .const import CONF_HOST, CONF_NAME, DOMAIN, STARTUP_MESSAGE
 from .coordinator import ABBPowerOneFimerCoordinator
 from .helpers import log_debug, log_error, log_info
 
@@ -34,12 +28,10 @@ type ABBPowerOneFimerConfigEntry = ConfigEntry[RuntimeData]
 class RuntimeData:
     """Class to hold your data."""
 
-    coordinator: DataUpdateCoordinator
+    coordinator: ABBPowerOneFimerCoordinator
 
 
-async def async_setup_entry(
-    hass: HomeAssistant, config_entry: ABBPowerOneFimerConfigEntry
-):
+async def async_setup_entry(hass: HomeAssistant, config_entry: ABBPowerOneFimerConfigEntry):
     """Set up this integration using UI."""
     log_info(_LOGGER, "async_setup_entry", STARTUP_MESSAGE)
     log_debug(_LOGGER, "async_setup_entry", "Setup config_entry", domain=DOMAIN)
@@ -56,9 +48,7 @@ async def async_setup_entry(
     # Test to see if api initialised correctly, else raise ConfigNotReady to make HA retry setup
     # Change this to match how your api will know if connected or successful update
     if not coordinator.api.data["comm_sernum"]:
-        raise ConfigEntryNotReady(
-            f"Timeout connecting to {config_entry.data.get(CONF_NAME)}"
-        )
+        raise ConfigEntryNotReady(f"Timeout connecting to {config_entry.data.get(CONF_NAME)}")
 
     # Store coordinator in runtime_data to make it accessible throughout the integration
     config_entry.runtime_data = RuntimeData(coordinator)
@@ -99,9 +89,7 @@ def async_update_device_registry(
     )
 
 
-async def async_remove_config_entry_device(
-    hass: HomeAssistant, config_entry, device_entry
-) -> bool:
+async def async_remove_config_entry_device(hass: HomeAssistant, config_entry, device_entry) -> bool:
     """Delete device if not entities."""
     if DOMAIN in device_entry.identifiers:
         log_error(
@@ -121,17 +109,13 @@ async def async_unload_entry(
 
     # Unload platforms - only cleanup runtime_data if successful
     # ref.: https://developers.home-assistant.io/blog/2025/02/19/new-config-entry-states/
-    if unload_ok := await hass.config_entries.async_unload_platforms(
-        config_entry, PLATFORMS
-    ):
+    if unload_ok := await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS):
         log_debug(_LOGGER, "async_unload_entry", "Platforms unloaded successfully")
         # Cleanup per-entry resources only if unload succeeded
         await config_entry.runtime_data.coordinator.api.close()
         log_debug(_LOGGER, "async_unload_entry", "Closed API connection")
     else:
-        log_debug(
-            _LOGGER, "async_unload_entry", "Platform unload failed, skipping cleanup"
-        )
+        log_debug(_LOGGER, "async_unload_entry", "Platform unload failed, skipping cleanup")
 
     log_debug(
         _LOGGER,
@@ -142,8 +126,7 @@ async def async_unload_entry(
     return unload_ok
 
 
-@callback
-def async_reload_entry(
+async def async_reload_entry(
     hass: HomeAssistant, config_entry: ABBPowerOneFimerConfigEntry
 ) -> None:
     """Reload the config entry."""

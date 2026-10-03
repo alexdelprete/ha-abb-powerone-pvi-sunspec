@@ -16,24 +16,38 @@
 
 ### About This Repository (v4.x)
 
-This repository remains available at **v4.1.6** for existing users. It will receive **critical bug fixes only**, with no new features planned. Users are encouraged to migrate to the appropriate new integration when ready.
+This repository remains available at **v4.1.6** for existing users. It will receive **critical bug fixes only**, with
+no new features planned. Users are encouraged to migrate to the appropriate new integration when ready.
 
 ---
 
-[![GitHub Release][releases-shield]][releases]
-[![BuyMeCoffee][buymecoffee-shield]][buymecoffee]
-[![Community Forum][forum-shield]][forum]
+<!-- BEGIN SHARED:repo-sync:badges -->
+<!-- Synced by repo-sync on 2026-10-03 -->
+
+[![GitHub Release](https://img.shields.io/github/v/release/alexdelprete/ha-abb-powerone-pvi-sunspec?style=for-the-badge)](https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/releases)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-donate-yellow?style=for-the-badge&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/alexdelprete)
+[![Tests](https://img.shields.io/github/actions/workflow/status/alexdelprete/ha-abb-powerone-pvi-sunspec/test.yml?style=for-the-badge&label=Tests)](https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/actions/workflows/test.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/alexdelprete/ha-abb-powerone-pvi-sunspec?style=for-the-badge)](https://codecov.io/gh/alexdelprete/ha-abb-powerone-pvi-sunspec)
+[![GitHub Downloads](https://img.shields.io/github/downloads/alexdelprete/ha-abb-powerone-pvi-sunspec/total?style=for-the-badge)](https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/releases)
+
+<!-- END SHARED:repo-sync:badges -->
 
 _This project is not endorsed by, directly affiliated with, maintained, authorized, or sponsored by ABB or FIMER_
 
-# Introduction (v4.x - Legacy)
+## Introduction (v4.x - Legacy)
 
-HA Custom Component to integrate data from ABB/Power-One/FIMER PV mono-phase and three-phase inverters that support SunSpec Modbus Models M1/M103/M160, natively or through the VSN300/VSN700 wifi logger card. The VSN300/VSN700 cards provide a SunSpec to Aurora protocol adapter so that all modbus commands are translated to the proprietary Aurora protocol.
+HA Custom Component to integrate data from ABB/Power-One/FIMER PV mono-phase and three-phase inverters that support
+SunSpec Modbus Models M1/M103/M160, natively or through the VSN300/VSN700 wifi logger card. The VSN300/VSN700 cards
+provide a SunSpec to Aurora protocol adapter so that all modbus commands are translated to the proprietary Aurora
+protocol.
 
-The component has been originally developed by @binsentsu for SolarEdge inverters, I adapted it, adding some features, rewriting all the registers' mapping, for my Power-One Aurora PVI-10.0-OUTD 3-phase inverter to which I added a VSN300 card. It has also been tested with an ABB TRIO-8.5-TL-OUTD-S through a VSN300 and REACT2-3.6-TL through a VSN700 datalogger.
+The component has been originally developed by @binsentsu for SolarEdge inverters, I adapted it, adding some features,
+rewriting all the registers' mapping, for my Power-One Aurora PVI-10.0-OUTD 3-phase inverter to which I added a VSN300
+card. It has also been tested with an ABB TRIO-8.5-TL-OUTD-S through a VSN300 and REACT2-3.6-TL through a VSN700
+datalogger.
 
-Register address map has been implemented following the vendor's specification documentation, available in the [doc](https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/tree/master/doc) folder.
-
+Register address map has been implemented following the vendor's specification documentation, available in the
+[doc](https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/tree/master/doc) folder.
 
 ### Features
 
@@ -45,9 +59,34 @@ Register address map has been implemented following the vendor's specification d
 - Configurable polling interval, also at runtime (no restart needed)
 - Supports SunSpec models M1, M103, M160
 
-# Installation through HACS
+<!-- BEGIN SHARED:repo-sync:installation -->
+<!-- Synced by repo-sync on 2026-10-03 -->
 
-This integration is available in [HACS][hacs] official repository. Click this button to open HA directly on the integration page so you can easily install it:
+## Installation
+
+### HACS (Recommended)
+
+1. Open HACS in your Home Assistant instance
+1. Click on "Integrations"
+1. Click the three dots menu in the top right corner
+1. Select "Custom repositories"
+1. Add `https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec` as an Integration
+1. Click "Download" and install the integration
+1. Restart Home Assistant
+
+### Manual Installation
+
+1. Download the latest release from [GitHub Releases](https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/releases)
+1. Extract the `custom_components/abb_powerone_pvi_sunspec` folder
+1. Copy it to your Home Assistant `config/custom_components/` directory
+1. Restart Home Assistant
+
+<!-- END SHARED:repo-sync:installation -->
+
+## Installation through HACS (legacy notes)
+
+This integration is available in [HACS][hacs] official repository. Click this button to open HA directly on the
+integration page so you can easily install it:
 
 [![Quick installation link](https://my.home-assistant.io/badges/hacs_repository.svg)][my-hacs]
 
@@ -57,36 +96,81 @@ This integration is available in [HACS][hacs] official repository. Click this bu
    - Download
 2. Restart Home Assistant
 3. Go to Settings > Devices and Services > Add Integration
-4. Search for and select 'ABB Power-One PVI SunSpec' (if the integration is not found, do a hard-refresh (ctrl+F5) in the browser)
+4. Search for and select 'ABB Power-One PVI SunSpec' (if the integration is not found, do a hard-refresh (ctrl+F5) in
+   the browser)
 5. Proceed with the configuration
 
-# Manual Installation
+## Manual Installation
 
-Download the source code archive from the release page. Unpack the archive and copy the contents of custom_components folder to your home-assistant config/custom_components folder. Restart Home Assistant, and then the integration can be added and configured through the native integration setup UI. If you don't see it in the native integrations list, press ctrl-F5 to refresh the browser while you're on that page and retry.
+Download the source code archive from the release page. Unpack the archive and copy the contents of custom_components
+folder to your home-assistant config/custom_components folder. Restart Home Assistant, and then the integration can be
+added and configured through the native integration setup UI. If you don't see it in the native integrations list,
+press ctrl-F5 to refresh the browser while you're on that page and retry.
 
-# Enabling Modbus TCP on the inverter
+## Enabling Modbus TCP on the inverter
 
-Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Device ID) of the inverter (depends on the model, default on some models is 2 on others is 247) and during the configuration of the component, use the appropriate Device address. Another important parameter is the registers map base address, default is 40000 but it may vary. All these parameters can be reconfigured after installation, clicking CONFIGURE on the integration.
+Enable Modbus TCP client on the VSN300, take note of the Unit ID (aka Device ID) of the inverter (depends on the
+model, default on some models is 2 on others is 247) and during the configuration of the component, use the
+appropriate Device address. Another important parameter is the registers map base address, default is 40000 but it may
+vary. All these parameters can be reconfigured after installation, clicking CONFIGURE on the integration.
 
-# Configuration
+## Configuration
 
-Configuration is done via config flow right after adding the integration. After the first configuration you can change parameters (except custom name and ip/hostname) at runtime through the integration page configuration, without the need to restart HA (this works since v2.5.0). 
+Configuration is done via config flow right after adding the integration. After the first configuration you can change
+parameters (except custom name and ip/hostname) at runtime through the integration page configuration, without the
+need to restart HA (this works since v2.5.0).
 
-![](https://user-images.githubusercontent.com/7027842/214734702-bf899013-5e28-47b5-87a7-827e49ca465b.gif)
+![Configuration flow](https://user-images.githubusercontent.com/7027842/214734702-bf899013-5e28-47b5-87a7-827e49ca465b.gif)
 
 - **custom name**: custom name for the inverter, that will be used as prefix for sensors created by the component
-- **ip/hostname**: IP/hostname of the inverter - this is used as unique_id, if you change it and reinstall you will lose historical data, that's why I advice to use hostname, so you can change IP without losing historical data
+- **ip/hostname**: IP/hostname of the inverter - this is used as unique_id, if you change it and reinstall you will
+  lose historical data, that's why I advice to use hostname, so you can change IP without losing historical data
 - **tcp port**: TCP port of the datalogger
 - **device id**: the unit id of the inverter in the chain: default is 254, if using VS300/VS700 it's usually 2
-- **register map base address**: the base address from where the register map starts, usually it's 40000, but for ABB VSN300/VSN700 dataloggers it's 0
+- **register map base address**: the base address from where the register map starts, usually it's 40000, but for ABB
+  VSN300/VSN700 dataloggers it's 0
 - **polling period**: frequency, in seconds, to read the registers and update the sensors
 
+<!-- pyml disable-next-line no-inline-html,line-length -->
 <img style="border: 5px solid #767676;border-radius: 10px;max-width: 350px;width: 40%;box-sizing: border-box;" src="https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/blob/master/gfxfiles/config.png?raw=true" alt="Config">
 
-# Sensor screenshot
+## Sensor screenshot
+
+<!-- pyml disable-next-line no-inline-html,line-length -->
 <img style="border: 5px solid #767676;border-radius: 10px;max-width: 350px;width: 40%;box-sizing: border-box;" src="https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/blob/master/gfxfiles/demo.png?raw=true" alt="Config">
 
-# Coffee
+<!-- BEGIN SHARED:repo-sync:contributing -->
+<!-- Synced by repo-sync on 2026-10-03 -->
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+1. Create a feature branch (`git checkout -b feature/my-feature`)
+1. Make your changes
+1. Run linting: `pre-commit run --all-files`
+1. Commit your changes (`git commit -m "feat: add my feature"`)
+1. Push to your branch (`git push origin feature/my-feature`)
+1. Open a Pull Request
+
+Please ensure all CI checks pass before requesting a review.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development environment (devcontainer, tests, live
+Home Assistant instance) and the Windows caveats.
+
+<!-- END SHARED:repo-sync:contributing -->
+
+<!-- BEGIN SHARED:repo-sync:license -->
+<!-- Synced by repo-sync on 2026-10-03 -->
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+<!-- END SHARED:repo-sync:license -->
+
+## Coffee
 
 _If you like this integration, I'll gladly accept some quality coffee, but please don't feel obliged._ :)
 

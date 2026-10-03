@@ -1,20 +1,13 @@
 #!/usr/bin/env bash
-
+# Run a live Home Assistant dev instance with this integration loaded.
+# HA itself comes from the ha-venv (version pinned via pytest-homeassistant-custom-component).
+# config/configuration.yaml is versioned; runtime state under config/ is gitignored.
 set -e
-
 cd "$(dirname "$0")/.."
 
-# Create config dir if not present
-if [[ ! -d "${PWD}/config" ]]; then
-    mkdir -p "${PWD}/config"
-    hass --config "${PWD}/config" --script ensure_config
+mkdir -p config
+if [[ ! -e "${PWD}/config/custom_components" ]]; then
+    ln -s ../custom_components "${PWD}/config/custom_components"
 fi
 
-# Set the path to custom_components
-## This let's us have the structure we want <root>/custom_components/integration_blueprint
-## while at the same time have Home Assistant configuration inside <root>/config
-## without resulting to symlinks.
-export PYTHONPATH="${PYTHONPATH}:${PWD}/custom_components"
-
-# Start Home Assistant
 hass --config "${PWD}/config" --debug

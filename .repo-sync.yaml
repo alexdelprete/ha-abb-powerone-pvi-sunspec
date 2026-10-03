@@ -1,0 +1,107 @@
+# .repo-sync.yaml - repo-sync configuration for ha-abb-powerone-pvi-sunspec
+
+template:
+  owner: alexdelprete
+  repo: ha-integration-template
+  branch: main
+
+vars:
+  # -- Identity --
+  repo_name: ha-abb-powerone-pvi-sunspec
+  integration_name: ABB/Power-One/FIMER PVI SunSpec
+  component_dir: abb_powerone_pvi_sunspec
+  domain: abb_powerone_pvi_sunspec
+  default_branch: main
+  dev_alias: abbsunspec                    # devbox: <alias>.code / <alias>.hass hostnames
+  dev_host_port: ""
+  dev_autostart_hass: false
+
+  # -- 4noks workaround --
+  needs_symlink: false
+  python_import_name: ""
+
+  # -- HA/HACS --
+  ha_min_version: "2026.8.0"
+  hide_default_branch: false
+  ignore_brands: false
+
+  # -- Workflow tuning --
+  jsonlint_flags: ""
+
+  # -- Dependabot --
+  dependabot_interval: weekly
+  dependabot_time: ""
+  dependabot_timezone: ""
+
+  # ── Pyproject tools tuning ──
+  include_mypy: false
+  ruff_extend_exclude: ["docs", "gfxfiles"]
+  ruff_lint_extra_ignores: []
+  ruff_lint_extra_perfile_ignores:
+    # vendored copy of pymodbus' removed BinaryPayloadDecoder: keep upstream method names
+    "custom_components/abb_powerone_pvi_sunspec/pymodbus_payload.py": ["N802"]
+    # one-off migration/scaffolding scripts from the v5 split, not shipped code (the pre-template
+    # .ruff.toml excluded docs/ too; extend-exclude alone is ignored for the explicit paths pre-commit passes)
+    "docs/**": ["ALL"]
+  ruff_tests_extra_ignores: ["INP001"]
+
+  # -- Extras --
+  gitignore_extra:
+    - ""
+    - "# Repo-specific (carried over from the pre-template .gitignore)"
+    - ".zed/"
+    - "enforce_branch_protection.sh"
+  bug_extra_fields: []
+  config_extra_links: []
+
+copy_files:
+  - .gitattributes
+  - .pymarkdownlint.json
+  - .python-version
+  - Dockerfile.dev
+  - .github/workflows/dbautomerge.yml
+  - .github/FUNDING.yml
+  - LICENSE
+  - .vscode/launch.json
+  - .vscode/tasks.json
+
+template_files:
+  - .github/workflows/lint.yml
+  - .github/workflows/test.yml
+  - .github/workflows/validate.yml
+  - .github/workflows/release.yml
+  - .github/dependabot.yml
+  - .github/ISSUE_TEMPLATE/bug.yml
+  - .github/ISSUE_TEMPLATE/feature_request.yml
+  - .github/ISSUE_TEMPLATE/config.yml
+  - .pre-commit-config.yaml
+  - hacs.json
+  - .gitignore
+  - .devcontainer.json
+  - docs/releases/README.md
+  - CONTRIBUTING.md
+  - scripts/develop
+  - config/configuration.yaml
+
+marker_files:
+  CLAUDE.md:
+    - template: CLAUDE_SHARED.md.j2
+      begin: "<!-- BEGIN SHARED:repo-sync -->"
+      end: "<!-- END SHARED:repo-sync -->"
+  README.md:
+    - template: README_BADGES.md.j2
+      begin: "<!-- BEGIN SHARED:repo-sync:badges -->"
+      end: "<!-- END SHARED:repo-sync:badges -->"
+    - template: README_INSTALLATION.md.j2
+      begin: "<!-- BEGIN SHARED:repo-sync:installation -->"
+      end: "<!-- END SHARED:repo-sync:installation -->"
+    - template: README_CONTRIBUTING.md.j2
+      begin: "<!-- BEGIN SHARED:repo-sync:contributing -->"
+      end: "<!-- END SHARED:repo-sync:contributing -->"
+    - template: README_LICENSE.md.j2
+      begin: "<!-- BEGIN SHARED:repo-sync:license -->"
+      end: "<!-- END SHARED:repo-sync:license -->"
+  pyproject.toml:
+    - template: PYPROJECT_TOOLS.toml.j2
+      begin: "# <!-- BEGIN SHARED:repo-sync -->"
+      end: "# <!-- END SHARED:repo-sync -->"

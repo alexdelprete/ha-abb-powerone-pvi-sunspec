@@ -16,7 +16,7 @@ dev = [
     # Not imported by the integration: Home Assistant's own modbus integration (a manifest
     # dependency) needs these importable in the test venv. modbus-connection is pinned to the
     # release HA 2026.9 (the minimum supported core) bundles, so tests exercise its API floor.
-    "modbus-connection[tmodbus]==4.10.0",
+    "modbus-connection[tmodbus]==4.12.3",
     "pymodbus>=3.15.0",
     "colorlog>=6.10.0",
     "homeassistant>=2026.9.0",

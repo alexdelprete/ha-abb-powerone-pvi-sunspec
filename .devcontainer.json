@@ -94,6 +94,9 @@
                 "[yaml]": {
                     "editor.defaultFormatter": "esbenp.prettier-vscode"
                 },
+                "[markdown]": {
+                    "editor.formatOnSave": false
+                },
                 "yaml.customTags": [
                     "!input scalar",
                     "!secret scalar",

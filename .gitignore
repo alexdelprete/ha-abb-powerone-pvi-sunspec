@@ -86,6 +86,7 @@ Thumbs.db
 *.log
 .ruff_cache/
 settings.local.json
+CLAUDE.local.md
 uv.lock
 nul
 

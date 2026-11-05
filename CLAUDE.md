@@ -90,7 +90,7 @@ SunSpec models M1, M101/M103 and M160.
 - Do not use f-strings in logging
 
 <!-- BEGIN SHARED:repo-sync -->
-<!-- Synced by repo-sync on 2026-10-03 -->
+<!-- Synced by repo-sync on 2026-11-05 -->
 
 <!--
 ==============================================================================
@@ -275,7 +275,7 @@ These repos are standardized on the **Python 3.14+** toolchain:
 - `pyproject.toml`: `requires-python = ">=3.14.2"` (matches Home Assistant
   core's own floor)
 - `[tool.ruff]`: `target-version = "py314"`
-- Minimum supported Home Assistant core: **2026.8.0** — the
+- Minimum supported Home Assistant core: **2026.9.0** — the
   first HA release with `DeviceRegistry.async_get_device_by_identifier`,
   which replaces the `async_get_device` lookup deprecated in 2026.9.
   `hacs.json` is rendered from the same value, so HACS users on older HA

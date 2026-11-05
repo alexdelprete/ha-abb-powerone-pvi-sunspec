@@ -70,7 +70,7 @@ explain why it is the supported path rather than a convenience:
 
 | Symptom | Cause |
 |---|---|
-| `No matching distribution found for homeassistant>=2026.8.0` | Python older than **3.14.2** — pip does not say so. |
+| `No matching distribution found for homeassistant>=2026.9.0` | Python older than **3.14.2** — pip does not say so. |
 
 ## Installing dependencies by hand
 

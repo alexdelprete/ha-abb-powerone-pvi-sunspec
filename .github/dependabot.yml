@@ -11,11 +11,14 @@ updates:
       interval: "weekly"
     ignore:
       - dependency-name: "homeassistant"
-      # ruff and ty are pinned fleet-wide by TOOL_VERSIONS in the template repo
-      # (CI, pre-commit hooks, and these pyproject entries are all rendered from
-      # it); a Dependabot bump here would fight the sync. Bump the table instead.
+      # ruff, ty and pymarkdownlnt are pinned fleet-wide by TOOL_VERSIONS in the
+      # template repo (CI, pre-commit hooks, and the shared pyproject block are all
+      # rendered from it); a Dependabot bump here would fight the sync. Bump the
+      # table instead. pymarkdownlnt is held back on purpose (newer releases add
+      # rules that turn the fleet's Lint red).
       - dependency-name: "ruff"
       - dependency-name: "ty"
+      - dependency-name: "pymarkdownlnt"
       # pytest-homeassistant (and through it the HA release the tests run on) is
       # bumped by Dependabot in the template repo only; the bump reaches this repo
       # as a synced PR.

@@ -25,7 +25,7 @@ dev = [
     "mdformat",
     "mdformat-gfm",
     "pre-commit",
-    "pymarkdownlnt==0.9.41",
+    "pymarkdownlnt==0.9.39",
     "ruff==0.16.8",
     "ty==0.0.82",
     "pytest>=8.0.0",
@@ -43,7 +43,7 @@ lint = [
     "mdformat",
     "mdformat-gfm",
     "pre-commit",
-    "pymarkdownlnt==0.9.41",
+    "pymarkdownlnt==0.9.39",
     "ruff==0.16.8",
     "ty==0.0.82",
 ]

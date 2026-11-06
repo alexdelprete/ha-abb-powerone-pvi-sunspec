@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-No unreleased changes at this time.
+### Changed
+
+- **Marketplace category** - the manifest declares the `energy.solar_batteries` category, used by
+  the Home Assistant 2026.11 Marketplace for browsing.
+- **Validation engine** - the options form uses probatio, Home Assistant's validation engine,
+  instead of voluptuous. No user-visible change; Home Assistant 2026.9.0 remains the minimum.
+- **Development tooling** - tests run on `pytest-homeassistant` 2026.11.0, the test package
+  published by Home Assistant core.
 
 ## [4.2.0] - 2026-10-03
 

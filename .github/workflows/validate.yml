@@ -8,7 +8,7 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
-  hassfest: # https://developers.home-assistant.io/blog/2020/04/16/hassfest
+  hassfest: # https://contributors.home-assistant.io/blog/2020/04/16/hassfest
     name: "Hassfest Validation"
     runs-on: "ubuntu-latest"
     steps:

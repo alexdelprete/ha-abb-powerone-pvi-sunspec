@@ -1,6 +1,7 @@
 {
   "domain": "abb_powerone_pvi_sunspec",
   "name": "ABB/Power-One/FIMER PVI SunSpec",
+  "categories": ["energy.solar_batteries"],
   "codeowners": ["@alexdelprete"],
   "config_flow": true,
   "dependencies": ["modbus"],

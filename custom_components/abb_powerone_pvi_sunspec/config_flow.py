@@ -8,7 +8,7 @@ import logging
 from typing import Any
 
 from modbus_connection import ModbusError, ModbusTcpParams
-import voluptuous as vol
+import probatio
 
 from homeassistant import config_entries
 from homeassistant.components.modbus import async_get_temporary_unit
@@ -49,20 +49,24 @@ _LOGGER = logging.getLogger(__name__)
 DEVICE_ID_SELECTOR = selector(
     {"number": {"min": MIN_DEVICE_ID, "max": MAX_DEVICE_ID, "step": 1, "mode": "box"}}
 )
-PORT_VALIDATOR = vol.All(vol.Coerce(int), vol.Clamp(min=MIN_PORT, max=MAX_PORT))
-BASE_ADDR_VALIDATOR = vol.All(vol.Coerce(int), vol.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR))
-SCAN_INTERVAL_VALIDATOR = vol.All(
-    vol.Coerce(int), vol.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL)
+PORT_VALIDATOR = probatio.All(probatio.Coerce(int), probatio.Clamp(min=MIN_PORT, max=MAX_PORT))
+BASE_ADDR_VALIDATOR = probatio.All(
+    probatio.Coerce(int), probatio.Clamp(min=MIN_BASE_ADDR, max=MAX_BASE_ADDR)
+)
+SCAN_INTERVAL_VALIDATOR = probatio.All(
+    probatio.Coerce(int), probatio.Clamp(min=MIN_SCAN_INTERVAL, max=MAX_SCAN_INTERVAL)
 )
 
-USER_SCHEMA = vol.Schema(
+USER_SCHEMA = probatio.Schema(
     {
-        vol.Required(CONF_NAME, default=DEFAULT_NAME): cv.string,
-        vol.Required(CONF_HOST): cv.string,
-        vol.Required(CONF_PORT, default=DEFAULT_PORT): PORT_VALIDATOR,
-        vol.Required(CONF_DEVICE_ID, default=DEFAULT_DEVICE_ID): DEVICE_ID_SELECTOR,
-        vol.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): BASE_ADDR_VALIDATOR,
-        vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): SCAN_INTERVAL_VALIDATOR,
+        probatio.Required(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        probatio.Required(CONF_HOST): cv.string,
+        probatio.Required(CONF_PORT, default=DEFAULT_PORT): PORT_VALIDATOR,
+        probatio.Required(CONF_DEVICE_ID, default=DEFAULT_DEVICE_ID): DEVICE_ID_SELECTOR,
+        probatio.Required(CONF_BASE_ADDR, default=DEFAULT_BASE_ADDR): BASE_ADDR_VALIDATOR,
+        probatio.Required(
+            CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
+        ): SCAN_INTERVAL_VALIDATOR,
     }
 )
 
@@ -175,15 +179,17 @@ class ABBPowerOneFimerOptionsFlow(OptionsFlow):
     def __init__(self, config_entry: ConfigEntry) -> None:
         """Initialize option flow instance."""
         data = config_entry.data
-        self.data_schema = vol.Schema(
+        self.data_schema = probatio.Schema(
             {
-                vol.Required(CONF_HOST, default=data.get(CONF_HOST)): cv.string,
-                vol.Required(CONF_PORT, default=data.get(CONF_PORT)): PORT_VALIDATOR,
-                vol.Required(
+                probatio.Required(CONF_HOST, default=data.get(CONF_HOST)): cv.string,
+                probatio.Required(CONF_PORT, default=data.get(CONF_PORT)): PORT_VALIDATOR,
+                probatio.Required(
                     CONF_DEVICE_ID, default=data.get(CONF_DEVICE_ID) or data.get("slave_id")
                 ): DEVICE_ID_SELECTOR,
-                vol.Required(CONF_BASE_ADDR, default=data.get(CONF_BASE_ADDR)): BASE_ADDR_VALIDATOR,
-                vol.Required(
+                probatio.Required(
+                    CONF_BASE_ADDR, default=data.get(CONF_BASE_ADDR)
+                ): BASE_ADDR_VALIDATOR,
+                probatio.Required(
                     CONF_SCAN_INTERVAL, default=data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
                 ): SCAN_INTERVAL_VALIDATOR,
             }

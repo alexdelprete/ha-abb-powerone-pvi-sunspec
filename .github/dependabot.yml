@@ -19,3 +19,6 @@ updates:
       # phacc (and through it the HA test version) is bumped by Dependabot in the
       # template repo only; the bump reaches this repo as a synced PR.
       - dependency-name: "pytest-homeassistant-custom-component"
+      # homeassistant-stubs is pinned to the same HA release as phacc and bumped
+      # with it in the template repo.
+      - dependency-name: "homeassistant-stubs"

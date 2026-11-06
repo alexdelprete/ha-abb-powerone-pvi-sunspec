@@ -20,7 +20,7 @@ dev = [
     "pymodbus>=3.15.0",
     "colorlog>=6.10.0",
     "homeassistant>=2026.9.0",
-    "homeassistant-stubs",
+    "homeassistant-stubs==2026.9.3",
     "mdformat",
     "mdformat-gfm",
     "pre-commit",

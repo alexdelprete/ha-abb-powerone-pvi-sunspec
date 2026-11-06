@@ -27,7 +27,7 @@ jobs:
           # Install the dev extra straight from pyproject, exactly as the
           # devcontainer's postCreate does, so drift in pyproject's dev deps
           # fails CI instead of breaking container builds later. pyproject is
-          # the single source of truth for dev dependencies and the phacc pin.
+          # the single source of truth for dev dependencies and the pytest-homeassistant pin.
           uv pip install -e '.[dev]' --system --config-settings editable_mode=compat
       - name: Run tests with coverage
         run: |

@@ -11,32 +11,57 @@ authors = [{ name = "alexdelprete" }]
 "Homepage" = "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec"
 "Bug Tracker" = "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues"
 
+# <!-- BEGIN SHARED:repo-sync -->
+# Synced by repo-sync on 2026-11-06
+
+# Development dependencies, shared across the fleet. The pins come from the
+# template repo (requirements-fleet-pins.txt and [tool.repo-sync.tool-versions]);
+# integration-specific packages come from `dev_extra_requirements` in
+# .repo-sync.yaml. `uv pip install -e '.[dev]'` (CI, devcontainer) and
+# `uv sync` (dependency groups) install the same set.
 [project.optional-dependencies]
 dev = [
-    # Not imported by the integration: Home Assistant's own modbus integration (a manifest
-    # dependency) needs these importable in the test venv. modbus-connection is pinned to the
-    # release HA 2026.9 (the minimum supported core) bundles, so tests exercise its API floor.
-    "modbus-connection[tmodbus]==4.12.7",
-    "pymodbus>=3.15.0",
-    "colorlog>=6.10.0",
     "homeassistant>=2026.9.0",
-    "homeassistant-stubs==2026.9.3",
     "mdformat",
     "mdformat-gfm",
     "pre-commit",
-    "pymarkdownlnt",
+    "pymarkdownlnt==0.9.39",
     "ruff==0.16.8",
     "ty==0.0.82",
-    "pytest>=9.0.0",
-    "pytest-asyncio>=1.3.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
     "pytest-cov",
-    "pytest-homeassistant-custom-component==0.13.366",
+    "pytest-homeassistant==2026.11.0",
     "pytest-timeout",
+    "modbus-connection[tmodbus]==4.12.7",
+    "pymodbus>=3.15.0",
+    "colorlog>=6.10.0",
 ]
 
-# <!-- BEGIN SHARED:repo-sync -->
-# Synced by repo-sync on 2026-10-03
-
+[dependency-groups]
+lint = [
+    "mdformat",
+    "mdformat-gfm",
+    "pre-commit",
+    "pymarkdownlnt==0.9.39",
+    "ruff==0.16.8",
+    "ty==0.0.82",
+]
+pytest = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov",
+    "pytest-homeassistant==2026.11.0",
+    "pytest-timeout",
+]
+dev = [
+    "homeassistant>=2026.9.0",
+    "modbus-connection[tmodbus]==4.12.7",
+    "pymodbus>=3.15.0",
+    "colorlog>=6.10.0",
+    { include-group = "lint" },
+    { include-group = "pytest" },
+]
 
 # Explicit package discovery: scripts/develop creates a config/ directory at the
 # repo root for the live HA dev instance, which makes setuptools' flat-layout
@@ -50,9 +75,13 @@ quiet-level = 3
 ignore-words-list = "hass"
 
 [tool.pytest.ini_options]
+# -p no:respx: pytest-homeassistant needs Home Assistant to install its httpx
+# alias before respx is imported; only respx's own pytest plugin is disabled.
 addopts = """
   --timeout=20
+  -p no:respx
 """
+pythonpath = ["."]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"

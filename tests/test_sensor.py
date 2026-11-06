@@ -7,7 +7,7 @@ from datetime import timedelta
 from freezegun.api import FrozenDateTimeFactory
 from modbus_connection import ModbusConnectionError
 from modbus_connection.mock import MockModbusUnit
-from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
+from pytest_homeassistant.common import MockConfigEntry, async_fire_time_changed
 
 from custom_components.abb_powerone_pvi_sunspec.const import (
     DOMAIN,

@@ -8,7 +8,7 @@ from typing import Any
 from modbus_connection import IllegalDataAddressError, ModbusConnectionError, ModbusTimeoutError
 from modbus_connection.mock import MockModbusUnit
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.abb_powerone_pvi_sunspec.api import ABBPowerOneFimerAPI
 from custom_components.abb_powerone_pvi_sunspec.const import (

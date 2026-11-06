@@ -52,6 +52,14 @@ vars:
   bug_extra_fields: []
   config_extra_links: []
 
+  # ── Dev dependencies ──
+  # Integration-specific packages appended to the shared dev extra / dev group
+  # that repo-sync renders into pyproject.toml.
+  dev_extra_requirements:
+    - "modbus-connection[tmodbus]==4.12.7"
+    - "pymodbus>=3.15.0"
+    - "colorlog>=6.10.0"
+
 copy_files:
   - .gitattributes
   - .pymarkdownlint.json

@@ -184,7 +184,7 @@ entry.runtime_data = MyData(device_name=name)
 
 ### Translations (Custom Integrations)
 
-Per [HA developer docs](https://developers.home-assistant.io/docs/internationalization/custom_integration/):
+Per [HA contributor docs](https://contributors.home-assistant.io/docs/internationalization/custom_integration/):
 
 - **DO use `translations/en.json`** as the source of truth for English strings
 - **DO NOT create `strings.json`** — it is a Core-only build-time feature and is ignored by custom integrations
@@ -230,10 +230,12 @@ Always use type hints for function signatures.
 - All coordinator methods are async
 - API methods use async/await properly
 - Config entry methods follow HA conventions:
-  - `add_update_listener()` — sync
+  - `async_setup_entry()` / `async_unload_entry()` return `None` and signal failure by raising
+    a `ConfigEntry*` exception (core rule since 2026.11; a `return False` still works for custom
+    integrations but becomes a generic `ConfigEntryError`). Unload with
+    `async_unload_platforms_or_raise()`. Tests patch `async_setup_entry` with `return_value=None`
   - `async_on_unload()` — sync (despite the name)
   - `async_forward_entry_setups()` — async
-  - `async_unload_platforms()` — async
 - Never use blocking calls in async context
 
 ## Configuration Best Practices
@@ -246,12 +248,24 @@ Connection and identity parameters: name, host, port, device ID, etc.
 
 ### config_entry.options (changed via Options flow)
 
-Runtime tuning parameters: scan_interval, timeout, etc. Use OptionsFlowWithReload for auto-reload.
+Runtime tuning parameters: scan_interval, timeout, etc. Use `OptionsFlowWithReload` for auto-reload
+and do **not** also register `entry.add_update_listener()`: a config entry update listener combined
+with a reloading flow is deprecated since HA 2026.6 and raises `ValueError` from 2026.12. Either the
+flow reloads the entry, or a listener does, never both.
 
 ### Config Flow Patterns
 
-- Use `vol.Clamp()` for numeric inputs with min/max bounds (better UX than validation errors)
+- Schemas use `probatio` (Home Assistant's validation engine since 2026.9, `import probatio`, no alias,
+  as in core). `import voluptuous as vol` still runs through a runtime alias, but on HA 2026.11 `ty`
+  rejects a voluptuous `Schema` as `data_schema`, and repair flows return `RepairsFlowResult`
+- Use `probatio.Clamp()` for numeric inputs with min/max bounds (better UX than validation errors)
 - Use `async_update_reload_and_abort()` for reconfigure flows
+- Pass `step_id` to every `async_show_form`, `async_show_menu`, `async_show_progress` and
+  `async_external_step` result (deprecation warning since HA 2026.10, required in 2027.5)
+- Shared abort reasons (`already_in_progress`, `single_instance_allowed`, `reauth_successful`,
+  `reconfigure_successful`, the OAuth ones) are translated by core since HA 2026.10 **only when**
+  the abort passes `translation_domain=HOMEASSISTANT_DOMAIN`; drop the key from
+  `translations/en.json` in that case and keep it otherwise
 - Implement config entry migration (`async_migrate_entry()`) when changing config schema versions
 
 ## Entity and Device Patterns
@@ -259,7 +273,12 @@ Runtime tuning parameters: scan_interval, timeout, etc. Use OptionsFlowWithReloa
 ### Device Registry
 
 - Device identifier tuple: `(DOMAIN, unique_id)` where `unique_id` is MAC address, serial number, or similar
-- Use `DeviceInfo` with manufacturer, model, sw_version, and configuration_url
+- `DeviceInfo` is a keyword-only dataclass since HA 2026.11: `DeviceInfo(identifiers=..., name=...)`,
+  never a dict literal. Set manufacturer, model, sw_version and configuration_url
+- Link a device to its hub with `via_device_id=<hub DeviceEntry.id>`; resolve the hub with
+  `dr.async_get(hass).async_get_device_by_identifier((DOMAIN, hub_uid), entry.entry_id)`.
+  Identifiers are unique per config entry only, so `async_get_device` (no entry id) and
+  `via_device` (identifier tuple) are deprecated and removed in HA 2027.8
 - Changing host/IP should not affect entity IDs or historical data
 
 ### Entity Unique IDs
@@ -268,6 +287,28 @@ Runtime tuning parameters: scan_interval, timeout, etc. Use OptionsFlowWithReloa
 - Use stable identifiers (MAC address, serial number) — not connection parameters (IP, hostname)
 - Config entry type alias: `type MyConfigEntry = ConfigEntry[RuntimeData]`
 
+### Entity Services
+
+- Register entity services from the platform: `entity_platform.async_get_current_platform()
+  .async_register_entity_service(name, schema, func)` (no `hass` argument). The module-level
+  helper `homeassistant.helpers.service.async_register_platform_entity_service(hass, ...)` still
+  takes `hass` as of 2026.11 and is for services registered outside a platform
+
+### Follow-ups Tied to the HA Floor
+
+- When the floor reaches HA 2026.12: `UNDEFINED` and `UndefinedType` are deprecated there in favour
+  of `Undefined` (`homeassistant.helpers.typing`), removal in 2027.12. No change before that
+
+### Repair Issues
+
+- Create issues with `config_entry_id=entry.entry_id` (HA 2026.11): they are deleted with the
+  entry and shown on its page. Use `config_subentry_id` for subentries from 2026.12
+- Keep issues in step with reality inside `with ir.async_refresh_issues(hass, DOMAIN, issue_ids=...,
+  config_entry_id=...)`: on exit it deletes every issue of the set not created or kept in the
+  block, so no paired `async_delete_issue`, and an issue that stays keeps the user's ignore flag
+- A fixable issue needs `async_create_fix_flow()` in `repairs.py`; its flow returns
+  `RepairsFlowResult`
+
 ## Python Version & HA Baseline
 
 These repos are standardized on the **Python 3.14+** toolchain:
@@ -275,11 +316,13 @@ These repos are standardized on the **Python 3.14+** toolchain:
 - `pyproject.toml`: `requires-python = ">=3.14.2"` (matches Home Assistant
   core's own floor)
 - `[tool.ruff]`: `target-version = "py314"`
-- Minimum supported Home Assistant core: **2026.9.0** — the
-  first HA release with `DeviceRegistry.async_get_device_by_identifier`,
-  which replaces the `async_get_device` lookup deprecated in 2026.9.
-  `hacs.json` is rendered from the same value, so HACS users on older HA
-  don't see updates.
+- Minimum supported Home Assistant core: **2026.9.0** (per repo, in
+  `.repo-sync.yaml`; `hacs.json` is rendered from the same value, so Marketplace users
+  on older HA don't see updates). The scaffold starts at 2026.11.0, the release that
+  brought `async_unload_platforms_or_raise`, `DeviceInfo` as a dataclass, issues bound
+  to a config entry and the `async_entity_id_changed` hook; raise a consumer's floor
+  when adopting those. Tests always run on the fleet-pinned `pytest-homeassistant`
+  release, not on the floor.
 
 **Implication for source code**: code in these repos may use 3.14-only
 syntax (e.g. PEP 758's parenthesis-free `except A, B:`) and is **not**
@@ -349,12 +392,14 @@ Template changes reach this repo as signed `repo-sync/propagate` pull requests o
 template's `propagate.yml`; they auto-merge once the required checks pass. Do not edit those
 files by hand: change the template and let it propagate.
 ty and ruff are pre-1.0 / fast-moving and add rules between releases; unpinned they
-turn CI red on code that passes locally. The venv copies of ruff and ty only serve
-the VS Code extensions; `repo-sync` rewrites their `pyproject.toml` entries to the same
-pins on every sync (and dependabot ignores them), so the editor matches CI too.
-`homeassistant-stubs` is pinned the same way, to the Home Assistant release
-`pytest-homeassistant-custom-component` installs (2026.9.3),
-so ty checks against the HA the tests run on rather than the newest stubs on PyPI.
+turn CI red on code that passes locally. The dev extra and the dependency groups in
+`pyproject.toml` are rendered into the shared block from the same pins (integration-specific
+packages come from `dev_extra_requirements` in `.repo-sync.yaml`), so the venv copies of ruff
+and ty that serve the VS Code extensions match CI too; dependabot ignores them.
+`pytest-homeassistant` (the test package Home Assistant core publishes with every release) is
+pinned fleet-wide to 2026.11.0; it pins `homeassistant` to that
+same release, and ty reads the types Home Assistant ships (`py.typed`; `homeassistant-stubs` is
+deprecated), so the type check and the tests see the same Home Assistant.
 
 ## Pre-Commit Checks (MANDATORY)
 
@@ -398,14 +443,19 @@ rm nul  # if it exists
 
 ## Testing
 
-> **CRITICAL: NEVER run pytest locally. The local environment cannot be set up correctly for
-> Home Assistant integration tests. ALWAYS use GitHub Actions CI to run tests.**
+Run the tests locally in the devcontainer before pushing. It installs the `dev` extra exactly as
+the Tests workflow does (`uv pip install -e '.[dev]'`: same `pytest-homeassistant` pin, same Home
+Assistant release), so a local pass is meaningful:
 
-To run tests:
+```bash
+pytest tests/                                  # whole suite, no coverage (fast)
+pytest tests/test_init.py -k setup             # one module or test
+pytest tests/ --cov=custom_components/abb_powerone_pvi_sunspec --cov-report=term-missing  # what CI runs
+```
 
-1. Commit and push changes to the repository
-1. GitHub Actions will automatically run the test workflow
-1. Check the workflow results in the Actions tab or use `mcp__github__*` tools
+CI stays the gate: coverage (97% minimum) and the Release Readiness Report are read from the
+Tests workflow run, never from a local run. Push, let the workflow run, then check it (see CI
+Workflow Status and Logs).
 
 > **CRITICAL: NEVER modify production code to make tests pass. Always fix the tests instead.**
 > Production code is the source of truth. If tests fail, the tests are wrong - not the production code.
@@ -414,6 +464,11 @@ To run tests:
 ## Quality Scale Tracking (MUST DO)
 
 This integration tracks [Home Assistant Quality Scale][qs] rules in `quality_scale.yaml`.
+Hassfest validates that file for core integrations only (its check returns early for custom
+integrations), so here it is a tracking tool, not a CI gate. Once every rule of a tier is `done`
+or `exempt`, declare the tier in `manifest.json` (`"quality_scale": "bronze"`, `silver`, `gold`
+or `platinum`; the custom manifest schema accepts it) and keep the two in step. The scaffold
+declares no tier because every rule starts as `todo`.
 
 **When implementing new features or fixing bugs:**
 
@@ -424,7 +479,7 @@ This integration tracks [Home Assistant Quality Scale][qs] rules in `quality_sca
    - `exempt` with `comment` - Rule doesn't apply (explain why)
 1. Aim to complete all Bronze tier rules first, then Silver, Gold, Platinum
 
-[qs]: https://developers.home-assistant.io/docs/core/integration-quality-scale/
+[qs]: https://contributors.home-assistant.io/docs/core/integration-quality-scale/
 
 ## Release Management - CRITICAL
 
@@ -626,6 +681,7 @@ When a release addresses a specific GitHub issue:
 **DO:**
 
 - Run `pre-commit run --all-files` before EVERY commit (NOT `uvx pre-commit` — see Pre-Commit Checks section for why)
+- Run `pytest tests/` in the devcontainer before pushing; CI remains the gate for coverage
 - Read CLAUDE.md at session start
 - Use `runtime_data` for data storage (not `hass.data[DOMAIN]`)
 - Use `@callback` decorator for message handlers

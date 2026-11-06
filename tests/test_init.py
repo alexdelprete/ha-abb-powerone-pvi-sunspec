@@ -7,7 +7,7 @@ from unittest.mock import patch
 from modbus_connection import ModbusConnectionError, ModbusTcpParams
 from modbus_connection.mock import MockModbusUnit
 import pytest
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.abb_powerone_pvi_sunspec import async_remove_config_entry_device
 from custom_components.abb_powerone_pvi_sunspec.const import (

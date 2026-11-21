@@ -40,13 +40,10 @@ jobs:
           comments: {min-spaces-from-content: 1}}}"
           $(find . -name "*.yml" -o -name "*.yaml" | grep -v node_modules)
 
-      # zizmor audits the workflows synced from the template repo (pinned actions,
-      # permissions, injection); workflows this repo owns are left to it.
-      - name: Audit synced workflows
-        run: >-
-          uvx zizmor@1.31.1 --offline --min-severity low
-          .github/workflows/lint.yml .github/workflows/test.yml .github/workflows/validate.yml
-          .github/workflows/release.yml .github/workflows/dbautomerge.yml
+      # zizmor audits every workflow, synced or repo-owned (pinned actions,
+      # credentials, permissions, injection).
+      - name: Audit workflows
+        run: uvx zizmor@1.31.1 --offline --min-severity low .github/workflows
 
       - name: Lint Markdown files
         run: uvx --from pymarkdownlnt==0.9.39 pymarkdown --config .pymarkdownlint.json scan .

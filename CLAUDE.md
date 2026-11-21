@@ -374,8 +374,9 @@ These repos are standardized on the **Python 3.14+** toolchain:
   by the template; Dependabot here ignores them. In workflows this repo owns, sync rewrites only
   the `uses:` lines of those same actions (to the template's pin) and `runs-on: ubuntu-...` labels
   (to the fleet runner); every other action there stays with Dependabot, pinned to a SHA too.
-- zizmor (workflow security audit) runs on the synced workflows in the pre-commit hook and the
-  Lint job, at the version Home Assistant core pins. Fix findings in the template, not here.
+- zizmor (workflow security audit) runs on every workflow, synced or repo-owned, in the pre-commit
+  hook and the Lint job, at the version Home Assistant core pins. Fix findings in synced workflows in
+  the template, findings in repo-owned workflows here.
 
 **Implication for source code**: code in these repos may use 3.14-only
 syntax (e.g. PEP 758's parenthesis-free `except A, B:`) and is **not**
@@ -435,7 +436,7 @@ Linting tools and settings are defined in `.pre-commit-config.yaml`:
 | jsonlint    | `uvx --from demjson3 jsonlint` | JSON validation              |
 | yamllint    | `uvx yamllint@X -d "{...}"`    | YAML linting (inline config) |
 | pymarkdown  | `uvx --from pymarkdownlnt==X pymarkdown scan` | Markdown linting |
-| zizmor      | `uvx zizmor@X --offline --min-severity low` | Workflow security audit (synced workflows) |
+| zizmor      | `uvx zizmor@X --offline --min-severity low` | Workflow security audit (every workflow) |
 | ty          | `uvx ty@X check --python "$(which python)"` | Type checking (needs the venv's HA) |
 
 All hooks use `language: system` with `verbose: true` for visibility, and every tool

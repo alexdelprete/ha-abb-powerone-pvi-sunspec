@@ -453,6 +453,10 @@ turn CI red on code that passes locally. The dev extra and the dependency groups
 `pyproject.toml` are rendered into the shared block from the same pins (integration-specific
 packages come from `dev_extra_requirements` in `.repo-sync.yaml`), so the venv copies of ruff
 and ty that serve the VS Code extensions match CI too; dependabot ignores them.
+An exact (`==`) pin in `dev_extra_requirements` follows Home Assistant's own pin of that package,
+so the tests run against what Home Assistant ships: Dependabot ignores it, and the template's
+daily conflicts check opens an issue here when it differs (change it in `.repo-sync.yaml`, never
+in `pyproject.toml`, which sync rewrites). A range (`>=`, `~=`) stays with Dependabot.
 `pytest-homeassistant` (the test package Home Assistant core publishes with every release) is
 pinned fleet-wide to 2026.11.2; it pins `homeassistant` to that
 same release, and ty reads the types Home Assistant ships (`py.typed`; `homeassistant-stubs` is

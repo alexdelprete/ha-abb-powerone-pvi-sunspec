@@ -41,3 +41,4 @@ updates:
       # follow-ha conflicts check reports one that differs; a bump here would only be
       # reverted by the next sync. Ranges (>=, ~=) stay with Dependabot.
       - dependency-name: "modbus-connection"
+      - dependency-name: "pymodbus"

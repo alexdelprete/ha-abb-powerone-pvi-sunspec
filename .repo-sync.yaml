@@ -57,7 +57,7 @@ vars:
   # that repo-sync renders into pyproject.toml.
   dev_extra_requirements:
     - "modbus-connection[tmodbus]==4.12.7"
-    - "pymodbus>=3.15.0"
+    - "pymodbus==3.13.1"
     - "colorlog>=6.10.0"
 
 copy_files:

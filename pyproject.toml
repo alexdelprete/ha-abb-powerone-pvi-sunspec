@@ -34,7 +34,7 @@ dev = [
     "pytest-homeassistant==2026.11.2",
     "pytest-timeout",
     "modbus-connection[tmodbus]==4.12.7",
-    "pymodbus>=3.15.0",
+    "pymodbus==3.13.1",
     "colorlog>=6.10.0",
 ]
 
@@ -57,7 +57,7 @@ pytest = [
 dev = [
     "homeassistant>=2026.9.0",
     "modbus-connection[tmodbus]==4.12.7",
-    "pymodbus>=3.15.0",
+    "pymodbus==3.13.1",
     "colorlog>=6.10.0",
     { include-group = "lint" },
     { include-group = "pytest" },

@@ -45,13 +45,13 @@ repos:
         types: [yaml]
         verbose: true
 
-      # Workflow security audit of the workflows synced from the template repo
-      # (pinned actions, permissions, injection); repo-owned workflows are left out.
+      # Workflow security audit of every workflow, synced or repo-owned (pinned
+      # actions, credentials, permissions, injection).
       - id: zizmor
         name: zizmor
         entry: uvx zizmor@1.31.1 --offline --min-severity low
         language: system
-        files: ^\.github/workflows/(lint|test|validate|release|dbautomerge)\.yml$
+        files: ^\.github/workflows/[^/]+\.ya?ml$
         verbose: true
 
       # Markdown linting

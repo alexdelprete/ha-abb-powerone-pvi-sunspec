@@ -371,7 +371,9 @@ These repos are standardized on the **Python 3.14+** toolchain:
 - Workflow runners: every synced workflow runs on the `ubuntu-NN.NN` label Home Assistant
   core's CI uses for that release (never `ubuntu-latest`), followed by the same daily job.
 - Actions in synced workflows are pinned to commit SHAs (`@<sha> # v7.0.1`) and kept current
-  by the template; Dependabot here ignores them. Workflows this repo owns are its own business.
+  by the template; Dependabot here ignores them. In workflows this repo owns, sync rewrites only
+  the `uses:` lines of those same actions (to the template's pin) and `runs-on: ubuntu-...` labels
+  (to the fleet runner); every other action there stays with Dependabot, pinned to a SHA too.
 - zizmor (workflow security audit) runs on the synced workflows in the pre-commit hook and the
   Lint job, at the version Home Assistant core pins. Fix findings in the template, not here.
 

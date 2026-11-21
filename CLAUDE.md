@@ -328,6 +328,12 @@ These repos are standardized on the **Python 3.14+** toolchain:
   `follow-ha.yml`, merged after the fleet tests pass, then propagated); never edit either
   by hand in a consumer. A Python minor bump (3.14 to 3.15) is a fleet migration done by
   hand in the template.
+- Workflow runners: every synced workflow runs on the `ubuntu-NN.NN` label Home Assistant
+  core's CI uses for that release (never `ubuntu-latest`), followed by the same daily job.
+- Actions in synced workflows are pinned to commit SHAs (`@<sha> # v7.0.1`) and kept current
+  by the template; Dependabot here ignores them. Workflows this repo owns are its own business.
+- zizmor (workflow security audit) runs on the synced workflows in the pre-commit hook and the
+  Lint job, at the version Home Assistant core pins. Fix findings in the template, not here.
 
 **Implication for source code**: code in these repos may use 3.14-only
 syntax (e.g. PEP 758's parenthesis-free `except A, B:`) and is **not**
@@ -387,12 +393,16 @@ Linting tools and settings are defined in `.pre-commit-config.yaml`:
 | jsonlint    | `uvx --from demjson3 jsonlint` | JSON validation              |
 | yamllint    | `uvx yamllint@X -d "{...}"`    | YAML linting (inline config) |
 | pymarkdown  | `uvx --from pymarkdownlnt==X pymarkdown scan` | Markdown linting |
+| zizmor      | `uvx zizmor@X --offline --min-severity low` | Workflow security audit (synced workflows) |
 | ty          | `uvx ty@X check --python "$(which python)"` | Type checking (needs the venv's HA) |
 
 All hooks use `language: system` with `verbose: true` for visibility, and every tool
 runs through `uvx` at the exact release CI uses (`[tool.repo-sync.tool-versions]` in the template
-repo's `pyproject.toml`: ruff 0.16.8, ty 0.0.82,
-yamllint 1.38.0, pymarkdownlnt 0.9.39).
+repo's `pyproject.toml`: ruff 0.17.3, ty 0.0.82,
+yamllint 1.38.0, pymarkdownlnt 0.9.39,
+zizmor 1.31.1). ruff and zizmor follow the versions Home Assistant core pins,
+moved by the template's daily `follow-ha.yml` after every integration's tests and lint pass on them;
+ty and pymarkdownlnt are bumped by hand there after a fleet-wide dry run.
 Template changes reach this repo as signed `repo-sync/propagate` pull requests opened by the
 template's `propagate.yml`; they auto-merge once the required checks pass. Do not edit those
 files by hand: change the template and let it propagate.

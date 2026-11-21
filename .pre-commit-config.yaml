@@ -12,7 +12,7 @@ repos:
       # Ruff linting (check-only)
       - id: ruff
         name: ruff
-        entry: uvx ruff@0.16.8 check --no-fix
+        entry: uvx ruff@0.17.3 check --no-fix
         language: system
         types: [python]
         verbose: true
@@ -20,7 +20,7 @@ repos:
       # Ruff formatting (check-only)
       - id: ruff-format
         name: ruff-format
-        entry: uvx ruff@0.16.8 format --check
+        entry: uvx ruff@0.17.3 format --check
         language: system
         types: [python]
         verbose: true
@@ -43,6 +43,15 @@ repos:
           comments: {min-spaces-from-content: 1}}}"
         language: system
         types: [yaml]
+        verbose: true
+
+      # Workflow security audit of the workflows synced from the template repo
+      # (pinned actions, permissions, injection); repo-owned workflows are left out.
+      - id: zizmor
+        name: zizmor
+        entry: uvx zizmor@1.31.1 --offline --min-severity low
+        language: system
+        files: ^\.github/workflows/(lint|test|validate|release|dbautomerge)\.yml$
         verbose: true
 
       # Markdown linting

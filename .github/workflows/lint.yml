@@ -12,18 +12,20 @@ permissions:
 jobs:
   lint:
     name: Lint & Format
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version-file: .python-version
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
 
       - name: Validate JSON files
         run: find . -name "*.json" -not -path "./.vscode/*" | xargs uvx --from demjson3 jsonlint -S
@@ -38,14 +40,22 @@ jobs:
           comments: {min-spaces-from-content: 1}}}"
           $(find . -name "*.yml" -o -name "*.yaml" | grep -v node_modules)
 
+      # zizmor audits the workflows synced from the template repo (pinned actions,
+      # permissions, injection); workflows this repo owns are left to it.
+      - name: Audit synced workflows
+        run: >-
+          uvx zizmor@1.31.1 --offline --min-severity low
+          .github/workflows/lint.yml .github/workflows/test.yml .github/workflows/validate.yml
+          .github/workflows/release.yml .github/workflows/dbautomerge.yml
+
       - name: Lint Markdown files
         run: uvx --from pymarkdownlnt==0.9.39 pymarkdown --config .pymarkdownlint.json scan .
 
       - name: Run Ruff format check
-        run: uvx ruff@0.16.8 format . --check
+        run: uvx ruff@0.17.3 format . --check
 
       - name: Run Ruff check
-        run: uvx ruff@0.16.8 check .
+        run: uvx ruff@0.17.3 check .
 
       # ty needs dependencies installed to resolve imports (homeassistant, mqtt, etc.)
       - name: Install dependencies for ty

@@ -7,28 +7,31 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   hassfest: # https://contributors.home-assistant.io/blog/2020/04/16/hassfest
     name: "Hassfest Validation"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-26.04"
     steps:
       - name: "Checkout the repository"
-        uses: "actions/checkout@v7"
+        uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
         with:
-          token: ${{ secrets.WORKFLOW_PAT || github.token }}
+          persist-credentials: false
       - name: "Run hassfest validation"
-        uses: "home-assistant/actions/hassfest@master"
+        uses: "home-assistant/actions/hassfest@07f46fd2e19967768b5fd3000f91f857452b767c" # master
 
   hacs: # https://github.com/hacs/action
     name: "HACS Validation"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-26.04"
     steps:
       - name: "Checkout the repository"
-        uses: "actions/checkout@v7"
+        uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
         with:
-          token: ${{ secrets.WORKFLOW_PAT || github.token }}
+          persist-credentials: false
       - name: "Run HACS validation"
-        uses: "hacs/action@main"
+        uses: "hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa" # main
         with:
           category: "integration"
           # ignore: "brands"

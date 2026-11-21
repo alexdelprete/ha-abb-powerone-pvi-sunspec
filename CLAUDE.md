@@ -170,6 +170,46 @@ gh run list --repo alexdelprete/ha-abb-powerone-pvi-sunspec --limit 5 | grep Tes
 gh run view <run_id> --repo alexdelprete/ha-abb-powerone-pvi-sunspec --log 2>&1 | grep "TOTAL"
 ```
 
+### Waiting for CI and Pull Requests
+
+> **Never wait with `sleep` loops that poll `gh run list` or `gh pr view`.** They overshoot, and a
+> filter that silently matches nothing (a short SHA passed to `gh run list --commit`, which needs the
+> full SHA) makes them sleep long after the work is done. Run every wait as a background command so
+> its exit is the notification: no `sleep`, no timers.
+
+**A pull request** (merged or closed, checks finished, new push): use `gh event listen` first.
+
+```bash
+# Merged, closed, reopened, ready for review or converted to draft
+gh event listen --resource https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/pull/<n> \
+  --event com.github.pull_request.state.changed.v1
+# One check suite (one CI workflow) on the head commit finished
+gh event listen --resource https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/pull/<n> \
+  --event com.github.pull_request.check_suite.status.changed.v1
+```
+
+- Earlier events are not replayed: once it prints that it is attached, read the PR's current state
+  once, since the change may already have happened.
+- Every CI workflow is its own check suite and sends its own event: after each one, re-read
+  `gh pr checks <n>` to know whether all checks are done.
+
+If event subscriptions are not enabled on the account (`HTTP 403: Event subscriptions are not
+enabled for this account`), fall back to watching the PR's checks (every check, including statuses
+that are not workflow runs, such as `codecov/patch`), then read its state once:
+
+```bash
+gh pr checks <n> --repo alexdelprete/ha-abb-powerone-pvi-sunspec --watch --fail-fast
+gh pr view <n> --repo alexdelprete/ha-abb-powerone-pvi-sunspec --json state,mergedAt
+```
+
+**One workflow run not tied to a pull request** (push to the default branch, release, schedule,
+manual dispatch): `gh event listen` cannot watch it (pull requests only), so:
+
+```bash
+gh run list --repo alexdelprete/ha-abb-powerone-pvi-sunspec --workflow <file> --limit 1   # run ID, once
+gh run watch <run_id> --repo alexdelprete/ha-abb-powerone-pvi-sunspec --exit-status
+```
+
 ## Coding Standards
 
 ### Data Storage Pattern

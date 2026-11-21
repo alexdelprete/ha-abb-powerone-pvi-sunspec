@@ -4,6 +4,19 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      # The workflows synced from the template repo pin these actions to commit SHAs,
+      # kept current there by follow-ha.yml; a Dependabot bump here would fight the
+      # sync. Workflows this repo owns still get updates for every other action.
+      # follow-ha.py --check fails if a synced workflow uses an action missing here.
+      - dependency-name: "actions/checkout"
+      - dependency-name: "actions/setup-python"
+      - dependency-name: "astral-sh/setup-uv"
+      - dependency-name: "codecov/codecov-action"
+      - dependency-name: "dependabot/fetch-metadata"
+      - dependency-name: "hacs/action"
+      - dependency-name: "home-assistant/actions"
+      - dependency-name: "softprops/action-gh-release"
 
   - package-ecosystem: "pip"
     directory: "/"
@@ -20,6 +33,6 @@ updates:
       - dependency-name: "ty"
       - dependency-name: "pymarkdownlnt"
       # pytest-homeassistant (and through it the HA release the tests run on) is
-      # bumped by Dependabot in the template repo only; the bump reaches this repo
+      # followed by follow-ha.yml in the template repo; the bump reaches this repo
       # as a synced PR.
       - dependency-name: "pytest-homeassistant"

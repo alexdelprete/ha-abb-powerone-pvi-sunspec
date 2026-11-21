@@ -10,18 +10,24 @@ permissions: {}
 jobs:
   release:
     name: "Release"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-26.04"
     permissions:
       contents: write
     steps:
       - name: "Checkout the repository"
-        uses: "actions/checkout@v7"
+        uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: "Validate version numbers"
         shell: "bash"
+        env:
+          # Through the environment, not ${{ }} in the script: a tag name is
+          # user-controlled text and must never be expanded into shell code.
+          TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
           # Extract version from tag (remove 'v' prefix if present)
-          TAG_VERSION="${{ github.event.release.tag_name }}"
+          TAG_VERSION="$TAG_NAME"
           TAG_VERSION="${TAG_VERSION#v}"
 
           # Extract version from manifest.json
@@ -73,6 +79,6 @@ jobs:
           zip abb_powerone_pvi_sunspec.zip -r ./
 
       - name: "Upload the ZIP file to the release"
-        uses: softprops/action-gh-release@v3.0.4
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
           files: ${{ github.workspace }}/custom_components/abb_powerone_pvi_sunspec/abb_powerone_pvi_sunspec.zip

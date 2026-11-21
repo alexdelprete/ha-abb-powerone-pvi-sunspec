@@ -402,7 +402,7 @@ turn CI red on code that passes locally. The dev extra and the dependency groups
 packages come from `dev_extra_requirements` in `.repo-sync.yaml`), so the venv copies of ruff
 and ty that serve the VS Code extensions match CI too; dependabot ignores them.
 `pytest-homeassistant` (the test package Home Assistant core publishes with every release) is
-pinned fleet-wide to 2026.11.0; it pins `homeassistant` to that
+pinned fleet-wide to 2026.11.2; it pins `homeassistant` to that
 same release, and ty reads the types Home Assistant ships (`py.typed`; `homeassistant-stubs` is
 deprecated), so the type check and the tests see the same Home Assistant.
 

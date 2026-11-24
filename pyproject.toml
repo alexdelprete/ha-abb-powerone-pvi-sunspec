@@ -12,7 +12,7 @@ authors = [{ name = "alexdelprete" }]
 "Bug Tracker" = "https://github.com/alexdelprete/ha-abb-powerone-pvi-sunspec/issues"
 
 # <!-- BEGIN SHARED:repo-sync -->
-# Synced by repo-sync on 2026-11-21
+# Synced by repo-sync on 2026-11-24
 
 # Development dependencies, shared across the fleet. The pins come from the
 # template repo (requirements-fleet-pins.txt and [tool.repo-sync.tool-versions]);
@@ -31,7 +31,7 @@ dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
     "pytest-cov",
-    "pytest-homeassistant==2026.11.2",
+    "pytest-homeassistant==2026.11.3",
     "pytest-timeout",
     "modbus-connection[tmodbus]==4.12.7",
     "pymodbus==3.13.1",
@@ -51,7 +51,7 @@ pytest = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
     "pytest-cov",
-    "pytest-homeassistant==2026.11.2",
+    "pytest-homeassistant==2026.11.3",
     "pytest-timeout",
 ]
 dev = [
